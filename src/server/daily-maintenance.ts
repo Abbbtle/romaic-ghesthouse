@@ -4,6 +4,7 @@ import { pruneRateLimits, reportError } from "./infrastructure";
 import { syncAllCalendars } from "./channels";
 import { bookingService } from "./stays";
 import { catchUpLedger } from "./ledger";
+import { runPrivacyRetention } from "./privacy";
 import { generateHousekeeping } from "./tasks";
 
 /**
@@ -53,7 +54,9 @@ export async function runMaintenanceTasks(tasks: MaintenanceTasks, report: (desc
  * - housekeepingTasks: adds the clean for today's departures (src/server/tasks.ts);
  * - ledgerCatchUp: posts any booking whose money or check-out changed in the
  *   last week and isn't in the books yet (src/server/ledger.ts).
- * Later phases add their own (guest-record retention).
+ * - privacyRetention: applies the retention rules the owner has confirmed:
+ *   anonymises inactive guest records and deletes old task photos, counts
+ *   only in its report (src/server/privacy.ts, src/lib/privacy/retention.ts).
  */
 export function runDailyMaintenance(): Promise<MaintenanceSummary> {
   const services = accountServices();
@@ -67,6 +70,7 @@ export function runDailyMaintenance(): Promise<MaintenanceSummary> {
       channelCalendars: () => syncAllCalendars(),
       housekeepingTasks: () => generateHousekeeping(),
       ledgerCatchUp: () => catchUpLedger(),
+      privacyRetention: () => runPrivacyRetention(),
     },
     reportError,
   );

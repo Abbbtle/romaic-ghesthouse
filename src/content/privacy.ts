@@ -53,7 +53,7 @@ You may ask to see the personal information we hold about you, to have it correc
 
 ## Information Officer
 
-To be completed by the owner: the name of the Information Officer and how to contact them.
+The Information Officer answers for how we handle personal information.
 
 ## Changes to this notice
 

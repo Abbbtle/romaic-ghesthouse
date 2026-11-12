@@ -5,7 +5,6 @@ import { booksTabsAllowed } from "@/components/admin/books/books-access";
 import { BooksTabs } from "@/components/admin/books/books-tabs";
 import {
   coversRange,
-  exportFileName,
   exportHref,
   preparedNote,
   printHref,
@@ -119,7 +118,8 @@ export default async function ReportsPage({ searchParams }: PageProps<"/admin/bo
           actions={
             canExport ? (
               <>
-                <ButtonAnchor href={exportHref(query)} download={exportFileName(query)} size="sm" variant="secondary" icon={<Download aria-hidden="true" />}>
+                {/* No download attribute: when the password and code are due again, the link must follow to that page (the route names the file itself). */}
+                <ButtonAnchor href={exportHref(query)} size="sm" variant="secondary" icon={<Download aria-hidden="true" />}>
                   Download CSV
                 </ButtonAnchor>
                 <ButtonLink href={printHref(query)} size="sm" variant="ghost" icon={<Printer aria-hidden="true" />}>

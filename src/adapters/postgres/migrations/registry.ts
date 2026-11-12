@@ -21,6 +21,8 @@ import { bankMigration } from "./330-bank";
 import { taxParametersMigration } from "./340-tax-parameters";
 import { taxReturnsMigration } from "./350-tax-returns";
 import { payrollMigration } from "./360-payroll";
+import { privacyMigration } from "./400-privacy";
+import { reportingViewsMigration } from "./410-reporting-views";
 
 export type { Migration } from "../migrate";
 
@@ -100,4 +102,6 @@ export const migrations: readonly Migration[] = [
   taxParametersMigration,
   taxReturnsMigration,
   payrollMigration,
+  privacyMigration,
+  reportingViewsMigration,
 ];
