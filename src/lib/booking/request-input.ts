@@ -162,7 +162,3 @@ export const declineInputSchema = z.object({
   note: optionalText({ max: requestFieldLimits.declineNoteMax, tooLong: `Keep the note under ${requestFieldLimits.declineNoteMax} characters.` }),
 });
 
-/** Accepting: the unit the guest will stay in. */
-export const acceptInputSchema = z.object({
-  unitId: z.string("Choose the unit.").trim().min(1, "Choose the unit."),
-});

@@ -202,7 +202,8 @@ describe("section rules", () => {
     assert.equal(isSectionKey("terms"), false);
     assert.equal(isSectionKey("toString"), false);
     for (const key of sectionKeys) {
-      assert.ok(sectionNames[key] && sectionDescriptions[key] && sitePagePaths[sectionPages[key]], key);
+      const page = sectionPages[key];
+      assert.ok(sectionNames[key] && sectionDescriptions[key] && (page === null ? key === "messages" : sitePagePaths[page]), key);
       assert.ok(sectionPermissions[key], key);
     }
   });
@@ -212,6 +213,7 @@ describe("section rules", () => {
       site: "content:edit",
       contact: "settings:contact",
       bookingTerms: "settings:booking-rules",
+      messages: "settings:booking-rules",
       home: "content:edit",
       apartments: "content:edit",
       gallery: "content:edit",

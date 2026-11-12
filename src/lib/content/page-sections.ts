@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { isoDateField, listField, refineUnique, slugField, textField, versionField, wholeNumberField } from "./fields";
+import { isoDateField, listField, placeholderTextField, refineUnique, slugField, textField, versionField, wholeNumberField } from "./fields";
 import { listLimits, textLimits } from "./limits";
 import { contentIcons, imageRefSchema, timeOfDayField } from "./shapes";
 
@@ -222,6 +222,45 @@ export const bookSchema = z.object({
     /** What happens next, after a request is sent. */
     text: intro("what happens next"),
   }),
+});
+
+// --- guest messages --------------------------------------------------------------------
+
+/**
+ * What a booking's WhatsApp messages can fill in. The booking's own details
+ * come from the booking; the business's from content; check-in times from
+ * the house rules.
+ */
+export const messagePlaceholders = [
+  "guestName",
+  "ref",
+  "apartment",
+  "arrive",
+  "leave",
+  "nights",
+  "businessName",
+  "location",
+  "phone",
+  "checkInFrom",
+  "checkInUntil",
+  "checkOutUntil",
+] as const;
+
+export type MessagePlaceholder = (typeof messagePlaceholders)[number];
+
+function messageText(noun: string) {
+  return placeholderTextField({ noun, max: textLimits.rule * 2, required: `Enter ${noun}.`, multiline: true, placeholders: messagePlaceholders });
+}
+
+/**
+ * WhatsApp messages the team sends from a booking (wa.me links, never sent
+ * by themselves). Owner only (settings:booking-rules): they're the words
+ * guests act on, so they mustn't change without the owner (threat model T01).
+ */
+export const messagesSchema = z.object({
+  confirmation: messageText("the confirmation message"),
+  directions: messageText("the directions message"),
+  checkIn: messageText("the check-in message"),
 });
 
 // --- contact page ----------------------------------------------------------------------

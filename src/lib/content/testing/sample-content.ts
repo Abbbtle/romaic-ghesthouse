@@ -34,6 +34,7 @@ export function sampleContent(): SiteContent {
       whatsappMessage: "Hi, I'd like to ask about a stay.",
     },
     bookingTerms: { deposit: "", balance: "", cancellation: "Free cancellation up to 7 days before arrival.", payment: "" },
+    messages: { confirmation: "Hi {guestName}, booking {ref} is confirmed.", directions: "We're at {location}.", checkIn: "Check-in from {checkInFrom}." },
     home: {
       hero: { headline: "Sample apartments", lead: "A sample lead about the guesthouse.", welcome: "Hello", photo: { ...samplePhoto } },
       apartments: { heading: "Apartments", intro: "Sample apartments." },

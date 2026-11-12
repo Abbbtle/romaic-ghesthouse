@@ -17,9 +17,14 @@ import { VisuallyHidden, whatsappHint } from "@/components/ui/visually-hidden";
 import { apartmentPath, sitePagePaths } from "@/lib/content/pages";
 import type { Apartment } from "@/lib/content/schema";
 import type { ApartmentStatus, PublicApartmentAvailability } from "@/lib/inventory/availability";
+import { formatDayShort } from "@/lib/format/date-time";
+import { formatCents } from "@/lib/format/money";
+import { addDays } from "@/lib/format/zoned-time";
 import type { StaySearch } from "@/lib/inventory/inventory-service";
-import { stayLabel } from "@/lib/inventory/stays";
+import { nightsLabel, stayLabel } from "@/lib/inventory/stays";
+import type { Quote } from "@/lib/rates/rates";
 import { bookingService, inventoryService } from "@/server/stays";
+import { publicQuote } from "@/server/rates";
 import { getSiteContent } from "@/server/site-content";
 import { pageMetadata } from "../page-metadata";
 import { sendBookingRequest } from "./actions";
@@ -67,8 +72,56 @@ function Availability({ status, slug }: { status: ApartmentStatus; slug: string 
   );
 }
 
+/** Whether an apartment can be asked for: not booked, and the stay is at least its shortest (no rate means no minimum). */
+function requestable(result: PublicApartmentAvailability, quote: Quote | null): boolean {
+  return result.status !== "full" && (quote?.meetsMinimum ?? true);
+}
+
+/**
+ * The stay's price from the rates ("R2,400 for 3 nights"). Nothing without
+ * a rate (the owner prices those in the reply, as before), and nothing when
+ * the stay is too short (TooShort says so instead).
+ */
+function StayPrice({ quote, search }: { quote: Quote | null; search: StaySearch }) {
+  if (!quote || !quote.meetsMinimum) return null;
+  return (
+    <p className="text-base text-fg-2" data-numeric>
+      <strong className="text-lead font-bold text-ink">{formatCents(quote.totalCents)}</strong> for {nightsLabel(search)}
+    </p>
+  );
+}
+
+/**
+ * Free, but the stay is shorter than the shortest these dates allow: said
+ * plainly (not as "free"), with a search for the same arrival and enough
+ * nights. That search checks again whether those nights are free.
+ */
+function TooShort({ minNights, search }: { minNights: number; search: StaySearch }) {
+  const longer = { ...search, leave: addDays(search.arrive, minNights) };
+  return (
+    <p className="text-base text-fg-2">
+      <strong className="font-bold text-ink">Needs at least {minNights} nights</strong> for these dates ·{" "}
+      <Link href={bookHref(longer)} className="font-bold text-link underline underline-offset-4 hover:text-link-hover">
+        Try {formatDayShort(longer.arrive)} to {formatDayShort(longer.leave)} instead
+      </Link>
+    </p>
+  );
+}
+
 /** `lead`: the first apartment that can be requested, the one primary button on the page; the rest are secondary. */
-function ResultCard({ apartment, result, search, lead }: { apartment: Apartment; result: PublicApartmentAvailability; search: StaySearch; lead: boolean }) {
+function ResultCard({
+  apartment,
+  result,
+  quote,
+  search,
+  lead,
+}: {
+  apartment: Apartment;
+  result: PublicApartmentAvailability;
+  quote: Quote | null;
+  search: StaySearch;
+  lead: boolean;
+}) {
   const photo = apartment.photos[0];
   const bookable = result.status !== "full";
   return (
@@ -98,9 +151,16 @@ function ResultCard({ apartment, result, search, lead }: { apartment: Apartment;
           </span>
         </p>
         <p className="text-base text-fg-2">{apartment.summary}</p>
-        <Availability status={result.status} slug={apartment.slug} />
+        {bookable && quote && !quote.meetsMinimum ? (
+          <TooShort minNights={quote.minNights} search={search} />
+        ) : (
+          <>
+            <Availability status={result.status} slug={apartment.slug} />
+            {bookable && <StayPrice quote={quote} search={search} />}
+          </>
+        )}
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2 pt-1">
-          {bookable && (
+          {requestable(result, quote) && (
             <Link href={`${bookHref(search, apartment.slug)}#request`} className={buttonClasses({ variant: lead ? "primary" : "secondary" })}>
               Request this apartment
               <VisuallyHidden>: {apartment.name}</VisuallyHidden>
@@ -172,6 +232,10 @@ export default async function BookPage({ searchParams }: PageProps<"/book">) {
   const tooSmall = results.filter((result) => !result.fits && bySlug.has(result.slug));
   const chosen = chosenSlug ? await inventory.requestability(chosenSlug, search) : null;
   const chosenApartment = chosen?.ok ? bySlug.get(chosen.apartment.slug) : undefined;
+  // Prices for the apartments shown (null where there's no rate); the chosen one's is an estimate the owner confirms.
+  const quotes = new Map(await Promise.all(fitting.map(async (result) => [result.slug, await publicQuote(result.slug, search, search.guests)] as const)));
+  const chosenQuote = chosenApartment ? (quotes.get(chosenApartment.slug) ?? (await publicQuote(chosenApartment.slug, search, search.guests))) : null;
+  const lead = fitting.find((result) => requestable(result, quotes.get(result.slug) ?? null))?.slug;
   const summary = `${stayLabel(search)}, ${search.guests} ${search.guests === 1 ? "guest" : "guests"}`;
 
   const requesting = Boolean(chosen?.ok && chosenApartment);
@@ -211,18 +275,24 @@ export default async function BookPage({ searchParams }: PageProps<"/book">) {
                 <Notice tone="info">We&rsquo;ll check this apartment is free for your dates and confirm when we reply.</Notice>
               )}
             </div>
-            <RequestForm
-              action={sendBookingRequest}
-              formToken={bookingService().form.issueToken()}
-              apartment={chosenApartment.slug}
-              arrive={search.arrive}
-              leave={search.leave}
-              guests={search.guests}
-              sleeps={chosenApartment.sleeps}
-              consentLabel={book.consent.label}
-              privacyHref={sitePagePaths.privacy}
-              backHref={bookHref(search)}
-            />
+            {chosenQuote && !chosenQuote.meetsMinimum ? (
+              <Notice tone="warning" title={`The shortest stay here is ${chosenQuote.minNights} nights`}>
+                For these dates, the {chosenApartment.name} needs at least {chosenQuote.minNights} nights. Change your dates, or choose another apartment.
+              </Notice>
+            ) : (
+              <RequestForm
+                action={sendBookingRequest}
+                formToken={bookingService().form.issueToken()}
+                apartment={chosenApartment.slug}
+                arrive={search.arrive}
+                leave={search.leave}
+                guests={search.guests}
+                sleeps={chosenApartment.sleeps}
+                consentLabel={book.consent.label}
+                privacyHref={sitePagePaths.privacy}
+                backHref={bookHref(search)}
+              />
+            )}
           </section>
           </div>
           {/* What's being asked for comes first on phones, so nobody fills in a form for an apartment they can't see. */}
@@ -238,9 +308,16 @@ export default async function BookPage({ searchParams }: PageProps<"/book">) {
                 <p className="text-base text-fg-2" data-numeric>
                   {summary}
                 </p>
-                <p data-placeholder="price" className="text-sm text-fg-3">
-                  Price on request: we&rsquo;ll include it in our reply.
-                </p>
+                {chosenQuote?.meetsMinimum ? (
+                  <p className="text-sm text-fg-2" data-numeric>
+                    Estimated <strong className="font-bold text-ink">{formatCents(chosenQuote.totalCents)}</strong> for {nightsLabel(search)}: we&rsquo;ll confirm
+                    the price when we reply.
+                  </p>
+                ) : chosenQuote ? null : (
+                  <p data-placeholder="price" className="text-sm text-fg-3">
+                    Price on request: we&rsquo;ll include it in our reply.
+                  </p>
+                )}
                 <p className="mt-1">
                   <Link href={bookHref(search)} className="inline-flex min-h-11 items-center font-bold text-link underline underline-offset-4 hover:text-link-hover">
                     Choose another apartment
@@ -274,8 +351,9 @@ export default async function BookPage({ searchParams }: PageProps<"/book">) {
                     key={result.slug}
                     apartment={bySlug.get(result.slug)!}
                     result={result}
+                    quote={quotes.get(result.slug) ?? null}
                     search={search}
-                    lead={result.slug === fitting.find((entry) => entry.status !== "full")?.slug}
+                    lead={result.slug === lead}
                   />
                 ))}
               </ul>

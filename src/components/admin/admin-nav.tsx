@@ -3,7 +3,13 @@
 import {
   ArrowUpRight,
   BedDouble,
+  BookOpenCheck,
+  CalendarRange,
   CircleUserRound,
+  ClipboardList,
+  Contact,
+  RefreshCw,
+  Tags,
   Ellipsis,
   House,
   Inbox,
@@ -24,8 +30,14 @@ import { badgeText, isCurrentAdminPath, type AdminBadges, type AdminNavItem, typ
 
 const glyphs: Record<AdminSection | "account", LucideIcon> = {
   today: House,
+  bookings: BookOpenCheck,
   requests: Inbox,
+  tasks: ClipboardList,
   content: PenLine,
+  calendar: CalendarRange,
+  guests: Contact,
+  rates: Tags,
+  channels: RefreshCw,
   apartments: BedDouble,
   team: Users,
   audit: ScrollText,

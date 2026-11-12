@@ -140,7 +140,7 @@ components:
 
 # Design System: Romaic Guesthouse
 
-> **Record status.** Written from the shipped Phase 1 design-system build on 2026-11-12, after the finish review, merging the interim record of the same date. Updated the same day for the Phase 2 public site (pages, Book flow, "To confirm" marks), after its finish review and UX audit. Tokens above are normative.
+> **Record status.** Written from the shipped Phase 1 design-system build on 2026-11-12, after the finish review, merging the interim record of the same date. Updated the same day for the Phase 2 public site (pages, Book flow, "To confirm" marks), after its finish review and UX audit, and again for the Phase 3 operations dashboard (bookings, calendar, guests, Today, tasks, rates, channels, payments), after its finish review. Tokens above are normative.
 >
 > **Sources:**
 > - tokens and recipes: `src/app/globals.css`;
@@ -220,7 +220,7 @@ The client's poster palette (brand guide p5), plus two derived greys and a gold 
 **Display Font:** Josefin Sans (`--font-display`, falling back to ui-sans-serif)
 **Body Font:** Arimo (`--font-sans`, falling back to Arial)
 **Script Accent:** Sacramento (`--font-script`, falling back to cursive)
-**Mono:** the system mono stack (`--font-mono`), for recovery codes and the code input only.
+**Mono:** the system mono stack (`--font-mono`), for codes a person reads out or types: recovery codes, the code input, and references (booking RG-B2C3D, receipt RC-000001, invoice INV-000001) wherever they appear.
 
 All three are self-hosted by next/font (`src/app/layout.tsx`). They are the brand guide's closest free matches (p6). Josefin Sans and Arimo load as variable fonts. Sacramento is not preloaded.
 
@@ -365,6 +365,16 @@ The system is a hybrid: mostly flat tonal layering (Canvas, Cream, Chalk, White,
 - **Status pills** (`src/components/admin/status-pill.tsx`): semantic tints (`success-50`/`-800` and so on). Success is green, never navy.
 - **Toasts** (`src/components/admin/toast.tsx`): currently near-black (`neutral-900`) with white text, a Romaic Gold action and 4 px corners. They sit bottom centre above the tab bar, or bottom left of the content. The intended navy treatment is still open (see below).
 
+### Operations dashboard (Phase 3)
+
+- **One primary per view.** Each screen has one navy action: Check in (or Check out) on a booking, Record payment on its money page, Start (or Mark done) on a task, Make the booking on the form. Everything else is secondary or a ghost link. A second form on a page passes `submitVariant="secondary"` to ActionForm.
+- **Calendar cells** (`src/app/admin/(dashboard)/calendar/page.tsx`): a state is a treatment, not just a hue. In the house is solid success-700 with white text; booked is a 2 px navy outline on white; a channel's stay is a 2 px dashed info outline; closed and maintenance nights are hatched (neutral or warning); a stay that's over is muted text on a hairline. Each cell names its guest or reason, and on phones its state in words. The pinned unit column is 5.5 rem on phones (name only) and 12 rem from 640 px.
+- **Today** puts the parts with something in them first; empty parts share one "Nothing else today" panel, a line each.
+- **Money ledger** (`src/components/admin/money/money-screen.tsx`): the booking's money reads like its receipt: Total, Paid so far, then Balance still to pay in bold, amounts right-aligned in tabular figures, with the deposit on one line below. No big-number tiles.
+- **List rows on phones** keep fixed lines: who and where with the status pill on line 1; the dates (year only when it isn't this year's) on line 2; the source left and the price right on line 3.
+- **Settings rows** (Rates, Channels): one row per thing with its current state in words; a channel's switch saves as it's flipped (with Undo in the toast); a rate opens in a sheet (`src/components/admin/sheet-form.tsx`). No card per item, no cards inside cards.
+- **Task cards**: Start leads while a task is to do, Mark done once it's started; Add photo is secondary and Add note a ghost link; Change and Remove wait behind "Change". On Today a card shows only its next step and Add photo.
+
 ### Logo slot
 `src/components/ui/logo-slot.tsx`. A dashed gold-edged placeholder at the logo's real proportions and minimum sizes: wordmark 240 px at 3.4:1, lockup 5.6:1, corner mark 110 px at 2.4:1. It is marked `data-placeholder="logo"` and labelled "logo files to come".
 
@@ -411,6 +421,10 @@ The system is a hybrid: mostly flat tonal layering (Canvas, Cream, Chalk, White,
 11. **Dates search on the home page.** The search is in the home hero, as the contract's first viewport asks: on phones it comes straight after the address, inside the first screen, with the lead and "Welcome home" after it. It submits to the Book page rather than filtering "Sleeps up to N" in place, because availability is checked on the server; the Book page then lists the apartments that sleep the group. *(Changed in Phase 2: it was in /kit only.)*
 12. **"To confirm" over leaving facts out.** The brief allows unverified facts only as marked placeholders. The listing's apartment details, house rules, times and distances are useful to guests, so they're shown with the "To confirm" tag (one per group where the whole group is unconfirmed) rather than hidden, and the owner clears each in the dashboard.
 13. **No embedded map and no inner-page hero photos.** Location offers links to the guest's own map apps (no third party loads on the page). Inner-page heading bands carry no photo: the only photos are stand-ins, and adding more would multiply what must be replaced. Revisit once the client's photos arrive.
+14. **The calendar is a table.** Units are rows and nights are columns, two weeks at a time; a stay is one cell spanning its nights. It's a real `<table>`, so a screen reader reads "Unit 2, Thandi Mokoena, RG-B2C3D, 10 to 13 December, Confirmed". On phones the table scrolls sideways inside its own frame, with the unit column pinned; the page itself never scrolls sideways. Each cell names what holds it (the guest, "Channel booking", "Maintenance"), and the colour only helps. Today has a gold top rule, which keeps gold structural (decision 5). *(Phase 3.)*
+15. **Guests are found, not browsed.** The Guests page is a search by name, phone or email, with no list of everyone. Guests are personal information (POPIA), so the screen shows only the guest someone is looking for. *(Phase 3.)*
+16. **WhatsApp messages are drafts.** A booking's confirmation, directions and check-in messages open WhatsApp with the text filled in, for the person to check and send. Nothing is sent by itself. The wording is owner-only content (Settings › Messages), because guests act on it. *(Phase 3.)*
+17. **A booking's page puts what happens next first.** The order is: check in, check out, no-show or cancel; then the stay and the guest; then the money in short (payments and invoices are a page of their own); then the messages; and the edit form last, because changes are rare. *(Phase 3.)*
 
 ## Placeholders waiting on the client
 

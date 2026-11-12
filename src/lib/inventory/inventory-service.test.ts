@@ -137,11 +137,16 @@ describe("inventory service", () => {
     }
   });
 
-  it("keeps booking requests' nights out of reach of the manual controls", async () => {
+  it("keeps the nights of requests, bookings and channel stays out of reach of the manual controls", async () => {
     const { service, store } = inventoryHarness();
     await store.addUnit(testUnit("u1", "Unit 1"), { maxUnits: 10 });
     await store.addBlock(testBlock("b1", "u1", "2026-12-10", "2026-12-12", "request"));
-    assert.deepEqual(await service.removeBlock(owner, "b1"), { ok: false, errors: { form: "These nights belong to an accepted booking request." } });
+    await store.addBlock({ ...testBlock("b2", "u1", "2026-12-12", "2026-12-14", "booking"), bookingId: "00000000-0000-4000-8000-0000000000b2" });
+    await store.addBlock({ ...testBlock("b3", "u1", "2026-12-14", "2026-12-16", "channel"), channelEventId: "00000000-0000-4000-8000-0000000000c3" });
+    for (const id of ["b1", "b2", "b3"]) {
+      assert.deepEqual(await service.removeBlock(owner, id), { ok: false, errors: { form: "These nights belong to a booking or a channel's calendar, so they open when that changes." } }, id);
+    }
+    assert.equal((await store.blocksOverlapping({ arrive: "2026-12-10", leave: "2026-12-16" })).length, 3);
   });
 
   it("flags units whose apartment type has left the site's content", async () => {

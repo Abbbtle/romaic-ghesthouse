@@ -45,9 +45,11 @@ export default async function ContentSectionPage({ params, searchParams }: PageP
         }
         back={{ href: adminRoutes.content, label: "Content" }}
         actions={
-          <ButtonAnchor href={contentPageHref(section)} external variant="secondary" size="sm">
-            View on site
-          </ButtonAnchor>
+          contentPageHref(section) ? (
+            <ButtonAnchor href={contentPageHref(section)!} external variant="secondary" size="sm">
+              View on site
+            </ButtonAnchor>
+          ) : undefined
         }
       />
       <SectionEditor

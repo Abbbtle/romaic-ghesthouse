@@ -6,6 +6,7 @@ import { PageBand, PageHeading } from "@/components/site/page-heading";
 import { dockAfterId } from "@/components/site/site-dock";
 import { ButtonLink } from "@/components/ui/button";
 import { sitePagePaths } from "@/lib/content/pages";
+import { nightlyFromPrices } from "@/server/rates";
 import { getSiteContent } from "@/server/site-content";
 import { pageMetadata } from "../page-metadata";
 
@@ -22,7 +23,7 @@ export function generateMetadata(): Promise<Metadata> {
  * Each opens its own page; "Check dates" opens the Book page.
  */
 export default async function ApartmentsPage() {
-  const { apartments } = await getSiteContent();
+  const [{ apartments }, fromPrices] = await Promise.all([getSiteContent(), nightlyFromPrices()]);
   const offered = apartments.items.filter((item) => item.published);
   return (
     <main id="main" className="flex-1">
@@ -39,7 +40,7 @@ export default async function ApartmentsPage() {
         <h2 className="sr-only">All apartments</h2>
         <div className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
           {offered.map((apartment) => (
-            <ApartmentCard key={apartment.slug} apartment={apartmentSummaryOf(apartment)} />
+            <ApartmentCard key={apartment.slug} apartment={apartmentSummaryOf(apartment, fromPrices[apartment.slug] ?? null)} />
           ))}
         </div>
       </PageBand>

@@ -132,7 +132,7 @@ describe("content service: who may edit what", () => {
     );
     assert.deepEqual(
       (await service.getSummaries(admin)).map(({ key }) => key),
-      sectionKeys.filter((key) => key !== "contact" && key !== "bookingTerms"),
+      sectionKeys.filter((key) => key !== "contact" && key !== "bookingTerms" && key !== "messages"),
       "contact details and booking terms are the owner's alone",
     );
     assert.deepEqual(await service.getSummaries(sales), []);

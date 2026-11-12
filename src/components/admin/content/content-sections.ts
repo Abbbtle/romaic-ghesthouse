@@ -10,7 +10,7 @@ import { adminRoutes } from "../admin-routes";
  * about the website as a whole.
  */
 export const contentGroups: readonly { title: string; sections: readonly SectionKey[] }[] = [
-  { title: "Your business", sections: ["site", "contact", "bookingTerms"] },
+  { title: "Your business", sections: ["site", "contact", "bookingTerms", "messages"] },
   { title: "Pages", sections: ["home", "apartments", "gallery", "facilities", "location", "policies", "contactPage", "book"] },
   { title: "Your website", sections: ["seo", "privacy"] },
 ];
@@ -37,7 +37,8 @@ export function contentRevisionHref(section: SectionKey, revision: number): stri
   return `${adminRoutes.content}/${section}/history/${revision}`;
 }
 
-/** The public page a section feeds, for "View on site". */
-export function contentPageHref(section: SectionKey): string {
-  return sitePagePaths[sectionPages[section]];
+/** The public page a section feeds, for "View on site"; null for a section the site doesn't show (the guest messages). */
+export function contentPageHref(section: SectionKey): string | null {
+  const page = sectionPages[section];
+  return page ? sitePagePaths[page] : null;
 }

@@ -3,8 +3,9 @@ import type { Stay } from "@/lib/inventory/stays";
 
 /**
  * Booking requests: a guest picks dates, a group and an apartment on the
- * Book page and asks for it. The owner or sales accepts it (choosing the
- * unit, whose nights are then closed to everyone else) or declines it, and
+ * Book page and asks for it. The owner or sales accepts it (it becomes a
+ * booking in the unit chosen, whose nights are then closed to everyone
+ * else; src/lib/reservations) or declines it, and
  * replies on WhatsApp or by email. Nothing is sent to the guest
  * automatically.
  *
@@ -28,8 +29,8 @@ export const requestStatusNames: Record<RequestStatus, string> = {
 /** When the guest ticked the consent box, and the versions of the wording and privacy notice they saw (POPIA s11, s18). */
 export type ConsentRecord = { at: Date; consentVersion: string; noticeVersion: string };
 
-/** What happened to a request: who accepted or declined it, when, and for accepted ones, the unit it went to. */
-export type RequestDecision = { at: Date; by: string | null; note: string | null; unitId: string | null };
+/** What happened to a request: who accepted or declined it, when, and for accepted ones, the booking it became. */
+export type RequestDecision = { at: Date; by: string | null; note: string | null; bookingId: string | null };
 
 export type BookingRequest = {
   id: string;

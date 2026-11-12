@@ -4,7 +4,13 @@ import type { Role } from "@/lib/kernel/actor";
 /** The dashboard's pages. */
 export const adminRoutes = {
   today: "/admin",
+  bookings: "/admin/bookings",
   requests: "/admin/requests",
+  tasks: "/admin/tasks",
+  calendar: "/admin/calendar",
+  guests: "/admin/guests",
+  rates: "/admin/rates",
+  channels: "/admin/channels",
   apartments: "/admin/apartments",
   content: "/admin/content",
   team: "/admin/team",
@@ -14,7 +20,7 @@ export const adminRoutes = {
 } as const;
 
 /** The dashboard's sections, in navigation order. Later phases add bookings, guests, tasks, books and tax. */
-export const adminSections = ["today", "requests", "content", "apartments", "team", "audit"] as const;
+export const adminSections = ["today", "bookings", "requests", "tasks", "content", "calendar", "guests", "rates", "channels", "apartments", "team", "audit"] as const;
 
 export type AdminSection = (typeof adminSections)[number];
 
@@ -44,8 +50,14 @@ export type AdminNavItem = {
  */
 export const adminNavigation: readonly AdminNavItem[] = [
   { section: "today", href: adminRoutes.today, label: "Today", group: "primary", permission: "today:view" },
+  { section: "bookings", href: adminRoutes.bookings, label: "Bookings", group: "primary", permission: "bookings:view" },
   { section: "requests", href: adminRoutes.requests, label: "Requests", group: "primary", permission: "bookings:view", badgeLabel: "waiting" },
+  { section: "tasks", href: adminRoutes.tasks, label: "Tasks", group: "primary", permission: "tasks:work" },
   { section: "content", href: adminRoutes.content, label: "Website", group: "primary", permission: "content:edit" },
+  { section: "calendar", href: adminRoutes.calendar, label: "Calendar", group: "secondary", permission: "availability:view" },
+  { section: "guests", href: adminRoutes.guests, label: "Guests", group: "secondary", permission: "guests:view" },
+  { section: "rates", href: adminRoutes.rates, label: "Rates", group: "secondary", permission: "rates:view" },
+  { section: "channels", href: adminRoutes.channels, label: "Channels", group: "secondary", permission: "channels:status" },
   { section: "apartments", href: adminRoutes.apartments, label: "Apartments", group: "secondary", permission: "availability:view" },
   { section: "team", href: adminRoutes.team, label: "Team", group: "secondary", permission: "team:view" },
   { section: "audit", href: adminRoutes.audit, label: "Activity", group: "secondary", permission: "audit:view" },

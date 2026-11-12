@@ -65,3 +65,31 @@ export function optionalEmail(messages: { invalid: string; tooLong: string }) {
     z.email(messages.invalid).max(254, messages.tooLong).nullable(),
   );
 }
+
+/**
+ * An amount of money in rands as someone types it ("1250", "1 250", "R1,250.50")
+ * read into whole cents. At most two decimals; never negative; at most `max` cents.
+ */
+export function randAmount(messages: { required: string; invalid: string; max?: { cents: number; message: string } }) {
+  return z.preprocess(
+    (value) => (typeof value === "number" ? String(value) : value),
+    z.string(messages.required).transform((value, context) => {
+      const cleaned = value.trim().replace(/^R\s?/i, "").replace(/[\s,]/g, "");
+      if (cleaned === "") {
+        context.addIssue({ code: "custom", message: messages.required });
+        return z.NEVER;
+      }
+      const match = /^(\d{1,9})(?:\.(\d{1,2}))?$/.exec(cleaned);
+      if (!match) {
+        context.addIssue({ code: "custom", message: messages.invalid });
+        return z.NEVER;
+      }
+      const cents = Number(match[1]) * 100 + Number((match[2] ?? "").padEnd(2, "0"));
+      if (messages.max && cents > messages.max.cents) {
+        context.addIssue({ code: "custom", message: messages.max.message });
+        return z.NEVER;
+      }
+      return cents;
+    }),
+  );
+}

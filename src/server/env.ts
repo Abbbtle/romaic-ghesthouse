@@ -47,6 +47,8 @@ const variablesSchema = z.object({
   RESEND_API_KEY: optionalText,
   NOTIFY_FROM_EMAIL: optionalText,
   CRON_SECRET: optionalText,
+  PAYMENT_GATEWAY: optionalText.pipe(z.enum(["none", "test"], { error: "none or test" }).optional()),
+  TEST_GATEWAY_SECRET: optionalText,
   DESIGN_PREVIEW: optionalText,
 });
 
@@ -156,6 +158,13 @@ export function createServerEnv(source: Readonly<Record<string, string | undefin
       if (!apiKey && !from) return { status: "missing" };
       return { status: "partial", missing: apiKey ? "NOTIFY_FROM_EMAIL" : "RESEND_API_KEY" };
     },
+
+    /**
+     * The payment gateway's variables, as src/server/money.ts reads them:
+     * which gateway (none or test; no real one is chosen yet) and the test
+     * gateway's signing secret.
+     */
+    paymentGatewayVariables: () => ({ PAYMENT_GATEWAY: variables().PAYMENT_GATEWAY, TEST_GATEWAY_SECRET: variables().TEST_GATEWAY_SECRET }),
 
     /** The bearer token Vercel Cron sends to /api/cron/daily. Null means the route refuses every call in production (development runs the job without one). */
     cronSecret: () => variables().CRON_SECRET ?? null,

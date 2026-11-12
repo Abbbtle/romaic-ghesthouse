@@ -36,7 +36,7 @@ export interface InventoryStore {
   changeUnit(id: string, changes: Pick<Unit, "name" | "apartment" | "active">): Promise<UnitChange>;
   /** Adds a block, unless the unit is missing or inactive, or already blocked on one of its nights. */
   addBlock(block: AvailabilityBlock): Promise<BlockAdd>;
-  /** Removes a block that isn't a booking request's; false when there's no such block. Request blocks go with their request's decision. */
+  /** Removes a closure made by hand (owner or maintenance); false when there's no such block. Others go with their booking, request or channel stay. */
   removeManualBlock(id: string): Promise<boolean>;
 }
 

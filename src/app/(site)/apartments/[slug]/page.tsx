@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { AvailabilityCalendar } from "@/components/site/availability-calendar";
+import { fromPriceLabel } from "@/components/site/apartment-summary";
 import { ContentPhoto } from "@/components/site/content-photo";
 import { DatesSearch } from "@/components/site/dates-search";
 import { GoldBarHeading } from "@/components/site/gold-bar-heading";
@@ -18,6 +19,7 @@ import { textStyles } from "@/components/ui/typography";
 import { VisuallyHidden, whatsappHint } from "@/components/ui/visually-hidden";
 import { apartmentPath, sitePagePaths } from "@/lib/content/pages";
 import type { Apartment } from "@/lib/content/schema";
+import { nightlyFromPrices } from "@/server/rates";
 import { inventoryService } from "@/server/stays";
 import { getSiteContent } from "@/server/site-content";
 
@@ -69,8 +71,9 @@ export default async function ApartmentPage({ params }: PageProps<"/apartments/[
   const { slug } = await params;
   const apartment = await publishedApartment(slug);
   if (!apartment) notFound();
-  const content = await getSiteContent();
+  const [content, fromPrices] = await Promise.all([getSiteContent(), nightlyFromPrices()]);
   const facts = siteFactsOf(content);
+  const fromCents = fromPrices[apartment.slug] ?? null;
   const inventory = inventoryService();
   const today = inventory.today();
   const nights = await inventory.calendar(apartment.slug, today, calendarNights);
@@ -127,9 +130,19 @@ export default async function ApartmentPage({ params }: PageProps<"/apartments/[
               </Fact>
             )}
           </dl>
-          <p data-placeholder="price" className="text-base text-fg-2">
-            <strong className="text-ink">Price on request.</strong> Send a request with your dates and we&rsquo;ll reply with the price.
-          </p>
+          {fromCents === null ? (
+            <p data-placeholder="price" className="text-base text-fg-2">
+              <strong className="text-ink">Price on request.</strong> Send a request with your dates and we&rsquo;ll reply with the price.
+            </p>
+          ) : (
+            <p className="text-base text-fg-2">
+              <strong className="text-price font-bold text-ink" data-numeric>
+                {fromPriceLabel(fromCents)}
+              </strong>
+              <br />
+              Check your dates for the price of your stay: prices can change with the season.
+            </p>
+          )}
           {/* From 1024 px the dates panel sits lower, beside the details: this brings it into reach from the first screen. */}
           <a href="#ask-title" className={buttonClasses({ variant: "primary", size: "lg" }, "hidden justify-self-start lg:inline-flex")}>
             Check dates for this apartment

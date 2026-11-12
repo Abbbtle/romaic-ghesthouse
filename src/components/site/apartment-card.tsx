@@ -16,7 +16,7 @@ export type ApartmentSummary = {
   confirmed?: boolean;
   /** Short facts, each a few words: "Kitchenette", "Private bathroom". */
   features: readonly { label: string; icon: "kitchen" | "bath" | "wifi" }[];
-  /** A price the owner set, already formatted ("R1,250 a night"), or null while there's none. */
+  /** The apartment's rate, already worded ("From R850 a night"), or null while there's none. */
   price: string | null;
 };
 

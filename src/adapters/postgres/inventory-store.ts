@@ -15,12 +15,14 @@ type BlockRow = {
   reason: string;
   note: string | null;
   request_id: string | null;
+  booking_id: string | null;
+  channel_event_id: string | null;
   created_by: string | null;
   created_at: Date;
 };
 
 const unitColumns = "id, apartment, name, sort, active";
-const blockColumns = "id, unit_id, arrive, leave, reason, note, request_id, created_by, created_at";
+const blockColumns = "id, unit_id, arrive, leave, reason, note, request_id, booking_id, channel_event_id, created_by, created_at";
 
 const unitOf = (row: UnitRow): Unit => ({ id: row.id, apartment: row.apartment, name: row.name, sort: row.sort, active: row.active });
 
@@ -35,6 +37,8 @@ export function blockOf(row: BlockRow): AvailabilityBlock {
     reason: isBlockReason(row.reason) ? row.reason : "owner",
     note: row.note,
     requestId: row.request_id,
+    bookingId: row.booking_id,
+    channelEventId: row.channel_event_id,
     createdBy: row.created_by,
     createdAt: row.created_at,
   };
@@ -49,8 +53,8 @@ export function blockOf(row: BlockRow): AvailabilityBlock {
  */
 export async function insertBlock(sql: SqlExecutor, block: AvailabilityBlock): Promise<"added" | "unit-unavailable"> {
   const { changes } = await sql.run(
-    `insert into app.availability_blocks (id, unit_id, arrive, leave, reason, note, request_id, created_by, created_at)
-     select :id, :unitId, :arrive::date, :leave::date, :reason, :note, :requestId, :createdBy, :createdAt
+    `insert into app.availability_blocks (id, unit_id, arrive, leave, reason, note, request_id, booking_id, channel_event_id, created_by, created_at)
+     select :id, :unitId, :arrive::date, :leave::date, :reason, :note, :requestId, :bookingId, :channelEventId, :createdBy, :createdAt
      where exists (select 1 from app.units where id = :unitId and active)`,
     {
       id: block.id,
@@ -60,6 +64,8 @@ export async function insertBlock(sql: SqlExecutor, block: AvailabilityBlock): P
       reason: block.reason,
       note: block.note,
       requestId: block.requestId,
+      bookingId: block.bookingId,
+      channelEventId: block.channelEventId,
       createdBy: block.createdBy,
       createdAt: block.createdAt,
     },
@@ -143,7 +149,7 @@ export function createPostgresInventoryStore(db: Database): InventoryStore {
 
     async removeManualBlock(id) {
       if (!isUuid(id)) return false;
-      const { changes } = await db.run("delete from app.availability_blocks where id = :id and reason <> 'request'", { id });
+      const { changes } = await db.run("delete from app.availability_blocks where id = :id and reason in ('owner', 'maintenance')", { id });
       return changes === 1;
     },
   };

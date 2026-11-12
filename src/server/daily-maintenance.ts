@@ -1,7 +1,9 @@
 import "server-only";
 import { accountServices, reencryptStoredSecrets } from "./accounts";
 import { pruneRateLimits, reportError } from "./infrastructure";
+import { syncAllCalendars } from "./channels";
 import { bookingService } from "./stays";
+import { generateHousekeeping } from "./tasks";
 
 /**
  * The daily job (/api/cron/daily) and how its tasks run: each in turn, so
@@ -46,7 +48,9 @@ export async function runMaintenanceTasks(tasks: MaintenanceTasks, report: (desc
  * - bookingRequests: expires requests still waiting on their arrival day,
  *   deletes handled ones past their retention period, and forgets visitor
  *   keys after 24 hours (src/lib/booking/retention.ts).
- * Later phases add their own (channel sync, guest-record retention).
+ * - channelCalendars: imports every channel's calendar (src/server/channels.ts);
+ * - housekeepingTasks: adds the clean for today's departures (src/server/tasks.ts).
+ * Later phases add their own (guest-record retention).
  */
 export function runDailyMaintenance(): Promise<MaintenanceSummary> {
   const services = accountServices();
@@ -57,6 +61,8 @@ export function runDailyMaintenance(): Promise<MaintenanceSummary> {
       rateLimitWindows: () => pruneRateLimits(),
       storedSecrets: () => reencryptStoredSecrets(),
       bookingRequests: () => bookingService().maintenance.housekeeping(),
+      channelCalendars: () => syncAllCalendars(),
+      housekeepingTasks: () => generateHousekeeping(),
     },
     reportError,
   );

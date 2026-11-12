@@ -16,7 +16,7 @@ import {
 } from "./availability";
 import type { InventoryAccess, InventoryStore } from "./ports";
 import { stayLabel, stayLimits, stayProblem, type Stay } from "./stays";
-import { blockInputSchema, blockReasonNames, unitInputSchema, unitLimits, type AvailabilityBlock, type Unit } from "./units";
+import { blockInputSchema, blockReasonNames, isManualBlock, unitInputSchema, unitLimits, type AvailabilityBlock, type Unit } from "./units";
 
 /** An apartment type as the inventory sees it, from the site's content. */
 export type ApartmentType = { slug: string; name: string; sleeps: number; published: boolean };
@@ -221,6 +221,8 @@ export function createInventoryService(deps: InventoryServiceDependencies) {
         reason,
         note,
         requestId: null,
+        bookingId: null,
+        channelEventId: null,
         createdBy: actor.id,
         createdAt: clock.now(),
       };
@@ -240,7 +242,7 @@ export function createInventoryService(deps: InventoryServiceDependencies) {
       access.assertCan(actor, "rates:manage");
       const block = await store.block(id);
       if (!block) return refusedWith("Those nights are already open. Reload the page.");
-      if (block.reason === "request") return refusedWith("These nights belong to an accepted booking request.");
+      if (!isManualBlock(block)) return refusedWith("These nights belong to a booking or a channel's calendar, so they open when that changes.");
       if (!(await store.removeManualBlock(id))) return refusedWith("Those nights are already open. Reload the page.");
       const unit = await store.unit(block.unitId);
       await record(

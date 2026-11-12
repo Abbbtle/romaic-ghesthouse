@@ -53,6 +53,11 @@ const fieldReaders: { [K in SectionKey]: (data: SectionData<K>) => RevisionField
     { label: "Cancellation", value: terms.cancellation, multiline: true },
     { label: "Payment", value: terms.payment, multiline: true },
   ],
+  messages: (messages) => [
+    { label: "Confirmation", value: messages.confirmation, multiline: true },
+    { label: "Directions", value: messages.directions, multiline: true },
+    { label: "Check-in details", value: messages.checkIn, multiline: true },
+  ],
   home: (home) => [
     { label: "Headline", value: home.hero.headline },
     { label: "Introduction", value: home.hero.lead, multiline: true },

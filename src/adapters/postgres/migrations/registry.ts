@@ -8,6 +8,12 @@ import { mediaMigration } from "./050-media";
 import { contentMigration } from "./060-content";
 import { inventoryMigration } from "./110-inventory";
 import { bookingRequestsMigration } from "./120-booking-requests";
+import { guestsMigration } from "./200-guests";
+import { bookingsMigration } from "./210-bookings";
+import { ratesMigration } from "./220-rates";
+import { tasksMigration } from "./240-tasks";
+import { channelsMigration } from "./250-channels";
+import { moneyMigration } from "./260-money";
 
 export type { Migration } from "../migrate";
 
@@ -74,4 +80,10 @@ export const migrations: readonly Migration[] = [
   contentMigration,
   inventoryMigration,
   bookingRequestsMigration,
+  guestsMigration,
+  bookingsMigration,
+  ratesMigration,
+  tasksMigration,
+  channelsMigration,
+  moneyMigration,
 ];

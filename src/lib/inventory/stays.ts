@@ -45,6 +45,12 @@ export function stayLabel(stay: Stay): string {
   return `${formatDayShort(stay.arrive)} to ${formatDayShort(stay.leave)} ${stay.leave.slice(0, 4)}, ${nightsLabel(stay)}`;
 }
 
+/** "Thu 12 Nov to Sat 14 Nov · 2 nights": for lists, with the year only when it isn't `thisYear`'s. */
+export function stayLabelInList(stay: Stay, today: IsoDate): string {
+  const year = stay.leave.slice(0, 4);
+  return `${formatDayShort(stay.arrive)} to ${formatDayShort(stay.leave)}${year === today.slice(0, 4) ? "" : ` ${year}`} · ${nightsLabel(stay)}`;
+}
+
 export type StayProblem = { field: "arrive" | "leave"; message: string };
 
 /**
