@@ -207,8 +207,22 @@ describe("section rules", () => {
     }
   });
 
-  it("keeps the contact details behind their own permission, apart from site content", () => {
-    assert.deepEqual(sectionPermissions, { site: "content:edit", contact: "settings:contact", seo: "content:edit", privacy: "content:edit" });
+  it("keeps the contact details and booking terms behind their own permissions, apart from site content", () => {
+    assert.deepEqual(sectionPermissions, {
+      site: "content:edit",
+      contact: "settings:contact",
+      bookingTerms: "settings:booking-rules",
+      home: "content:edit",
+      apartments: "content:edit",
+      gallery: "content:edit",
+      facilities: "content:edit",
+      location: "content:edit",
+      policies: "content:edit",
+      contactPage: "content:edit",
+      book: "content:edit",
+      seo: "content:edit",
+      privacy: "content:edit",
+    });
   });
 
   it("keeps the design's soft budgets inside the hard limits", () => {

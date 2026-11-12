@@ -24,22 +24,35 @@ export function StandInPhoto({
   sizes = "(min-width: 1024px) 50vw, 100vw",
   preload = false,
   className,
+  focus,
 }: {
   photo: StandIn;
   aspect?: string;
   sizes?: string;
   preload?: boolean;
   className?: string;
+  /** The point to keep in frame when it's cropped, in percent from the top left. */
+  focus?: { x: number; y: number };
 }) {
   return (
-    <figure data-placeholder="photo" className={cx("photo-frame relative w-full overflow-hidden", aspect, className)}>
+    <figure data-placeholder="photo" className={cx("photo-frame @container relative w-full overflow-hidden", aspect, className)}>
       {photo.src ? (
-        <Image src={photo.src} alt={photo.alt} fill sizes={sizes} preload={preload} className="object-cover" />
+        <Image
+          src={photo.src}
+          alt={photo.alt}
+          fill
+          sizes={sizes}
+          preload={preload}
+          className="object-cover"
+          style={focus ? { objectPosition: `${focus.x}% ${focus.y}%` } : undefined}
+        />
       ) : (
         <div role="img" aria-label={photo.alt} className="absolute inset-0 bg-[linear-gradient(160deg,var(--color-neutral-100),var(--color-neutral-200))]" />
       )}
-      <figcaption className="absolute bottom-2 left-2 inline-flex items-center gap-1.5 rounded-xs bg-midnight-navy/90 px-2 py-1 text-xs font-bold text-white">
-        Stand-in photo <span className="font-normal text-navy-200">· {photo.source}</span>
+      {/* One line at every size: "Stand-in" on a tiny thumbnail, "Stand-in photo" from 8rem wide, and the source from 15rem (it's always in the title). */}
+      <figcaption title={`Stand-in photo · ${photo.source}`} className="absolute bottom-2 left-2 rounded-xs bg-midnight-navy/90 px-2 py-1 text-xs font-bold whitespace-nowrap text-white">
+        <span className="@[8rem]:hidden">Stand-in</span>
+        <span className="hidden @[8rem]:inline">Stand-in photo</span> <span className="hidden font-normal text-navy-200 @[15rem]:inline">· {photo.source}</span>
       </figcaption>
     </figure>
   );

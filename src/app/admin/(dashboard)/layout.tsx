@@ -1,6 +1,8 @@
 import { AdminShell } from "@/components/admin/admin-shell";
 import { anySignedInRole } from "@/lib/accounts/access";
 import { requireDashboardActor } from "@/server/admin-session";
+import { reportError } from "@/server/infrastructure";
+import { bookingService } from "@/server/stays";
 import { signOut } from "../(auth)/actions";
 
 /**
@@ -17,8 +19,15 @@ export const instant = false;
  */
 export default async function DashboardLayout({ children }: LayoutProps<"/admin">) {
   const actor = await requireDashboardActor(anySignedInRole);
+  // The waiting count is a courtesy: if it can't be read, the dashboard still opens.
+  const waiting = await bookingService()
+    .inbox.waitingCount(actor)
+    .catch((error: unknown) => {
+      reportError("The waiting requests couldn't be counted", error);
+      return 0;
+    });
   return (
-    <AdminShell user={actor} signOutAction={signOut}>
+    <AdminShell user={actor} badges={waiting > 0 ? { requests: waiting } : undefined} signOutAction={signOut}>
       {children}
     </AdminShell>
   );

@@ -14,12 +14,18 @@ import { typeParsers } from "./value-types";
  * Supabase through node-postgres never loads its 25 MB package.
  */
 
-/** A PGlite in memory (each call a new, empty one) or kept in `dataDir`, created if it doesn't exist yet. */
+/**
+ * A PGlite in memory (each call a new, empty one) or kept in `dataDir`,
+ * created if it doesn't exist yet. It carries btree_gist, which the
+ * inventory's exclusion constraint needs (a unit with the same night twice;
+ * ./migrations/110-inventory.ts), as Supabase does.
+ */
 export async function openPglite(dataDir?: string): Promise<PGliteInterface> {
-  const { PGlite } = await import("@electric-sql/pglite");
-  if (!dataDir) return PGlite.create();
+  const [{ PGlite }, { btree_gist }] = await Promise.all([import("@electric-sql/pglite"), import("@electric-sql/pglite/contrib/btree_gist")]);
+  const extensions = { btree_gist };
+  if (!dataDir) return PGlite.create({ extensions });
   mkdirSync(dataDir, { recursive: true });
-  return PGlite.create({ dataDir });
+  return PGlite.create({ dataDir, extensions });
 }
 
 type SharedInstance = { opening: Promise<PGliteInterface>; opened?: PGliteInterface };

@@ -21,8 +21,12 @@ describe("content composition", () => {
     // Neither core may import the other, so the composition layer checks they agree.
     for (const key of sectionKeys) assert.ok(isPermission(sectionPermissions[key]), key);
     const editableBy = (actor: Actor) => sectionKeys.filter((key) => can(actor, sectionPermissions[key]));
-    assert.deepEqual(editableBy(owner), ["site", "contact", "seo", "privacy"]);
-    assert.deepEqual(editableBy(admin), ["site", "seo", "privacy"]);
+    assert.deepEqual(editableBy(owner), [...sectionKeys]);
+    assert.deepEqual(
+      editableBy(admin),
+      sectionKeys.filter((key) => key !== "contact" && key !== "bookingTerms"),
+      "the contact details and booking terms are the owner's alone",
+    );
     assert.deepEqual(editableBy(sales), []);
     assert.deepEqual(editableBy(staff), []);
   });
@@ -36,7 +40,10 @@ describe("content composition", () => {
     await assert.rejects(service.restoreRevision(admin, "contact", 1, 1), NotAllowedError);
     for (const actor of [sales, staff]) await assert.rejects(service.getEditable(actor, "site"), NotAllowedError, actor.role);
     assert.equal((await service.getSection("contact")).phone, "+27769579928");
-    assert.deepEqual((await service.getSummaries(admin)).map(({ key }) => key), ["site", "seo", "privacy"]);
+    assert.deepEqual(
+      (await service.getSummaries(admin)).map(({ key }) => key),
+      sectionKeys.filter((key) => key !== "contact" && key !== "bookingTerms"),
+    );
     assert.deepEqual(audit.events, []);
   });
 

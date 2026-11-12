@@ -16,7 +16,7 @@ export class TestNotAllowedError extends Error {
  * checks the real matrix against the content service as well.
  */
 const grants: Record<Role, readonly SectionPermission[]> = {
-  owner: ["content:edit", "settings:contact"],
+  owner: ["content:edit", "settings:contact", "settings:booking-rules"],
   admin: ["content:edit"],
   sales: [],
   staff: [],

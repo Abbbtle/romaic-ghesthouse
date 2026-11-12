@@ -21,6 +21,7 @@ export type UploadImageResult =
   | { ok: true; src: string; width: number; height: number }
   | { ok: false; errors: FieldErrors }
   | { status: "signed-out" }
+  | { status: "step-up" }
   | { status: "failed"; message: string };
 
 /** The server action that stores an image, given a form with the file as "image". */
@@ -36,6 +37,7 @@ type Progress =
   | { stage: "failed"; message: string };
 
 const signedOutMessage = "You've been signed out. Sign in again in another tab, then choose the photo again.";
+const stepUpMessage = "Confirm it's you first: enter your password and code again in another tab, then choose the photo again.";
 const unreachableMessage = "The photo didn't upload. Check your connection and try again.";
 
 type ImageFieldProps = {
@@ -55,6 +57,11 @@ type ImageFieldProps = {
  * it, and shows the new one. Tapping the preview, or using the arrow keys on
  * it, sets the point that stays in view when the photo is cropped. Like any
  * other field it's saved with Save; Discard puts the old photo back.
+ *
+ * A photo added to a list starts with no picture (an empty `src`): the
+ * frame says so, the button reads "Choose photo", and no address is posted,
+ * so saving asks for one. A stand-in's label comes from its /stand-ins/…
+ * address, which is posted back unchanged until a new photo replaces it.
  */
 export function ImageField({ name, image, label, guidance, upload }: ImageFieldProps) {
   const saved: Picture = { src: image.src, width: image.width, height: image.height, focus: image.focus };
@@ -75,6 +82,7 @@ export function ImageField({ name, image, label, guidance, upload }: ImageFieldP
   });
 
   const busy = progress.stage === "preparing" || progress.stage === "uploading";
+  const hasPicture = picture.src !== "";
 
   const choose = async (file: File | undefined) => {
     if (!file || busy) return;
@@ -90,7 +98,8 @@ export function ImageField({ name, image, label, guidance, upload }: ImageFieldP
     data.append("image", prepared.image.file);
     const result = await callServerAction<UploadImageResult>(() => upload(data), () => ({ status: "failed", message: unreachableMessage }));
     if ("status" in result) {
-      setProgress({ stage: "failed", message: result.status === "signed-out" ? signedOutMessage : result.message });
+      const message = result.status === "signed-out" ? signedOutMessage : result.status === "step-up" ? stepUpMessage : result.message;
+      setProgress({ stage: "failed", message });
       return;
     }
     if (!result.ok) {
@@ -113,6 +122,11 @@ export function ImageField({ name, image, label, guidance, upload }: ImageFieldP
   };
 
   const pointAt = (event: MouseEvent<HTMLButtonElement>) => {
+    // With no photo yet, the empty frame opens the file picker instead.
+    if (!hasPicture) {
+      picker.current?.click();
+      return;
+    }
     const frame = event.currentTarget.getBoundingClientRect();
     // A keyboard "click" has no position; arrow keys move the point instead.
     if (event.detail === 0 || frame.width === 0 || frame.height === 0) return;
@@ -122,7 +136,7 @@ export function ImageField({ name, image, label, guidance, upload }: ImageFieldP
   const nudge = (event: KeyboardEvent<HTMLButtonElement>) => {
     const steps: Record<string, [number, number]> = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
     const step = steps[event.key];
-    if (!step) return;
+    if (!step || !hasPicture) return;
     event.preventDefault();
     const by = event.shiftKey ? 10 : 1;
     moveFocus({ x: picture.focus.x + step[0] * by, y: picture.focus.y + step[1] * by });
@@ -163,16 +177,28 @@ export function ImageField({ name, image, label, guidance, upload }: ImageFieldP
           type="button"
           onClick={pointAt}
           onKeyDown={nudge}
-          aria-label={`Set the focus point of the ${label.toLowerCase()}, now ${picture.focus.x}% across and ${picture.focus.y}% down`}
+          aria-label={
+            hasPicture
+              ? `Set the focus point of the ${label.toLowerCase()}, now ${picture.focus.x}% across and ${picture.focus.y}% down`
+              : `${label}: no photo chosen yet`
+          }
           aria-describedby={`${ids}-focus-help`}
           className="relative w-40 justify-self-start rounded-sm sm:w-44"
         >
-          <Photo image={{ ...picture, alt: "" }} sizes="176px" aspect="4/5" corner="md" />
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute size-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_1.5px_rgb(13_15_12/0.7)] after:absolute after:inset-[7px] after:rounded-full after:bg-white"
-            style={{ left: `${picture.focus.x}%`, top: `${picture.focus.y}%` }}
-          />
+          {hasPicture ? (
+            <>
+              <Photo image={{ ...picture, alt: "" }} sizes="176px" aspect="4/5" corner="md" />
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute size-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_1.5px_rgb(13_15_12/0.7)] after:absolute after:inset-[7px] after:rounded-full after:bg-white"
+                style={{ left: `${picture.focus.x}%`, top: `${picture.focus.y}%` }}
+              />
+            </>
+          ) : (
+            <span className="grid aspect-4/5 w-full place-items-center rounded-sm border border-dashed border-neutral-300 bg-neutral-50 px-3 text-center text-sm text-fg-3">
+              No photo yet
+            </span>
+          )}
         </button>
         <div className="grid content-start gap-3">
           <p className={hintClasses}>{guidance}</p>
@@ -187,7 +213,7 @@ export function ImageField({ name, image, label, guidance, upload }: ImageFieldP
               pendingLabel={progress.stage === "preparing" ? "Preparing…" : "Uploading…"}
               onClick={() => picker.current?.click()}
             >
-              Replace photo
+              {hasPicture ? "Replace photo" : "Choose photo"}
             </Button>
             <span className="hidden text-sm text-fg-3 lg:inline">or drag one here</span>
           </div>
@@ -221,7 +247,7 @@ export function ImageField({ name, image, label, guidance, upload }: ImageFieldP
       <p role="status" className="sr-only">
         {focusReadout}
       </p>
-      <input type="hidden" name={`${name}.src`} value={picture.src} />
+      {hasPicture && <input type="hidden" name={`${name}.src`} value={picture.src} />}
       <input type="hidden" name={`${name}.width`} value={picture.width} />
       <input type="hidden" name={`${name}.height`} value={picture.height} />
       <input type="hidden" name={`${name}.focus.x`} value={picture.focus.x} />

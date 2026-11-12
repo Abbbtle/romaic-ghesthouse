@@ -3,17 +3,16 @@ import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 
 // The cores in src/lib that hold the business rules. Each may depend on the
-// ones listed before it, never on the ones after it (booking may use the
-// diary; the diary never knows about booking requests).
+// ones listed before it, never on the ones after it (booking requests use
+// the inventory; the inventory never knows about booking requests).
 const kernel = "./src/lib/kernel";
 const format = "./src/lib/format";
 const forms = "./src/lib/forms";
 const accounts = "./src/lib/accounts";
 const content = "./src/lib/content";
 const media = "./src/lib/media";
-const diary = "./src/lib/diary";
+const inventory = "./src/lib/inventory";
 const booking = "./src/lib/booking";
-const clients = "./src/lib/clients";
 
 const eslintConfig = defineConfig([
   ...nextVitals,
@@ -34,48 +33,43 @@ const eslintConfig = defineConfig([
             },
             {
               target: kernel,
-              from: [format, forms, accounts, content, media, diary, booking, clients],
+              from: [format, forms, accounts, content, media, inventory, booking],
               message: "The kernel depends on nothing else in src/lib.",
             },
             {
               target: format,
-              from: [forms, accounts, content, media, diary, booking, clients],
+              from: [forms, accounts, content, media, inventory, booking],
               message: "Formatting helpers depend only on the kernel.",
             },
             {
               target: forms,
-              from: [accounts, content, media, diary, booking, clients],
+              from: [accounts, content, media, inventory, booking],
               message: "Form state is shared by every core, so it can't depend on one.",
             },
             {
               target: accounts,
-              from: [content, media, diary, booking, clients],
+              from: [content, media, inventory, booking],
               message: "Accounts don't depend on the other cores.",
             },
             {
               target: content,
-              from: [accounts, media, diary, booking, clients],
+              from: [accounts, media, inventory, booking],
               message: "Site content doesn't depend on the other cores.",
             },
             {
               target: media,
-              from: [accounts, content, diary, booking, clients],
+              from: [accounts, content, inventory, booking],
               message: "Media doesn't depend on the other cores.",
             },
             {
-              target: diary,
-              from: [accounts, content, media, booking, clients],
-              message: "The diary doesn't know about booking requests, accounts or content; they depend on it.",
+              target: inventory,
+              from: [accounts, content, media, booking],
+              message: "The inventory doesn't know about booking requests, accounts or content; it gets apartments and permissions through its ports, wired in src/server.",
             },
             {
               target: booking,
-              from: [accounts, content, media, clients],
-              message: "Booking requests build on the diary only.",
-            },
-            {
-              target: clients,
-              from: [accounts, content, media, diary, booking],
-              message: "The client list gets diary, price-list and coaching facts through its ports, wired in src/server.",
+              from: [accounts, content, media],
+              message: "Booking requests build on the inventory only; apartments, permissions and consent versions come through their ports.",
             },
             {
               target: "./src/content",

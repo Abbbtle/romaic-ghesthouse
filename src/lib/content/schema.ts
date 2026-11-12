@@ -7,14 +7,27 @@ import {
   isoDateField,
   listField,
   markdownField,
-  percentField,
   phoneField,
   textField,
   tooLongMessage,
   versionField,
 } from "./fields";
 import { listLimits, textLimits } from "./limits";
+import {
+  apartmentsSchema,
+  bookingTermsSchema,
+  bookSchema,
+  contactPageSchema,
+  facilitiesSchema,
+  gallerySchema,
+  homeSchema,
+  locationSchema,
+  policiesSchema,
+} from "./page-sections";
 import { sitePages, type SitePage } from "./pages";
+
+export { contentIconNames, contentIcons, imageRefSchema, standInSource, type ContentIcon, type ImageRef } from "./shapes";
+export type { Apartment, Facility, FacilityGroup, GalleryPhoto, Highlight, HouseRule, NearbyPlace, TimeWindow } from "./page-sections";
 
 /**
  * Everything on the public site the dashboard can change, as one schema per
@@ -68,77 +81,10 @@ const socialPlatformExamples: Record<SocialPlatform, string> = {
   x: "https://x.com/yourname",
 };
 
-/** The curated icons content can pick. Components map each to a drawing (src/components/ui/icon.tsx). */
-export const contentIcons = [
-  "dumbbell",
-  "play",
-  "clipboard",
-  "trending-up",
-  "calendar",
-  "gauge",
-  "chart",
-  "message",
-  "sliders",
-  "users",
-  "award",
-  "timer",
-  "target",
-  "plane",
-  "house",
-  "map-pin",
-] as const;
-
-export type ContentIcon = (typeof contentIcons)[number];
-
-export const contentIconNames: Record<ContentIcon, string> = {
-  dumbbell: "Dumbbell",
-  play: "Play button",
-  clipboard: "Clipboard",
-  "trending-up": "Rising line",
-  calendar: "Calendar",
-  gauge: "Gauge",
-  chart: "Line chart",
-  message: "Speech bubble",
-  sliders: "Sliders",
-  users: "People",
-  award: "Award",
-  timer: "Timer",
-  target: "Target",
-  plane: "Plane",
-  house: "House",
-  "map-pin": "Map pin",
-};
-
 /** The facts a {placeholder} in site text can fill in: the business name and address from `site`, the email and phone from `contact`. */
 export const sitePlaceholders = ["businessName", "location", "email", "phone"] as const;
 
 export type SitePlaceholder = (typeof sitePlaceholders)[number];
-
-// --- shared shapes ---------------------------------------------------------------
-
-const imageSrcPattern =
-  /^\/(?:images\/[A-Za-z0-9][\w-]*(?:\.[\w-]+)*\.(?:jpe?g|png|webp|avif)|media\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/;
-
-const imageDimension = z.number({ error: "Upload the photo again." }).int("Upload the photo again.").min(1, "Upload the photo again.").max(8192, "Upload the photo again.");
-
-/**
- * A photo: a default in /images or an upload served from /media/<id>, with
- * its pixel size (for next/image), required alt text, and the point to keep
- * in frame when it's cropped, in percent from the top left. No Phase 1
- * section holds one; Phase 2's pages do.
- */
-export const imageRefSchema = z.object({
-  src: z
-    .string({ error: "Choose a photo." })
-    .max(textLimits.url, "Upload the photo again: its address isn't one this site serves.")
-    .regex(imageSrcPattern, "Upload the photo again: its address isn't one this site serves."),
-  alt: textField({ noun: "the photo description", max: textLimits.imageAlt, required: "Describe the photo for people who can't see it." }),
-  width: imageDimension,
-  height: imageDimension,
-  focus: z.object({ x: percentField, y: percentField }).default(() => ({ x: 50, y: 50 })),
-});
-
-export type ImageRef = z.output<typeof imageRefSchema>;
 
 // --- site: business details ------------------------------------------------------------
 
@@ -226,13 +172,36 @@ export const privacySchema = z.object({
 
 // --- the sections --------------------------------------------------------------------
 
-export const sectionKeys = ["site", "contact", "seo", "privacy"] as const;
+export const sectionKeys = [
+  "site",
+  "contact",
+  "bookingTerms",
+  "home",
+  "apartments",
+  "gallery",
+  "facilities",
+  "location",
+  "policies",
+  "contactPage",
+  "book",
+  "seo",
+  "privacy",
+] as const;
 
 export type SectionKey = (typeof sectionKeys)[number];
 
 export const sectionSchemas = {
   site: siteSchema,
   contact: contactSchema,
+  bookingTerms: bookingTermsSchema,
+  home: homeSchema,
+  apartments: apartmentsSchema,
+  gallery: gallerySchema,
+  facilities: facilitiesSchema,
+  location: locationSchema,
+  policies: policiesSchema,
+  contactPage: contactPageSchema,
+  book: bookSchema,
   seo: seoSchema,
   privacy: privacySchema,
 } as const satisfies Record<SectionKey, z.ZodType>;
@@ -244,6 +213,15 @@ export type SiteContent = { [K in SectionKey]: SectionData<K> };
 
 export type SiteSection = SectionData<"site">;
 export type ContactSection = SectionData<"contact">;
+export type BookingTermsSection = SectionData<"bookingTerms">;
+export type HomeSection = SectionData<"home">;
+export type ApartmentsSection = SectionData<"apartments">;
+export type GallerySection = SectionData<"gallery">;
+export type FacilitiesSection = SectionData<"facilities">;
+export type LocationSection = SectionData<"location">;
+export type PoliciesSection = SectionData<"policies">;
+export type ContactPageSection = SectionData<"contactPage">;
+export type BookSection = SectionData<"book">;
 export type SeoSection = SectionData<"seo">;
 export type PrivacySection = SectionData<"privacy">;
 
@@ -253,15 +231,25 @@ export function isSectionKey(value: unknown): value is SectionKey {
 
 /**
  * Who may edit each section (roles.md): the permission the dashboard and the
- * content service check. The business details, search results and privacy
- * notice are site content, which admins (Weberu) look after too; the contact
- * details guests use are the owner's alone. The names are the accounts
- * core's permissions; content can't import that core, so the composition
- * layer (src/server/content.ts) checks they exist.
+ * content service check. The pages, business details, search results and
+ * privacy notice are site content, which admins (Weberu) look after too; the
+ * contact details guests use, and the booking terms that move money, are
+ * the owner's alone. The names are the accounts core's permissions; content
+ * can't import that core, so the composition layer (src/server/content.ts)
+ * checks they exist.
  */
 export const sectionPermissions = {
   site: "content:edit",
   contact: "settings:contact",
+  bookingTerms: "settings:booking-rules",
+  home: "content:edit",
+  apartments: "content:edit",
+  gallery: "content:edit",
+  facilities: "content:edit",
+  location: "content:edit",
+  policies: "content:edit",
+  contactPage: "content:edit",
+  book: "content:edit",
   seo: "content:edit",
   privacy: "content:edit",
 } as const satisfies Record<SectionKey, string>;
@@ -284,6 +272,15 @@ function parseSectionWith<Schema extends z.ZodType>(schema: Schema, input: unkno
 const sectionParsers: { [K in SectionKey]: (input: unknown) => Parsed<SectionData<K>> } = {
   site: (input) => parseSectionWith(siteSchema, input),
   contact: (input) => parseSectionWith(contactSchema, input),
+  bookingTerms: (input) => parseSectionWith(bookingTermsSchema, input),
+  home: (input) => parseSectionWith(homeSchema, input),
+  apartments: (input) => parseSectionWith(apartmentsSchema, input),
+  gallery: (input) => parseSectionWith(gallerySchema, input),
+  facilities: (input) => parseSectionWith(facilitiesSchema, input),
+  location: (input) => parseSectionWith(locationSchema, input),
+  policies: (input) => parseSectionWith(policiesSchema, input),
+  contactPage: (input) => parseSectionWith(contactPageSchema, input),
+  book: (input) => parseSectionWith(bookSchema, input),
   seo: (input) => parseSectionWith(seoSchema, input),
   privacy: (input) => parseSectionWith(privacySchema, input),
 };
@@ -302,6 +299,15 @@ export function parseSection<K extends SectionKey>(key: K, input: unknown): Pars
 export const sectionNames: Record<SectionKey, string> = {
   site: "Business details",
   contact: "Contact details",
+  bookingTerms: "Booking terms",
+  home: "Home page",
+  apartments: "Apartments",
+  gallery: "Gallery",
+  facilities: "Facilities",
+  location: "Location and area",
+  policies: "House rules",
+  contactPage: "Contact page",
+  book: "Booking form",
   seo: "Search results",
   privacy: "Privacy notice",
 };
@@ -310,12 +316,26 @@ export const sectionNames: Record<SectionKey, string> = {
 export const sectionDescriptions: Record<SectionKey, string> = {
   site: "Your business name, address, description and social links, used across the whole site.",
   contact: "The phone number, WhatsApp number and email address guests use to reach you and book.",
+  bookingTerms: "Your deposit, balance, cancellation and payment terms for direct bookings.",
+  home: "The headline, photo and introduction guests see first, and what the home page highlights.",
+  apartments: "Each apartment's name, beds, bathroom, features, photos and who it sleeps.",
+  gallery: "The photos on the gallery page, with their captions.",
+  facilities: "What the guesthouse offers, in groups, on the facilities page.",
+  location: "Where you are, how to get there, and the places nearby.",
+  policies: "Check-in and check-out times and your house rules.",
+  contactPage: "The words on the contact page. Your phone and email come from Contact details.",
+  book: "The booking page's words, what guests agree to, and what they see after sending a request.",
   seo: "The title and description search engines show for each page.",
   privacy: "Your privacy notice, which POPIA requires.",
 };
 
 /** Extra guidance where a section needs it. */
 export const sectionHelp: Partial<Record<SectionKey, string>> = {
+  bookingTerms:
+    "Only the owner can change these. Leave a term empty until you've decided it: the site then says it's still to be confirmed rather than guessing. Each change is recorded in the audit log.",
+  apartments:
+    "Tick \"Details confirmed\" once you've checked an apartment's beds, bathroom, features and how many it sleeps. Until then the site marks them \"To confirm\". The Book page offers an apartment to groups up to the number it sleeps, and only while it's shown on the site.",
+  book: "The consent wording is part of what each guest agrees to, so changing it gives it a new version and date by themselves. Each booking request records the version it was sent under.",
   site: "Your address is stored once here and used everywhere it appears. The map link is worked out from it.",
   contact:
     "Only the owner can change these. Guests use them to book and to ask about payments, so check every digit before you save. Each change is recorded in the audit log.",
@@ -326,7 +346,16 @@ export const sectionHelp: Partial<Record<SectionKey, string>> = {
 /** The page each section's "View on site" link opens. */
 export const sectionPages: Record<SectionKey, SitePage> = {
   site: "home",
-  contact: "home",
+  contact: "contact",
+  bookingTerms: "policies",
+  home: "home",
+  apartments: "apartments",
+  gallery: "gallery",
+  facilities: "facilities",
+  location: "location",
+  policies: "policies",
+  contactPage: "contact",
+  book: "book",
   seo: "home",
   privacy: "privacy",
 };

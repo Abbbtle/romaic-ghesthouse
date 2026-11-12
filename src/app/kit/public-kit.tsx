@@ -43,9 +43,9 @@ const navLinks = [
 ] as const;
 
 const photos = {
-  warm: { src: "/stand-ins/pexels-279746.jpg", alt: "A bedroom with warm bedside lamps and a wooden headboard", source: "Pexels 279746" },
-  bed: { src: "/stand-ins/pexels-164595.jpg", alt: "A made double bed lit by a wall lamp", source: "Pexels 164595" },
-  desk: { src: "/stand-ins/pexels-271618.jpg", alt: "A bright bedroom with a desk", source: "Pexels 271618" },
+  warm: { src: "/stand-ins/pexels-279746.jpg", alt: "A bedroom with warm bedside lamps and a wooden headboard", source: "Pexels 279746", width: 1600, height: 1014, focus: { x: 50, y: 50 } },
+  bed: { src: "/stand-ins/pexels-164595.jpg", alt: "A made double bed lit by a wall lamp", source: "Pexels 164595", width: 1600, height: 1067, focus: { x: 50, y: 50 } },
+  desk: { src: "/stand-ins/pexels-271618.jpg", alt: "A bright bedroom with a desk", source: "Pexels 271618", width: 1600, height: 1068, focus: { x: 50, y: 50 } },
 } as const;
 
 /** Sample apartments, from the Booking.com listing's facts (to be confirmed by the client), with stand-in photos. */
@@ -406,7 +406,7 @@ export function PublicKit() {
             </p>
           </div>
           <div className="grid grid-cols-[minmax(0,1fr)] gap-8 pb-14">
-            <SiteHeader links={navLinks} bookHref="#booking" />
+            <SiteHeader links={navLinks} bookHref="#booking" facts={romaicFacts} />
             <div className="mx-auto w-full max-w-sm px-4">
               <p className="mb-2 text-xs font-bold tracking-[0.08em] text-fg-3 uppercase">Phone booking dock</p>
               <BookingDock
@@ -415,7 +415,7 @@ export function PublicKit() {
                 primary={{ label: "WhatsApp", href: whatsapp, external: true, icon: <WhatsAppGlyph tone="mono" className="size-4" /> }}
               />
             </div>
-            <SiteFooter links={navLinks} />
+            <SiteFooter links={navLinks} facts={romaicFacts} />
           </div>
         </section>
 
@@ -434,7 +434,7 @@ export function PublicKit() {
           </div>
         </KitSection>
       </main>
-      <ContactBar />
+      <ContactBar facts={romaicFacts} />
     </div>
   );
 }

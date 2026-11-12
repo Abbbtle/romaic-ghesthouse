@@ -2,7 +2,7 @@ import Link from "next/link";
 import { CurrentYear } from "@/components/ui/current-year";
 import { ContactBar } from "./contact-bar";
 import type { SiteNavLink } from "./mobile-menu";
-import { romaicFacts } from "./romaic-facts";
+import type { SiteFacts } from "./site-facts";
 
 /**
  * The foot of every public page: the pages and the legal links on Cream,
@@ -10,17 +10,17 @@ import { romaicFacts } from "./romaic-facts";
  * places it. The dock-height padding keeps the bar clear of the phone
  * booking dock where a page shows one.
  */
-export function SiteFooter({ links = [], withDock = false }: { links?: readonly SiteNavLink[]; withDock?: boolean }) {
+export function SiteFooter({ facts, links = [], withDock = false }: { facts: SiteFacts; links?: readonly SiteNavLink[]; withDock?: boolean }) {
   return (
     <footer className={withDock ? "pb-[calc(var(--dock-height)+env(safe-area-inset-bottom))] lg:pb-0" : undefined}>
       <div className="border-t border-hairline bg-cream">
         <div className="mx-auto grid max-w-page gap-6 px-[max(1rem,env(safe-area-inset-left))] py-8 sm:grid-cols-[1fr_auto] sm:items-end">
           <div className="grid gap-1 text-sm text-fg-2">
             {/* Plain text: the brand guide (p4) forbids retyping the wordmark, so the name never imitates it. */}
-            <p className="text-base font-bold text-ink">{romaicFacts.name}</p>
-            <p>{romaicFacts.addressLine}</p>
+            <p className="text-base font-bold text-ink">{facts.name}</p>
+            <p>{facts.addressLine}</p>
             <p>
-              © <CurrentYear /> {romaicFacts.name}
+              © <CurrentYear /> {facts.name}
             </p>
           </div>
           {links.length > 0 && (
@@ -38,7 +38,7 @@ export function SiteFooter({ links = [], withDock = false }: { links?: readonly 
           )}
         </div>
       </div>
-      <ContactBar />
+      <ContactBar facts={facts} />
     </footer>
   );
 }

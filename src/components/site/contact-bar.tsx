@@ -2,7 +2,7 @@ import { Mail, MapPin, Phone } from "lucide-react";
 import { cx } from "@/components/ui/cx";
 import { VisuallyHidden, whatsappHint } from "@/components/ui/visually-hidden";
 import { WhatsAppGlyph } from "@/components/ui/whatsapp-glyph";
-import { romaicFacts } from "./romaic-facts";
+import type { SiteFacts } from "./site-facts";
 
 /**
  * The Midnight Navy contact bar (brand guide p8): it anchors every page at
@@ -11,8 +11,8 @@ import { romaicFacts } from "./romaic-facts";
  * number and address stay readable as text for anyone whose phone can't
  * follow the link.
  */
-export function ContactBar({ className, showAddress = true }: { className?: string; showAddress?: boolean }) {
-  const { phone, whatsapp, email, addressLine } = romaicFacts;
+export function ContactBar({ facts, className, showAddress = true }: { facts: SiteFacts; className?: string; showAddress?: boolean }) {
+  const { phone, whatsapp, email, addressLine } = facts;
   return (
     <section aria-label="Book your stay" className={cx("on-dark border-t-2 border-romaic-gold bg-midnight-navy", className)}>
       <div className="mx-auto grid max-w-page gap-x-10 gap-y-4 px-[max(1rem,env(safe-area-inset-left))] py-6 sm:py-7 lg:grid-cols-[auto_1fr] lg:items-center">

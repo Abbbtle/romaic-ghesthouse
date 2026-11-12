@@ -1,14 +1,19 @@
 import { ArrowRight, Bath, BedDouble, CookingPot, Users, Wifi } from "lucide-react";
 import Link from "next/link";
 import { cx } from "@/components/ui/cx";
-import { StandInPhoto, type StandIn } from "./stand-in-photo";
+import type { ImageRef } from "@/lib/content/schema";
+import { ContentPhoto } from "./content-photo";
+import { ToConfirm } from "./to-confirm";
 
 export type ApartmentSummary = {
   name: string;
   href: string;
   sleeps: number;
   beds: string;
-  photo: StandIn;
+  /** The first photo; null shows a framed gap that says a photo is to come. */
+  photo: ImageRef | null;
+  /** The owner has checked these details; otherwise they're marked "To confirm". */
+  confirmed?: boolean;
   /** Short facts, each a few words: "Kitchenette", "Private bathroom". */
   features: readonly { label: string; icon: "kitchen" | "bath" | "wifi" }[];
   /** A price the owner set, already formatted ("R1,250 a night"), or null while there's none. */
@@ -26,13 +31,20 @@ const featureIcons = { kitchen: CookingPot, bath: Bath, wifi: Wifi } as const;
 export function ApartmentCard({ apartment, className }: { apartment: ApartmentSummary; className?: string }) {
   return (
     <article className={cx("group relative grid content-start gap-4", className)}>
-      <StandInPhoto photo={apartment.photo} aspect="aspect-4/3" sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" />
+      {apartment.photo ? (
+        <ContentPhoto image={apartment.photo} sizes="(min-width: 1024px) 22rem, (min-width: 640px) 50vw, calc(100vw - 2rem)" />
+      ) : (
+        <div data-placeholder="photo" className="photo-frame flex aspect-4/3 items-center justify-center bg-neutral-100 text-sm text-fg-3">
+          Photo to come
+        </div>
+      )}
       <div className="grid gap-2">
         <h3 className="text-h3 font-bold text-ink">
           <Link href={apartment.href} className="underline-offset-4 group-hover:underline after:absolute after:inset-0">
             {apartment.name}
           </Link>
         </h3>
+        {apartment.confirmed === false && <ToConfirm className="justify-self-start" />}
         <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-base text-fg-2">
           <span className="inline-flex items-center gap-1.5">
             <Users aria-hidden="true" strokeWidth={1.5} className="size-4 text-gold-text" />
@@ -62,7 +74,7 @@ export function ApartmentCard({ apartment, className }: { apartment: ApartmentSu
           </p>
         ) : (
           <p data-placeholder="price" className="text-sm text-fg-3">
-            Price to come
+            Price on request
           </p>
         )}
         <span aria-hidden="true" className="inline-flex items-center gap-1.5 text-sm font-bold text-link group-hover:text-link-hover">
