@@ -18,6 +18,9 @@ const channels = "./src/lib/channels";
 const reservations = "./src/lib/reservations";
 const money = "./src/lib/money";
 const tasks = "./src/lib/tasks";
+const ledger = "./src/lib/ledger";
+const bookkeeping = "./src/lib/bookkeeping";
+const tax = "./src/lib/tax";
 
 const eslintConfig = defineConfig([
   ...nextVitals,
@@ -38,68 +41,83 @@ const eslintConfig = defineConfig([
             },
             {
               target: kernel,
-              from: [format, forms, accounts, content, media, inventory, rates, booking, channels, reservations, money, tasks],
+              from: [format, forms, accounts, content, media, inventory, rates, booking, channels, reservations, money, tasks, ledger, bookkeeping, tax],
               message: "The kernel depends on nothing else in src/lib.",
             },
             {
               target: format,
-              from: [forms, accounts, content, media, inventory, rates, booking, channels, reservations, money, tasks],
+              from: [forms, accounts, content, media, inventory, rates, booking, channels, reservations, money, tasks, ledger, bookkeeping, tax],
               message: "Formatting helpers depend only on the kernel.",
             },
             {
               target: forms,
-              from: [accounts, content, media, inventory, rates, booking, channels, reservations, money, tasks],
+              from: [accounts, content, media, inventory, rates, booking, channels, reservations, money, tasks, ledger, bookkeeping, tax],
               message: "Form state is shared by every core, so it can't depend on one.",
             },
             {
               target: accounts,
-              from: [content, media, inventory, rates, booking, channels, reservations, money, tasks],
+              from: [content, media, inventory, rates, booking, channels, reservations, money, tasks, ledger, bookkeeping, tax],
               message: "Accounts don't depend on the other cores.",
             },
             {
               target: content,
-              from: [accounts, media, inventory, rates, booking, channels, reservations, money, tasks],
+              from: [accounts, media, inventory, rates, booking, channels, reservations, money, tasks, ledger, bookkeeping, tax],
               message: "Site content doesn't depend on the other cores.",
             },
             {
               target: media,
-              from: [accounts, content, inventory, rates, booking, channels, reservations, money, tasks],
+              from: [accounts, content, inventory, rates, booking, channels, reservations, money, tasks, ledger, bookkeeping, tax],
               message: "Media doesn't depend on the other cores.",
             },
             {
               target: inventory,
-              from: [accounts, content, media, rates, booking, channels, reservations, money, tasks],
+              from: [accounts, content, media, rates, booking, channels, reservations, money, tasks, ledger, bookkeeping, tax],
               message: "The inventory doesn't know about requests, bookings, accounts or content; it gets apartments and permissions through its ports, wired in src/server.",
             },
             {
               target: rates,
-              from: [accounts, content, media, booking, channels, reservations, money, tasks],
+              from: [accounts, content, media, booking, channels, reservations, money, tasks, ledger, bookkeeping, tax],
               message: "Rates build on the inventory only.",
             },
             {
               target: booking,
-              from: [accounts, content, media, channels, reservations, money, tasks],
+              from: [accounts, content, media, channels, reservations, money, tasks, ledger, bookkeeping, tax],
               message: "Booking requests build on the inventory and rates only; apartments, permissions and consent versions come through their ports.",
             },
             {
               target: channels,
-              from: [accounts, content, media, reservations, money, tasks],
+              from: [accounts, content, media, reservations, money, tasks, ledger, bookkeeping, tax],
               message: "Channels build on the inventory (blocks) only; bookings are made from their stays by the reservations core.",
             },
             {
               target: reservations,
-              from: [accounts, content, media, money, tasks],
+              from: [accounts, content, media, money, tasks, ledger, bookkeeping, tax],
               message: "Reservations build on the inventory, rates, requests and channels; money and tasks build on them.",
             },
             {
               target: money,
-              from: [accounts, content, media, tasks],
+              from: [accounts, content, media, tasks, ledger, bookkeeping, tax],
               message: "Money (payments, invoices) builds on reservations; it never depends on tasks, accounts or content.",
             },
             {
               target: tasks,
-              from: [accounts, content, money],
+              from: [accounts, content, money, ledger, bookkeeping, tax],
               message: "Tasks build on the inventory and reservations; they never see money.",
+            },
+            {
+              target: ledger,
+              from: [accounts, content, media, tasks, bookkeeping, tax],
+              message: "The ledger builds on reservations and money (it posts their events); bookkeeping and tax build on it.",
+            },
+            {
+              target: bookkeeping,
+              from: [accounts, content, tasks, tax],
+              message: "Bookkeeping (expenses, bank) posts through the ledger; tax reads them both.",
+            },
+            {
+              target: tax,
+              from: [accounts, content, tasks],
+              message: "Tax prepares figures from the ledger and bookkeeping; nothing else depends on it.",
             },
             {
               target: "./src/content",

@@ -373,6 +373,8 @@ The system is a hybrid: mostly flat tonal layering (Canvas, Cream, Chalk, White,
 - **Money ledger** (`src/components/admin/money/money-screen.tsx`): the booking's money reads like its receipt: Total, Paid so far, then Balance still to pay in bold, amounts right-aligned in tabular figures, with the deposit on one line below. No big-number tiles.
 - **List rows on phones** keep fixed lines: who and where with the status pill on line 1; the dates (year only when it isn't this year's) on line 2; the source left and the price right on line 3.
 - **Settings rows** (Rates, Channels): one row per thing with its current state in words; a channel's switch saves as it's flipped (with Undo in the toast); a rate opens in a sheet (`src/components/admin/sheet-form.tsx`). No card per item, no cards inside cards.
+- **Tabs on phones** (`src/components/admin/tabs.tsx` with `tabs-scroller.tsx`): the bar scrolls inside itself, the current tab is centred when the page opens, and a fade shows there's more. Still links with `aria-current`, not ARIA tabs.
+- **Books and Tax (Phase 4)**: money reads in words, never with a minus sign ("R65 out", "Loss since 1 Mar", "The books show R65 more than the bank"); statement totals sit under a 2 px Romaic Gold rule (structure, beside the bold total); a return past its due date carries a danger pill in words ("Late: was due Fri 6 Nov") and sits under "Late" above "Coming up"; every tax figure shows its sars.gov.za source and checked date, with the long quote folded into "What the page says".
 - **Task cards**: Start leads while a task is to do, Mark done once it's started; Add photo is secondary and Add note a ghost link; Change and Remove wait behind "Change". On Today a card shows only its next step and Add photo.
 
 ### Logo slot
@@ -425,6 +427,8 @@ The system is a hybrid: mostly flat tonal layering (Canvas, Cream, Chalk, White,
 15. **Guests are found, not browsed.** The Guests page is a search by name, phone or email, with no list of everyone. Guests are personal information (POPIA), so the screen shows only the guest someone is looking for. *(Phase 3.)*
 16. **WhatsApp messages are drafts.** A booking's confirmation, directions and check-in messages open WhatsApp with the text filled in, for the person to check and send. Nothing is sent by itself. The wording is owner-only content (Settings › Messages), because guests act on it. *(Phase 3.)*
 17. **A booking's page puts what happens next first.** The order is: check in, check out, no-show or cancel; then the stay and the guest; then the money in short (payments and invoices are a page of their own); then the messages; and the edit form last, because changes are rare. *(Phase 3.)*
+18. **The books speak plainly.** The Books and Tax pages are for the owner, not an accountant: "Money in and out", "Guest deposits held", "Paid by guests who haven't checked out yet", "Profit" or "Loss" as a word, not a minus sign. Statements are ledger rows (account on the left, amount right-aligned in tabular figures), never tiles. Every report and return carries one line saying who it's for: "Prepared from the books, for the owner and their accountant to review"; returns add "Nothing is filed from this app." *(Phase 4.)*
+19. **A source beside every tax figure.** Each rate, threshold and due date on the Tax pages shows the sars.gov.za page it came from and the day it was checked; an unverified one says so and the returns that need it are refused (brief rule 6). *(Phase 4.)*
 
 ## Placeholders waiting on the client
 

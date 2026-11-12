@@ -41,6 +41,30 @@ export async function currentDashboardActor(requirement: DashboardRequirement): 
   return access.status === "allowed" ? access.actor : null;
 }
 
+/**
+ * For route handlers (downloads): the person meeting `requirement`, or the
+ * response to send instead: 401 when signed out or part-way through
+ * signing in, 403 without the permission, and a redirect to confirm their
+ * password and code when `requirement` asks for a recent step-up (then
+ * back to the download).
+ */
+export async function routeDashboardActor(requirement: DashboardRequirement): Promise<{ actor: Actor } | { response: Response }> {
+  const access = dashboardAccess(await signedIn(), requirement, clock.now());
+  const plain = (text: string, status: number) => new Response(text, { status, headers: { "Cache-Control": "private, no-store", "Content-Type": "text/plain; charset=utf-8" } });
+  switch (access.status) {
+    case "allowed":
+      return { actor: access.actor };
+    case "step-up-due": {
+      const destination = `${adminPaths.stepUp}?${new URLSearchParams({ next: await requestedPath() })}`;
+      return { response: new Response(null, { status: 303, headers: { Location: destination, "Cache-Control": "private, no-store" } }) };
+    }
+    case "not-allowed":
+      return { response: plain("Only the owner can download this.", 403) };
+    default:
+      return { response: plain("Sign in first.", 401) };
+  }
+}
+
 /** The path this request asked for (set by the proxy, never by the browser). */
 async function requestedPath(): Promise<string> {
   return safeAdminDestination((await headers()).get(requestedPathHeader));

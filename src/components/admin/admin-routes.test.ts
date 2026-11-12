@@ -16,7 +16,7 @@ describe("the dashboard's navigation", () => {
   it("shows each role only the sections its permissions open", () => {
     assert.deepEqual(
       adminNavFor("owner").map((item) => item.section),
-      ["today", "bookings", "requests", "tasks", "content", "calendar", "guests", "rates", "channels", "apartments", "team", "audit"],
+      ["today", "bookings", "requests", "tasks", "content", "calendar", "guests", "rates", "channels", "apartments", "books", "tax", "team", "audit"],
     );
     assert.deepEqual(
       adminNavFor("admin").map((item) => item.section),

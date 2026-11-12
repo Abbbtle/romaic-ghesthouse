@@ -12,6 +12,8 @@ export const adminRoutes = {
   rates: "/admin/rates",
   channels: "/admin/channels",
   apartments: "/admin/apartments",
+  books: "/admin/books",
+  tax: "/admin/tax",
   content: "/admin/content",
   team: "/admin/team",
   audit: "/admin/audit",
@@ -19,8 +21,8 @@ export const adminRoutes = {
   signIn: "/admin/sign-in",
 } as const;
 
-/** The dashboard's sections, in navigation order. Later phases add bookings, guests, tasks, books and tax. */
-export const adminSections = ["today", "bookings", "requests", "tasks", "content", "calendar", "guests", "rates", "channels", "apartments", "team", "audit"] as const;
+/** The dashboard's sections, in navigation order. */
+export const adminSections = ["today", "bookings", "requests", "tasks", "content", "calendar", "guests", "rates", "channels", "apartments", "books", "tax", "team", "audit"] as const;
 
 export type AdminSection = (typeof adminSections)[number];
 
@@ -59,6 +61,8 @@ export const adminNavigation: readonly AdminNavItem[] = [
   { section: "rates", href: adminRoutes.rates, label: "Rates", group: "secondary", permission: "rates:view" },
   { section: "channels", href: adminRoutes.channels, label: "Channels", group: "secondary", permission: "channels:status" },
   { section: "apartments", href: adminRoutes.apartments, label: "Apartments", group: "secondary", permission: "availability:view" },
+  { section: "books", href: adminRoutes.books, label: "Books", group: "secondary", permission: "ledger:view" },
+  { section: "tax", href: adminRoutes.tax, label: "Tax", group: "secondary", permission: "tax:manage" },
   { section: "team", href: adminRoutes.team, label: "Team", group: "secondary", permission: "team:view" },
   { section: "audit", href: adminRoutes.audit, label: "Activity", group: "secondary", permission: "audit:view" },
 ];

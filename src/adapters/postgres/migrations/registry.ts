@@ -14,6 +14,13 @@ import { ratesMigration } from "./220-rates";
 import { tasksMigration } from "./240-tasks";
 import { channelsMigration } from "./250-channels";
 import { moneyMigration } from "./260-money";
+import { ledgerMigration } from "./300-ledger";
+import { periodsMigration } from "./310-periods";
+import { expensesMigration } from "./320-expenses";
+import { bankMigration } from "./330-bank";
+import { taxParametersMigration } from "./340-tax-parameters";
+import { taxReturnsMigration } from "./350-tax-returns";
+import { payrollMigration } from "./360-payroll";
 
 export type { Migration } from "../migrate";
 
@@ -86,4 +93,11 @@ export const migrations: readonly Migration[] = [
   tasksMigration,
   channelsMigration,
   moneyMigration,
+  ledgerMigration,
+  periodsMigration,
+  expensesMigration,
+  bankMigration,
+  taxParametersMigration,
+  taxReturnsMigration,
+  payrollMigration,
 ];
