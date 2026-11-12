@@ -1,0 +1,531 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-12T00:00:00Z",
+  "title": "Design System: Romaic Guesthouse",
+  "extensions": {
+    "colorMeta": {
+      "romaic-gold": {
+        "role": "primary",
+        "displayName": "Romaic Gold",
+        "canonical": "oklch(74.9% 0.107 87)",
+        "tonalRamp": [
+          "#100a00",
+          "#302302",
+          "#533f06",
+          "#795d0e",
+          "#9b7e38",
+          "#b9a26f",
+          "#d8c8a4",
+          "#f7eed9"
+        ]
+      },
+      "deep-gold": {
+        "role": "secondary",
+        "displayName": "Deep Gold",
+        "canonical": "oklch(63.1% 0.102 80)",
+        "tonalRamp": [
+          "#110a01",
+          "#312205",
+          "#563d0d",
+          "#7c5a18",
+          "#9f7c3e",
+          "#bda172",
+          "#dac6a6",
+          "#f9edda"
+        ]
+      },
+      "champagne": {
+        "role": "secondary",
+        "displayName": "Champagne",
+        "canonical": "oklch(85.0% 0.113 97)",
+        "tonalRamp": [
+          "#0f0b00",
+          "#2d2500",
+          "#4e4100",
+          "#726000",
+          "#948232",
+          "#b3a56c",
+          "#d3caa2",
+          "#f4efd8"
+        ]
+      },
+      "gold-text": {
+        "role": "secondary",
+        "displayName": "Gold Text",
+        "canonical": "oklch(47.3% 0.083 80)",
+        "tonalRamp": [
+          "#100a02",
+          "#2f230c",
+          "#523e1b",
+          "#775c2c",
+          "#9a7e4d",
+          "#b8a27c",
+          "#d7c7ac",
+          "#f7edde"
+        ]
+      },
+      "midnight-navy": {
+        "role": "primary",
+        "displayName": "Midnight Navy",
+        "canonical": "oklch(22.6% 0.029 249)",
+        "tonalRamp": [
+          "#0b131b",
+          "#111d29",
+          "#172534",
+          "#1e2f40",
+          "#2a3f55",
+          "#8fa2b6",
+          "#b9c6d4",
+          "#dce3eb"
+        ]
+      },
+      "navy-hover": {
+        "role": "primary",
+        "displayName": "Navy Hover",
+        "canonical": "oklch(29.9% 0.038 249)",
+        "tonalRamp": [
+          "#0b131b",
+          "#111d29",
+          "#172534",
+          "#1e2f40",
+          "#2a3f55",
+          "#8fa2b6",
+          "#b9c6d4",
+          "#dce3eb"
+        ]
+      },
+      "ink-black": {
+        "role": "neutral",
+        "displayName": "Ink Black",
+        "canonical": "oklch(19.0% 0.007 315)",
+        "tonalRamp": [
+          "#151316",
+          "#2f2c26",
+          "#4a453b",
+          "#5c5649",
+          "#77705f",
+          "#a39b88",
+          "#ded8ca",
+          "#faf8f3"
+        ]
+      },
+      "cream": {
+        "role": "neutral",
+        "displayName": "Cream",
+        "canonical": "oklch(93.1% 0.015 90)",
+        "tonalRamp": [
+          "#151316",
+          "#2f2c26",
+          "#4a453b",
+          "#5c5649",
+          "#77705f",
+          "#a39b88",
+          "#ded8ca",
+          "#faf8f3"
+        ]
+      },
+      "canvas": {
+        "role": "neutral",
+        "displayName": "Canvas",
+        "canonical": "oklch(97.9% 0.007 89)",
+        "tonalRamp": [
+          "#151316",
+          "#2f2c26",
+          "#4a453b",
+          "#5c5649",
+          "#77705f",
+          "#a39b88",
+          "#ded8ca",
+          "#faf8f3"
+        ]
+      },
+      "chalk": {
+        "role": "neutral",
+        "displayName": "Chalk",
+        "canonical": "oklch(95.5% 0.011 90)",
+        "tonalRamp": [
+          "#151316",
+          "#2f2c26",
+          "#4a453b",
+          "#5c5649",
+          "#77705f",
+          "#a39b88",
+          "#ded8ca",
+          "#faf8f3"
+        ]
+      },
+      "white": {
+        "role": "neutral",
+        "displayName": "White",
+        "canonical": "oklch(100.0% 0.000 90)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "marble": {
+        "role": "neutral",
+        "displayName": "Marble White",
+        "canonical": "oklch(95.8% 0.009 265)",
+        "tonalRamp": [
+          "#090b0f",
+          "#232529",
+          "#404247",
+          "#5f6166",
+          "#808288",
+          "#a2a5ab",
+          "#c6c9cf",
+          "#ebeef4"
+        ]
+      },
+      "fg-2": {
+        "role": "neutral",
+        "displayName": "Secondary Text",
+        "canonical": "oklch(39.2% 0.018 85)",
+        "tonalRamp": [
+          "#151316",
+          "#2f2c26",
+          "#4a453b",
+          "#5c5649",
+          "#77705f",
+          "#a39b88",
+          "#ded8ca",
+          "#faf8f3"
+        ]
+      },
+      "fg-3": {
+        "role": "neutral",
+        "displayName": "Tertiary Text",
+        "canonical": "oklch(45.5% 0.022 86)",
+        "tonalRamp": [
+          "#151316",
+          "#2f2c26",
+          "#4a453b",
+          "#5c5649",
+          "#77705f",
+          "#a39b88",
+          "#ded8ca",
+          "#faf8f3"
+        ]
+      },
+      "control": {
+        "role": "neutral",
+        "displayName": "Control Edge",
+        "canonical": "oklch(54.7% 0.027 88)",
+        "tonalRamp": [
+          "#151316",
+          "#2f2c26",
+          "#4a453b",
+          "#5c5649",
+          "#77705f",
+          "#a39b88",
+          "#ded8ca",
+          "#faf8f3"
+        ]
+      },
+      "crimson": {
+        "role": "tertiary",
+        "displayName": "Crimson",
+        "canonical": "oklch(50.7% 0.203 22)",
+        "tonalRamp": [
+          "#1d0103",
+          "#4a060d",
+          "#7c101d",
+          "#b11c2e",
+          "#da484e",
+          "#f07f7d",
+          "#ffb0ad",
+          "#ffe1de"
+        ]
+      },
+      "success": {
+        "role": "tertiary",
+        "displayName": "Quiet Green (success)",
+        "canonical": "oklch(47.6% 0.080 172)",
+        "tonalRamp": [
+          "#030e0a",
+          "#0e2b23",
+          "#1e4c3e",
+          "#2f6e5c",
+          "#52917d",
+          "#82b1a1",
+          "#b1d2c6",
+          "#e1f4ed"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "hero": {
+        "displayName": "Hero",
+        "purpose": "The page's one big headline when not in a gold bar; Josefin capitals."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Public section headings (h1/h2); Josefin capitals, +0.08em."
+      },
+      "gold-bar": {
+        "displayName": "Gold-bar Heading",
+        "purpose": "Bold Arimo in ink inside the gold frame bar; one per view."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Card, apartment, panel and dialog titles; Arimo bold, sentence case."
+      },
+      "admin-title": {
+        "displayName": "Dashboard Page Title",
+        "purpose": "Dashboard page titles; Arimo bold, normal tracking."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Everything people read; max 65ch."
+      },
+      "lead": {
+        "displayName": "Lead",
+        "purpose": "Opening paragraph under a headline; fg-2, max 60ch."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Short tracked capitals inside a section, in Gold Text; never an eyebrow."
+      },
+      "script": {
+        "displayName": "Script",
+        "purpose": "Sacramento in Gold Text, large, at most once per view."
+      },
+      "date": {
+        "displayName": "Date Numerals",
+        "purpose": "The large date numerals in the dates-and-guests search."
+      }
+    },
+    "shadows": [
+      {
+        "name": "shadow-1",
+        "value": "0 1px 2px rgb(21 19 22 / 0.06), 0 1px 1px rgb(21 19 22 / 0.04)",
+        "purpose": "Photo frame; current segment in Tabs."
+      },
+      {
+        "name": "shadow-2",
+        "value": "0 6px 16px -4px rgb(21 19 22 / 0.07), 0 2px 4px rgb(21 19 22 / 0.04)",
+        "purpose": "Marble panel, dates-search panel, phone tab bar."
+      },
+      {
+        "name": "shadow-3",
+        "value": "0 18px 40px -12px rgb(17 29 41 / 0.075), 0 4px 10px rgb(17 29 41 / 0.05)",
+        "purpose": "Sheets, dialogs, toasts."
+      },
+      {
+        "name": "shadow-sheet",
+        "value": "0 -12px 32px rgb(17 29 41 / 0.075)",
+        "purpose": "The phone booking dock."
+      },
+      {
+        "name": "gold-bar-bevel",
+        "value": "inset 0 1px 0 rgb(255 255 255 / 0.35), inset 0 -1px 0 rgb(21 19 22 / 0.12)",
+        "purpose": "The gold frame bar only."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Entrances, the gold sweep, the checkbox tick."
+      },
+      {
+        "name": "ease-in",
+        "value": "cubic-bezier(0.7, 0, 0.84, 0)",
+        "purpose": "Exits."
+      },
+      {
+        "name": "ease-in-out",
+        "value": "cubic-bezier(0.65, 0, 0.35, 1)",
+        "purpose": "Two-way state changes."
+      },
+      {
+        "name": "gold-sweep",
+        "value": "300ms var(--ease-out), once, after first interaction, never under reduced motion",
+        "purpose": "The gold bar's one sheen (transform and opacity)."
+      },
+      {
+        "name": "dock-reveal",
+        "value": "translate 200ms ease-out; none under reduced motion",
+        "purpose": "The phone booking dock sliding up."
+      },
+      {
+        "name": "state",
+        "value": "150ms",
+        "purpose": "Colour and border transitions on controls."
+      },
+      {
+        "name": "loader-delay",
+        "value": "100ms",
+        "purpose": "Loaders wait before showing, so quick answers never flash."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      }
+    ],
+    "gradients": [
+      {
+        "name": "gradient-gold",
+        "value": "linear-gradient(100deg, #aa823a 0%, #e3ce74 38%, #cba959 62%, #aa823a 100%)",
+        "purpose": "Gold frame bars and gold rules (brand guide p5)."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one main action in a view: navy with white text.",
+      "html": "<button class=\"ds-btn-primary\">Save changes</button>",
+      "css": ".ds-btn-primary{font-family:var(--font-sans,Arimo,Arial,sans-serif);display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 18px;border:1.5px solid transparent;border-radius:var(--radius-sm,2px);font-size:16px;font-weight:700;line-height:1.2;cursor:pointer;transition:color 150ms,background-color 150ms,border-color 150ms;background:var(--color-primary,#111d29);color:#fff;}.ds-btn-primary:hover{background:var(--color-primary-hover,#1e2f40);}.ds-btn-primary:active{background:var(--color-primary-active,#0b131b);transform:scale(.98);}.ds-btn-primary:focus-visible{outline:2px solid var(--color-focus,#111d29);outline-offset:2px;}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Second action beside a primary: white, ink border.",
+      "html": "<button class=\"ds-btn-secondary\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z\"/></svg><span>Call +27 76 957 9928</span></button>",
+      "css": ".ds-btn-secondary{font-family:var(--font-sans,Arimo,Arial,sans-serif);display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 18px;border:1.5px solid transparent;border-radius:var(--radius-sm,2px);font-size:16px;font-weight:700;line-height:1.2;cursor:pointer;transition:color 150ms,background-color 150ms,border-color 150ms;background:#fff;color:var(--color-ink-black,#151316);border-color:var(--color-ink-black,#151316);}.ds-btn-secondary svg{width:20px;height:20px;}.ds-btn-secondary:hover{background:var(--color-neutral-25,#faf8f3);}.ds-btn-secondary:active{background:var(--color-neutral-50,#f3f0e8);}.ds-btn-secondary:focus-visible{outline:2px solid var(--color-focus,#111d29);outline-offset:2px;}"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Reads as a link: unpadded, underlined at rest, Gold Text on hover.",
+      "html": "<button class=\"ds-btn-ghost\">Open in Google Maps</button>",
+      "css": ".ds-btn-ghost{font-family:var(--font-sans,Arimo,Arial,sans-serif);display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 18px;border:1.5px solid transparent;border-radius:var(--radius-sm,2px);font-size:16px;font-weight:700;line-height:1.2;cursor:pointer;transition:color 150ms,background-color 150ms,border-color 150ms;padding:0;background:transparent;color:var(--color-link,#111d29);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px;}.ds-btn-ghost:hover{color:var(--color-link-hover,#74561c);text-decoration-thickness:2px;}.ds-btn-ghost:focus-visible{outline:2px solid var(--color-focus,#111d29);outline-offset:2px;}"
+    },
+    {
+      "name": "Field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Comfortable 48 px public field: white, control border, 2 px corners.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field__label\">Your name</span><input class=\"ds-field__input\" placeholder=\"Full name\"></label>",
+      "css": ".ds-field{display:grid;gap:6px;font-family:var(--font-sans,Arimo,Arial,sans-serif);max-width:320px;}.ds-field__label{font-size:14px;font-weight:600;color:var(--color-ink-black,#151316);}.ds-field__input{height:48px;padding:0 12px;border:1px solid var(--color-control,#77705f);border-radius:var(--radius-field,2px);background:#fff;color:var(--color-ink-black,#151316);font:inherit;font-size:16px;transition:border-color 150ms;}.ds-field__input::placeholder{color:var(--color-neutral-600,#5c5649);}.ds-field__input:hover{border-color:var(--color-neutral-800,#2f2c26);}.ds-field__input:focus-visible{border-color:var(--color-focus,#111d29);outline:2px solid var(--color-focus,#111d29);outline-offset:2px;}"
+    },
+    {
+      "name": "Gold-bar Heading",
+      "kind": "custom",
+      "refersTo": "gold-bar-heading",
+      "description": "The page's one headline in the 100° gold gradient band, bold Arimo in ink.",
+      "html": "<h2 class=\"ds-gold-bar\">Spacious apartments in Welkom</h2>",
+      "css": ".ds-gold-bar{margin:0;padding:.7em 1.1em .6em;background-image:var(--gradient-gold,linear-gradient(100deg,#aa823a 0%,#e3ce74 38%,#cba959 62%,#aa823a 100%));color:#151316;font-family:var(--font-sans,Arimo,Arial,sans-serif);font-weight:700;font-size:clamp(1.625rem,1.25rem + 1.6vw,2.5rem);line-height:1.15;letter-spacing:-0.005em;box-shadow:inset 0 1px 0 rgb(255 255 255/.35),inset 0 -1px 0 rgb(21 19 22/.12);}"
+    },
+    {
+      "name": "Marble Amenity Panel",
+      "kind": "card",
+      "refersTo": "marble-panel",
+      "description": "Flat Marble White behind text, 4 px gold border, gold dividers and Gold Text line icons.",
+      "html": "<div class=\"ds-marble\"><div class=\"ds-marble__row\"><svg width=\"40\" height=\"40\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.25\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12.55a11 11 0 0 1 14.08 0\"/><path d=\"M1.42 9a16 16 0 0 1 21.16 0\"/><path d=\"M8.53 16.11a6 6 0 0 1 6.95 0\"/><path d=\"M12 20h.01\"/></svg><div class=\"ds-marble__text\"><h3>Connectivity and water</h3><p>Fast, always-on Wi-Fi</p></div></div></div>",
+      "css": ".ds-marble{background:var(--color-marble,#eef1f7);border:4px solid var(--color-romaic-gold,#cba959);padding:24px;box-shadow:var(--shadow-2,0 6px 16px -4px rgb(21 19 22/.07),0 2px 4px rgb(21 19 22/.04));font-family:var(--font-sans,Arimo,Arial,sans-serif);}.ds-marble__row{display:grid;grid-template-columns:3rem 1fr;gap:20px;align-items:start;color:var(--color-gold-text,#74561c);}.ds-marble__text{border-left:1px solid var(--color-romaic-gold,#cba959);padding-left:20px;}.ds-marble__text h3{margin:0 0 6px;font-family:var(--font-display,'Josefin Sans',sans-serif);font-weight:600;font-size:18px;letter-spacing:.14em;text-transform:uppercase;color:#151316;}.ds-marble__text p{margin:0;color:var(--color-neutral-700,#4a453b);}"
+    },
+    {
+      "name": "Contact Bar",
+      "kind": "custom",
+      "refersTo": "contact-bar",
+      "description": "Navy band with a 2 px gold top edge closing every public page: gold label, white bold links, gold icons.",
+      "html": "<section class=\"ds-contact\"><p class=\"ds-contact__label\">WhatsApp or call to book</p><a class=\"ds-contact__link\" href=\"#\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z\"/></svg><span>Call +27 76 957 9928</span></a></section>",
+      "css": ".ds-contact{background:var(--color-midnight-navy,#111d29);border-top:2px solid var(--color-romaic-gold,#cba959);padding:24px 16px;display:grid;gap:12px;font-family:var(--font-sans,Arimo,Arial,sans-serif);}.ds-contact__label{margin:0;font-family:var(--font-display,'Josefin Sans',sans-serif);font-size:14px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--color-romaic-gold,#cba959);}.ds-contact__link{display:inline-flex;align-items:center;gap:12px;min-height:44px;color:#fff;font-weight:700;text-decoration:none;text-underline-offset:4px;}.ds-contact__link svg{color:var(--color-romaic-gold,#cba959);}.ds-contact__link:hover{text-decoration:underline;}.ds-contact__link:focus-visible{outline:2px solid var(--color-champagne,#e3ce74);outline-offset:2px;}"
+    },
+    {
+      "name": "Phone Booking Dock",
+      "kind": "custom",
+      "refersTo": "booking-dock",
+      "description": "Two equal actions on navy, shown only after the hero's booking buttons scroll away; hidden from 1024 px.",
+      "html": "<nav class=\"ds-dock\" aria-label=\"Book your stay\"><a href=\"#\" class=\"ds-dock__btn\">Call</a><a href=\"#\" class=\"ds-dock__btn ds-dock__btn--primary\">WhatsApp</a></nav>",
+      "css": ".ds-dock{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px 12px;background:var(--color-midnight-navy,#111d29);border-top:2px solid var(--color-romaic-gold,#cba959);box-shadow:var(--shadow-sheet,0 -12px 32px rgb(17 29 41/.075));font-family:var(--font-sans,Arimo,Arial,sans-serif);}.ds-dock__btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;border-radius:2px;border:1.5px solid rgb(236 232 221/.7);color:#fff;font-size:14px;font-weight:700;letter-spacing:.025em;text-decoration:none;}.ds-dock__btn:hover{background:rgb(255 255 255/.1);}.ds-dock__btn--primary{background:var(--color-cream,#ece8dd);border-color:transparent;color:var(--color-midnight-navy,#111d29);}.ds-dock__btn--primary:hover{background:#fff;}.ds-dock__btn:focus-visible{outline:2px solid var(--color-champagne,#e3ce74);outline-offset:2px;}"
+    },
+    {
+      "name": "Dashboard Sidebar Nav",
+      "kind": "nav",
+      "refersTo": "admin-nav-current",
+      "description": "44 px rows; the current page gets a Cream tint, semibold navy label and Gold Text icon, no side stripe.",
+      "html": "<nav class=\"ds-nav\"><a href=\"#\" class=\"ds-nav__row\" aria-current=\"page\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\"/><path d=\"M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/></svg><span>Today</span></a><a href=\"#\" class=\"ds-nav__row\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 20h9\"/><path d=\"M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z\"/></svg><span>Website</span></a></nav>",
+      "css": ".ds-nav{display:grid;gap:2px;width:224px;padding:0 12px;background:#fff;font-family:var(--font-sans,Arimo,Arial,sans-serif);}.ds-nav__row{display:flex;align-items:center;gap:12px;height:44px;padding:0 12px;border-radius:2px;color:var(--color-neutral-700,#4a453b);font-weight:500;text-decoration:none;transition:background-color 150ms,color 150ms;}.ds-nav__row:hover{background:var(--color-chalk,#f3f0e8);color:#151316;}.ds-nav__row[aria-current=page]{background:var(--color-cream,#ece8dd);color:var(--color-midnight-navy,#111d29);font-weight:600;}.ds-nav__row[aria-current=page] svg{color:var(--color-gold-text,#74561c);}.ds-nav__row:focus-visible{outline:2px solid var(--color-focus,#111d29);outline-offset:2px;}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Client's Own Poster",
+    "overview": "- **Direction:** the classic accommodation page, which the client picked on 2026-11-12. It is played straight, at full craft, in the client's own brand (brand guide, Edition 1).\n- **The poster recipe** (brand guide p10) drives every surface:\n  - a Cream or marble field;\n  - a gold-framed warm photo;\n  - a gold headline bar;\n  - bold Arimo amenities;\n  - the Midnight Navy contact bar at the bottom edge.\n- **Craft bar:** The Menhaden (persistent booking dock), Relais Rossar (warm, framed restraint) and Grano Hotels (dates picker as the hero's working action). See `docs/planning/design-references.md`.\n\nThe system is warm, square-shouldered and quiet. Gold is structure: bars, frames, rules and line icons. Navy does the work: actions, links, the contact bar and the phone dock. The public site is sparse and centred on phones and two-column on desktop. The dashboard is denser: white panels on a Chalk canvas, with Arimo titles. The brand's gold, navy and Cream come through there in small, exact doses.\n\nThe way out of the cream-and-gold look AI tools default to is fidelity to the client's poster, not a different palette (Decision 1). The direction contract rejects three looks: a generic hotel chain, safari-lodge clichés, and anything over-luxurious.",
+    "keyCharacteristics": [
+      "Cream grounds with Marble White panels; gold frames and rules; navy anchors at the foot.",
+      "Josefin Sans capitals for headings and labels; Arimo for everything people read; Sacramento once, large and gold.",
+      "2–4 px corners everywhere, matching the square gold frames.",
+      "Soft shadows under 8% opacity, always over an edge.",
+      "One motion flourish, a gold sheen after first interaction, and none under reduced motion.",
+      "Placeholders that say they are placeholders."
+    ],
+    "rules": [
+      {
+        "name": "The Gold Is Structure Rule",
+        "body": "Gold frames, divides and decorates. Navy (on light) and Cream (on navy) are the only interactive colours. No button, link or selected state is filled gold (Decision 5).",
+        "section": "colors"
+      },
+      {
+        "name": "The Text-Gold Rule",
+        "body": "Gold that must be read on a light ground is Gold Text, never Romaic Gold or Deep Gold.",
+        "section": "colors"
+      },
+      {
+        "name": "The On-Dark Rule",
+        "body": "Inside the `.on-dark` recipe (`src/app/globals.css`), the role colours flip by themselves: text white, secondary Cream, links white with Champagne hover, focus Champagne. Dark surfaces use the recipe rather than hand-set colours.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Script Rule",
+        "body": "Sacramento appears at most once per view, large and gold.",
+        "section": "typography"
+      },
+      {
+        "name": "The Bold Arimo On Gold Rule",
+        "body": "Text on a gold bar is bold Arimo in ink, never Josefin capitals (brand guide p8, p10; Decision 2).",
+        "section": "typography"
+      },
+      {
+        "name": "The Tracking Lives In Recipes Rule",
+        "body": "Letter-spacing belongs to the Josefin recipes, not the size tokens, so Arimo titles at the same sizes keep normal spacing.",
+        "section": "typography"
+      },
+      {
+        "name": "The Edge First Rule",
+        "body": "Every shadow sits on something that already has an edge: a hairline, a control border or a gold frame. Shadows stay under 8% opacity on light grounds.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do follow the poster recipe (brand guide p10): Cream or marble field, gold-framed photo, gold headline bar, bold Arimo amenities, navy contact bar at the foot.",
+      "Do frame every photo with the 4 px Romaic Gold frame, and label every stand-in on its face.",
+      "Do use Gold Text for gold-coloured type and icons on light grounds, and Romaic Gold only on navy or as structure.",
+      "Do use gold rules (2 px gradient, or Romaic Gold at 60% inside panels) as dividers on public surfaces.",
+      "Do wrap dark surfaces in the `.on-dark` recipe so links, focus and text flip together.",
+      "Do keep every interactive border at the control colour (4.0:1), and give every control a 44 px target.",
+      "Do gate motion behind first interaction and `prefers-reduced-motion`. Animate only transform and opacity."
+    ],
+    "donts": [
+      "Don't retype the wordmark in any font, redraw the corner marks, or recolour, stretch, shadow or rotate the logo (brand guide p4). Use `LogoSlot` until the PNGs arrive.",
+      "Don't fill buttons, links or selected states with gold. Gold is never interactive.",
+      "Don't set gold-bar text in Josefin capitals.",
+      "Don't use Romaic Gold or Deep Gold as text on Cream or white.",
+      "Don't use the corner-mark accents (purple, coral, teal) as UI colours.",
+      "Don't put eyebrow labels above headings. The brand guide's \"02 — BRAND OVERVIEW\" numbering stays in the PDF (Decision 3).",
+      "Don't imitate the marble texture or the palm leaf in CSS.",
+      "Don't mark the current nav row with a side stripe. Use the tint, the weight and the gold icon.",
+      "Don't show a shadow without an edge beneath it, or above 8% opacity on light grounds.",
+      "Don't state facts the client's own materials don't (Decision 9)."
+    ]
+  }
+}

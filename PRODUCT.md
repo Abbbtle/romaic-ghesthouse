@@ -57,10 +57,10 @@ The site leads with all three of these together (confirmed 2026-11-12). They are
 1. **Reliable.** It keeps working when Welkom's services don't. The host lists:
    - backup water from two JoJo tanks;
    - backup gas geysers;
-   - solar backup power;
-   - electric fencing, CCTV and secure, enclosed parking.
+   - fast Wi-Fi that's always online;
+   - an electric fence, security cameras and secure, enclosed parking.
 
-   This is the claim nearby competitors can't copy truthfully. Show the specifics; don't just assert it.
+   All of these are confirmed by the client's brand guide. Solar backup power is in the listing only, so it stays unconfirmed. This is the claim nearby competitors can't copy truthfully. Show the specifics; don't just assert it.
 2. **Comfortable and owner-run.** A warm, personal welcome from the people who own it. This needs the client's own words. Booking.com reviews can't be quoted.
 3. **Well placed.** In Bedelia, a short walk from Welkom's CBD, shops and restaurants.
 
@@ -91,7 +91,7 @@ All three claims come from the host's listing text and still need the client's c
   - a confirmation page;
   - Privacy (POPIA);
   - 404 and error pages.
-- **Rooms:** seven room types on the listing, from a wheelchair-accessible family room to doubles with a bath. The number of units per type, real room sizes and prices are unknown. Never publish the listing's identical "108 ft²" sizes.
+- **Apartments:** the listing has seven types, from a wheelchair-accessible family unit to doubles with a bath; the client calls them apartments. Units per type, real sizes and prices are unknown. Never publish the listing's identical "108 ft²" sizes.
 - **Everything visible is editable** in the dashboard and goes live without a redeploy: text, images, prices, rooms and policies. Layouts must survive longer names, more or fewer rooms and swapped photos.
 - **Formats:**
   - prices as "R1,250" (ledger views show cents);
@@ -127,10 +127,41 @@ All three claims come from the host's listing text and still need the client's c
 ## Brand Commitments
 
 - **Name:** "Romaic Guesthouse" (confirmed). Always spell it "Guesthouse"; the repository's `romaic-ghesthouse` spelling is a folder name only. Whether to add "Welkom" is open.
-- **Leads, not yet binding (confirm with the client):**
-  - the tagline "Spacious. Comfortable. Reliable.", from the host's listing;
-  - the multicoloured geometric tile logo on the street sign at 286 Stateway (red, blue, green and yellow shapes). The logo file is still to be requested. Design may reference these but must not depend on them until confirmed.
-- **Voice:** plain, warm and direct; sentence case; British/South African spelling.
+- **Brand guide (binding).** The client's *Romaic Guesthouse Brand Guide*, Edition 1, November 2026, plus two posters, were supplied on 2026-11-12. Details are in `docs/planning/brand-guide-notes.md`.
+  - **Logo:**
+    - the wordmark: black "ROMAIC" with a gold script "Guesthouse";
+    - two geometric corner marks, A and B, in gold, purple, coral, teal and navy;
+    - the primary lockup is A · wordmark · B on Cream.
+  - **Logo rules:**
+    - use only the supplied logo files, and never retype, recolour, stretch, rotate, outline or shadow them;
+    - the wordmark sits on White, Cream or Marble, with a Cream plate on dark or photo backgrounds;
+    - clear space is the height of the "O";
+    - minimum sizes on screen: wordmark 240 px, corner mark 110 px.
+    - **The logo PNG files are still to be supplied.**
+  - **Colours:**
+    - primary: Romaic Gold `#CBA959`, Midnight Navy `#111D29`, Ink Black `#151316`, Cream `#ECE8DD`;
+    - supporting: Deep Gold `#AA823A`, Champagne `#E3CE74`, Marble White `#EEF1F7`;
+    - corner marks only: Royal Purple `#3D2175`, Coral Orange `#E04922`, Teal `#119AA0`;
+    - Crimson Red `#BE042A`, sparingly;
+    - usage: about 50% Cream, Marble or White; 20% Gold; 15% Navy; 10% Black; 5% accents;
+    - gold gradient: 100°, `#AA823A` → `#E3CE74` (38%) → `#CBA959` (62%) → `#AA823A`.
+  - **Type:** the guide's closest Google Fonts matches.
+    - Josefin Sans 500/600 for headlines, upper case and tracked;
+    - Sacramento for script accents: gold, large only, sparingly;
+    - Arimo 400/700 for body, amenities and labels.
+  - **Graphic elements:**
+    - gold frame bars holding headlines and framing photos;
+    - thin gold borders on photos;
+    - soft Carrara-style marble behind text panels;
+    - a faint palm-leaf watermark on Cream, never behind body text;
+    - a full-width Midnight Navy contact bar at the bottom edge (gold label, white bold contact text, gold line icons).
+  - **Photography:** warm golden light (lamps on, dusk), rich reds, golds and creams, real spaces, tidy and straight, framed in thin gold.
+- **Positioning (the brand guide marks it as a suggestion):** "For business travellers, contractors and families visiting Welkom, Romaic Guesthouse is a warm, secure home base — upmarket in feel, affordable in spirit, and always connected." Personality: warm, safe, homely, upmarket yet affordable.
+- **Terminology:** the client calls the units **"spacious apartments"**. The site says "apartments", not "rooms".
+- **Tagline lead:** "Spacious. Comfortable. Reliable." comes from the Booking.com listing. It isn't in the brand guide, which headlines "Spacious Apartments". Not binding.
+- **Contact (from the brand guide and posters):** WhatsApp or call +27 76 957 9928 (076 957 9928); guesthouseromaic@gmail.com; 286 Stateway, Bedelia, Welkom.
+- **Visual direction (chosen by the client, 2026-11-12):** the classic accommodation-site layout, done at full craft. That means a large real photo, the name, a dates-and-guests search, then room cards. Convention is the commitment: it's executed without irony or smuggled quirks, and the quality bar is set by the best-performing accommodation sites (references recorded in DESIGN.md). Other directions offered and not chosen: Pantry Pack, Face Brick and Stoep, Clear-Line Drawings, Steel Window Panes.
+- **Voice (brand guide):** warm, clear and reassuring. Speak like a welcoming host: short sentences, real amenities, always end with how to book, and no claims we can't show. Sentence case in running text; British/South African spelling.
 - **Must not feel like (confirmed 2026-11-12):**
   - a generic hotel chain, interchangeable and corporate;
   - safari-lodge clichés: bushveld, thatch, animal print, "African sunset" stock imagery that isn't Welkom;
@@ -147,7 +178,16 @@ All three claims come from the host's listing text and still need the client's c
   - nearby restaurants and stations.
 
   Unconfirmed by the client.
-- **Photos:** none usable. The listing's 45 photos are Booking.com uploads and may not be copied. The site uses clearly labelled stand-in photos (`data-placeholder`) until the client supplies originals. A shot list is in `property-facts.md`.
+- **Client facts (brand guide and posters, 2026-11-12):**
+  - spacious apartments within walking distance of the CBD;
+  - fast Wi-Fi, always online;
+  - microwave and fridge, iron and board, 3 L drinking water, coffee, tea and cookies;
+  - backup gas geysers and two JoJo water tanks;
+  - electric fence, security cameras, a safe enclosed area and parking.
+  
+  The owner is Nico. Whether to name him on the site is open.
+- **Solar backup power:** claimed by the Booking.com listing but absent from the client's own materials. Unconfirmed, so it isn't shown.
+- **Photos:** the brand guide and posters use the client's own photos (bedrooms, loungers, braai, JoJo tank). The high-resolution originals are still to be supplied. The listing's Booking.com uploads are never copied. Until the originals arrive, the site uses clearly labelled stand-ins (`data-placeholder`). A shot list is in `property-facts.md`.
 - **Not on hand, so never invent:**
   - prices;
   - room sizes;
