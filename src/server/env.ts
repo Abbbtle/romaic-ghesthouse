@@ -215,9 +215,10 @@ export function loadEnvFiles(directory = process.cwd()): void {
 
 /**
  * Development only, and public: lets local authenticator secrets survive restarts without
- * configuring a key. The server refuses to use it in production.
+ * configuring a key. The server refuses to use it in production, and scripts refuse it
+ * against a real database (see ./audit.ts).
  */
-const developmentDataKey = "dev:ZGV2ZWxvcG1lbnQta2V5LW5vdC1zZWNyZXQtMzJieXQ=";
+export const developmentDataKey = "dev:ZGV2ZWxvcG1lbnQta2V5LW5vdC1zZWNyZXQtMzJieXQ=";
 
 /** This server's environment. process.env is read on first use, then kept. */
 export const env: ServerEnv = createServerEnv(process.env);

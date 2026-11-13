@@ -1,10 +1,71 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { fixedClock } from "@/lib/kernel/ports";
-import { createPostgresAuditStore } from "./audit-store";
+import { checkSigningKey, createPostgresAuditStore, entryHash, genesisHash, signedEntryHash, type AuditChainKey } from "./audit-store";
+import type { Database } from "./database";
 import { migrate } from "./migrate";
 import { migrations } from "./migrations/registry";
 import type { TestDatabases } from "./testing/test-databases";
+
+/** Audit chain keys for the tests: the site's (k1), the one rotated in after it (k2), and one that only shares k1's id. */
+const k1: AuditChainKey = { id: "k1", key: Buffer.alloc(32, 1) };
+const k2: AuditChainKey = { id: "k2", key: Buffer.alloc(32, 2) };
+const notK1: AuditChainKey = { id: "k1", key: Buffer.alloc(32, 9) };
+
+let lastId = 0;
+const nextId = () => `00000000-0000-4000-8000-${String(++lastId).padStart(12, "0")}`;
+
+type HashedFields = Parameters<typeof entryHash>[1];
+const hashedColumns = "id, at, actor_id, actor_role, actor_name, category, action, target_type, target_id, subject_role, summary, details, ip_hash";
+
+/** An entry as the log hashed them before entries were keyed. */
+async function appendUnkeyed(db: Database, summary: string): Promise<void> {
+  const prevHash = (await db.get<{ row_hash: string }>("select row_hash from app.audit_log order by seq desc limit 1"))?.row_hash ?? genesisHash;
+  const fields: HashedFields = {
+    id: nextId(),
+    at: new Date("2026-11-01T08:00:00.000Z"),
+    actor_id: null,
+    actor_role: null,
+    actor_name: "",
+    category: "content",
+    action: "test",
+    target_type: null,
+    target_id: null,
+    subject_role: null,
+    summary,
+    details: {},
+    ip_hash: null,
+  };
+  await db.run(
+    "insert into app.audit_log (id, at, category, action, summary, prev_hash, row_hash) values (:id, :at, 'content', 'test', :summary, :prevHash, :rowHash)",
+    { id: fields.id, at: fields.at, summary, prevHash, rowHash: entryHash(prevHash, fields) },
+  );
+}
+
+/**
+ * What someone with owner access to the database does to rewrite the log:
+ * the append-only trigger off, one entry's summary changed, the chain from it
+ * on recomputed with `rehash` (given each entry's stored row_hash), and the
+ * trigger back on.
+ */
+async function rewriteFrom(db: Database, change: { seq: number; summary: string }, rehash: (prevHash: string, fields: HashedFields, storedHash: string) => string): Promise<void> {
+  const before = await db.get<{ row_hash: string }>("select row_hash from app.audit_log where seq < :seq order by seq desc limit 1", { seq: change.seq });
+  const rows = await db.all<HashedFields & { seq: string | number; row_hash: string }>(
+    `select seq, row_hash, ${hashedColumns} from app.audit_log where seq >= :seq order by seq`,
+    { seq: change.seq },
+  );
+  await db.transaction(async (tx) => {
+    await tx.run("alter table app.audit_log disable trigger append_only_rows");
+    let prevHash = before?.row_hash ?? genesisHash;
+    for (const { seq, row_hash: storedHash, ...fields } of rows) {
+      const summary = Number(seq) === change.seq ? change.summary : fields.summary;
+      const rowHash = rehash(prevHash, { ...fields, summary }, storedHash);
+      await tx.run("update app.audit_log set summary = :summary, prev_hash = :prevHash, row_hash = :rowHash where seq = :seq", { summary, prevHash, rowHash, seq: Number(seq) });
+      prevHash = rowHash;
+    }
+    await tx.run("alter table app.audit_log enable trigger append_only_rows");
+  });
+}
 
 /**
  * What the database itself enforces, whatever the app does (threat model
@@ -14,8 +75,8 @@ import type { TestDatabases } from "./testing/test-databases";
  */
 export function describeDatabaseSecurityContract(databases: TestDatabases): void {
   const { label } = databases;
-  const audit = (db: ReturnType<TestDatabases["migrated"]>) =>
-    createPostgresAuditStore(db, { clock: fixedClock("2026-11-12T08:00:00.000Z"), ids: { newId: (() => { let n = 0; return () => `00000000-0000-4000-8000-${String(++n).padStart(12, "0")}`; })() } });
+  const audit = (db: ReturnType<TestDatabases["migrated"]>, keys: readonly AuditChainKey[] = [k1]) =>
+    createPostgresAuditStore(db, { clock: fixedClock("2026-11-12T08:00:00.000Z"), ids: { newId: nextId }, chainKeys: () => keys });
 
   describe(`${label}: database security`, () => {
     it("keeps every app table out of reach of Supabase's API roles", async () => {
@@ -65,6 +126,71 @@ export function describeDatabaseSecurityContract(databases: TestDatabases): void
       });
       const check = await store.verifyChain();
       assert.equal(check.status, "broken");
+    });
+
+    it("signs entries with a key the database doesn't hold, so a chain recomputed after an edit doesn't check out (threat model T15)", async () => {
+      const db = databases.migrated();
+      const store = audit(db);
+      for (const summary of ["first", "second", "third"]) await store.record({ actor: null, category: "money", action: "test", summary });
+      const hashes = await db.all<{ row_hash: string }>("select row_hash from app.audit_log order by seq");
+      assert.ok(hashes.every(({ row_hash }) => /^hmac1\.k1\.[0-9a-f]{64}$/.test(row_hash)), "each entry names the key that signed it");
+
+      // Recomputed with the public SHA-256 the log used before entries were keyed.
+      await rewriteFrom(db, { seq: 2, summary: "quietly changed" }, (prevHash, fields) => entryHash(prevHash, fields));
+      assert.deepEqual(await store.verifyChain(), { status: "broken", atSeq: 2 });
+    });
+
+    it("spots a chain re-signed with a key that isn't the site's, even one with the same id", async () => {
+      const db = databases.migrated();
+      const store = audit(db);
+      for (const summary of ["first", "second", "third"]) await store.record({ actor: null, category: "money", action: "test", summary });
+      await rewriteFrom(db, { seq: 2, summary: "quietly changed" }, (prevHash, fields) => signedEntryHash(notK1, prevHash, fields));
+      assert.deepEqual(await store.verifyChain(), { status: "broken", atSeq: 2 });
+    });
+
+    it("checks entries signed with an older key while it's still listed, and stops trusting them once it's dropped", async () => {
+      const db = databases.migrated();
+      await audit(db, [k1]).record({ actor: null, category: "content", action: "test", summary: "before the rotation" });
+      await audit(db, [k2, k1]).record({ actor: null, category: "content", action: "test", summary: "after it" });
+      assert.deepEqual(
+        (await db.all<{ row_hash: string }>("select row_hash from app.audit_log order by seq")).map(({ row_hash }) => row_hash.split(".")[1]),
+        ["k1", "k2"],
+        "new entries use the first key",
+      );
+      assert.deepEqual(await audit(db, [k2, k1]).verifyChain(), { status: "intact", entries: 2 });
+      assert.deepEqual(await audit(db, [k2]).verifyChain(), { status: "broken", atSeq: 1 });
+      assert.deepEqual(await audit(db, [k2, notK1]).verifyChain(), { status: "broken", atSeq: 1 });
+    });
+
+    it("accepts entries hashed before entries were keyed only at the start of the chain, vouched for by a keyed entry after them", async () => {
+      const db = databases.migrated();
+      const store = audit(db);
+      await appendUnkeyed(db, "older");
+      await appendUnkeyed(db, "old");
+      assert.deepEqual(await store.verifyChain(), { status: "broken", atSeq: 2 }, "on their own they prove nothing: anyone can recompute them");
+      await store.record({ actor: null, category: "content", action: "test", summary: "keyed" });
+      assert.deepEqual(await store.verifyChain(), { status: "intact", entries: 3 });
+
+      // Rewriting an older entry means recomputing every hash after it, and the keyed entry's can't be.
+      await rewriteFrom(db, { seq: 1, summary: "quietly changed" }, (prevHash, fields, storedHash) => (storedHash.startsWith("hmac1.") ? storedHash : entryHash(prevHash, fields)));
+      assert.deepEqual(await store.verifyChain(), { status: "broken", atSeq: 3 });
+
+      const later = databases.migrated();
+      await audit(later).record({ actor: null, category: "content", action: "test", summary: "keyed" });
+      await appendUnkeyed(later, "slipped in after it");
+      assert.deepEqual(await audit(later).verifyChain(), { status: "broken", atSeq: 2 });
+    });
+
+    it("tells a script whether its first key signed the newest keyed entry, before it writes one", async () => {
+      const db = databases.migrated();
+      assert.deepEqual(await checkSigningKey(db, [k1]), { status: "no-signed-entries" });
+      await appendUnkeyed(db, "old");
+      assert.deepEqual(await checkSigningKey(db, [k1]), { status: "no-signed-entries" });
+      await audit(db, [k1]).record({ actor: null, category: "content", action: "test", summary: "keyed" });
+      assert.deepEqual(await checkSigningKey(db, [k1]), { status: "matches" });
+      assert.deepEqual(await checkSigningKey(db, [k1, k2]), { status: "matches" });
+      assert.deepEqual(await checkSigningKey(db, [k2, k1]), { status: "other-key", atSeq: 2 }, "it would sign with k2, which the site may not know");
+      assert.deepEqual(await checkSigningKey(db, [notK1]), { status: "other-key", atSeq: 2 });
     });
 
     it("lists entries newest first, only within the scope asked for, in the query itself", async () => {

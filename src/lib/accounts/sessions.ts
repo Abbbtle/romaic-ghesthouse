@@ -73,11 +73,13 @@ export type SessionStartDependencies = {
  * Signs an account in on this browser: stores a hash of a new token and
  * returns the token for the cookie. A new token every time (never a session
  * carried over from before sign-in), so a planted cookie can't be promoted.
+ * A verified session counts as stepped up now, unless `stepUpAt` says when
+ * the password was last re-entered (a session replaced without one).
  */
 export async function startSession(
   deps: SessionStartDependencies,
   account: { id: string; role: Role },
-  options: { mfaVerified: boolean; device: string; absoluteExpiresAt?: Date },
+  options: { mfaVerified: boolean; device: string; absoluteExpiresAt?: Date; stepUpAt?: Date | null },
 ): Promise<NewSession> {
   const token = deps.secrets.sessionToken();
   const now = deps.clock.now();
@@ -92,7 +94,7 @@ export async function startSession(
     absoluteExpiresAt,
     lastExtendedAt: now,
     mfaVerifiedAt: options.mfaVerified ? now : null,
-    stepUpAt: options.mfaVerified ? now : null,
+    stepUpAt: options.stepUpAt !== undefined ? options.stepUpAt : options.mfaVerified ? now : null,
     device: options.device.slice(0, 80),
   });
   await deps.accounts.recordSignIn(account.id, now);
