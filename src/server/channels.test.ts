@@ -1,5 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { feedChannel, feedResponse, feedTokenPattern } from "./channels";
 
 const ics = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nEND:VCALENDAR\r\n";
@@ -36,5 +37,22 @@ describe("the calendar feed endpoint", () => {
     assert.equal(feedChannel(null), null);
     assert.equal(feedChannel("Booking.com"), null);
     assert.equal(feedChannel("x".repeat(33)), null);
+  });
+});
+
+describe("channel settings", () => {
+  it("ask for a recent step-up on every change, and before the page reads the feed links (roles.md, threat model T11)", () => {
+    const actions = readFileSync("src/app/admin/(dashboard)/channels/actions.ts", "utf8");
+    assert.match(actions, /const configure = \{ permission: "channels:configure", stepUp: true \} as const;/);
+    const exported = [...actions.matchAll(/^export const \w+ = dashboard(?:Form)?Action\(/gm)].length;
+    const configure = [...actions.matchAll(/^\}, configure\);$/gm)].length;
+    const status = [...actions.matchAll(/^\}, status\);$/gm)].length;
+    assert.equal(configure, 5, "calendar links, channel switches and feed links");
+    assert.equal(status, 2, "only Sync now and Sync all now go without step-up");
+    assert.equal(configure + status, exported, "every action ends with one of the two guards");
+
+    const page = readFileSync("src/app/admin/(dashboard)/channels/page.tsx", "utf8");
+    assert.match(page, /const canConfigure = mayConfigure && \(await currentDashboardActor\(\{ permission: "channels:configure", stepUp: true \}\)\) !== null;/);
+    assert.match(page, /canConfigure \? service\.feeds\(actor\) : Promise\.resolve\(null\)/);
   });
 });
