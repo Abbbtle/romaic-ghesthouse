@@ -38,14 +38,14 @@ export const textLimits = {
   slug: 48,
 
   // Page text
-  /** The line in a gold bar: the poster's headline. */
-  goldBar: 48,
+  /** The home page's headline, set large over the first photo. */
+  heroHeadline: 48,
   /** A short introduction under a page's heading. */
   intro: 400,
   /** The home page's lead paragraph. */
   lead: 320,
-  /** The large script line ("Welcome home"). */
-  script: 24,
+  /** The heading of the home page's closing invitation to book ("Welcome home"). */
+  closingHeading: 24,
   /** A longer passage: a room's description, directions. */
   passage: 1_500,
   /** One line of a list: an amenity, a feature, a highlight's line. */
@@ -64,11 +64,12 @@ export type TextLimitName = keyof typeof textLimits;
 
 /**
  * Soft budgets from the design: longer text still saves, but the editor
- * warns that long lines may wrap on phones. A gold bar holds about 28
- * characters a line at phone width, so two lines fit comfortably.
+ * warns that long lines may wrap on phones. The home headline is set large,
+ * about 11 characters a line: 36 characters is three lines on a phone, at
+ * 320 or 390 px wide.
  */
 export const designBudgets = {
-  goldBar: 36,
+  heroHeadline: 36,
   heading: 32,
 } as const satisfies Partial<Record<TextLimitName, number>>;
 

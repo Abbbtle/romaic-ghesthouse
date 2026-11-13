@@ -1,9 +1,11 @@
 import { formatPhoneNumber } from "@/lib/format/phone";
 import { apartmentPath, sitePageNames, sitePages } from "@/lib/content/pages";
-import { contentIconNames, socialPlatformNames, type SectionData, type SectionKey } from "@/lib/content/schema";
+import { socialPlatformNames, type ImageRef, type SectionData, type SectionKey } from "@/lib/content/schema";
 
 const yesNo = (value: boolean) => (value ? "Yes" : "No");
 const lines = (values: readonly string[]) => values.join("\n");
+/** A photo by its description and address: "A made double bed (/stand-ins/warm-bedroom.jpg)". */
+const photoOf = (photo: ImageRef) => `${photo.alt} (${photo.src})`;
 
 /** One field of an earlier version, as the history page lists it. */
 export type RevisionField = {
@@ -61,19 +63,23 @@ const fieldReaders: { [K in SectionKey]: (data: SectionData<K>) => RevisionField
   home: (home) => [
     { label: "Headline", value: home.hero.headline },
     { label: "Introduction", value: home.hero.lead, multiline: true },
-    { label: "Welcome line", value: home.hero.welcome },
-    { label: "Main photo", value: `${home.hero.photo.alt} (${home.hero.photo.src})` },
-    { label: "Rooms heading", value: home.apartments.heading },
-    { label: "Rooms introduction", value: home.apartments.intro, multiline: true },
+    { label: "Main photo", value: photoOf(home.hero.photo) },
     { label: "Highlights heading", value: home.highlights.heading },
     { label: "Highlights introduction", value: home.highlights.intro, multiline: true },
     {
       label: "Highlights",
-      value: home.highlights.items.map((item) => `${item.title} (${contentIconNames[item.icon]}): ${item.lines.join("; ")}`).join("\n"),
+      value: home.highlights.items.map((item) => `${item.title}: ${item.lines.join("; ")}`).join("\n"),
       multiline: true,
     },
+    { label: "House photo", value: home.highlights.photo ? photoOf(home.highlights.photo) : "" },
+    { label: "Rooms heading", value: home.apartments.heading },
+    { label: "Rooms introduction", value: home.apartments.intro, multiline: true },
+    { label: "Evenings heading", value: home.evenings?.heading ?? "" },
+    { label: "Evenings introduction", value: home.evenings?.intro ?? "", multiline: true },
+    { label: "Evening photos", value: lines((home.evenings?.photos ?? []).map(photoOf)), multiline: true },
     { label: "Location heading", value: home.location.heading },
     { label: "Location text", value: home.location.text, multiline: true },
+    { label: "Invitation to book heading", value: home.hero.welcome },
   ],
   apartments: (apartments) => [
     { label: "Heading", value: apartments.heading },

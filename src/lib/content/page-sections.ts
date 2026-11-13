@@ -51,10 +51,10 @@ export type Highlight = z.output<typeof highlightSchema>;
 export const homeSchema = z.object({
   hero: z.object({
     /** The headline over the photograph. */
-    headline: textField({ noun: "the headline", max: textLimits.goldBar, required: "Enter the headline." }),
+    headline: textField({ noun: "the headline", max: textLimits.heroHeadline, required: "Enter the headline." }),
     lead: textField({ noun: "the introduction", max: textLimits.lead, required: "Enter a sentence or two about the guesthouse." }),
     /** A few words of welcome, the heading of the page's closing invitation to book; "" leaves it to the Book page's heading. */
-    welcome: textField({ noun: "the welcome line", max: textLimits.script }),
+    welcome: textField({ noun: "the closing heading", max: textLimits.closingHeading }),
     photo: imageRefSchema,
   }),
   apartments: z.object({ heading: heading(), intro: intro() }),

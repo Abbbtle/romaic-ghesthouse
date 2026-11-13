@@ -202,6 +202,16 @@ describe("content service: saving", () => {
     assert.equal((await service.getAll()).site.description, "Spacious, self-catering rooms.");
   });
 
+  it("keeps an evening band saved without photos, instead of putting the default photos back", async () => {
+    const { service } = setUp();
+    const { data, revision } = await service.getEditable(owner, "home");
+    assert.ok(data.evenings && data.evenings.photos.length > 0, "the sample band starts with a photo");
+    const edited = { ...data, evenings: { ...data.evenings, photos: [] } };
+
+    assert.deepEqual(await service.saveSection(owner, "home", edited, revision), { ok: true, revision: revision + 1 });
+    assert.deepEqual((await service.getAll()).home.evenings?.photos, []);
+  });
+
   it("records when a section was saved, as the clock tells it", async () => {
     const { service, store } = setUp(createMemoryContentStore(), fixedClock("2026-11-11T09:45:00Z"));
     const { data, revision } = await service.getEditable(owner, "contact");
