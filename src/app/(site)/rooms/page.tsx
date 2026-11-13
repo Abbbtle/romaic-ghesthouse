@@ -1,10 +1,10 @@
-import { CalendarDays } from "lucide-react";
 import type { Metadata } from "next";
 import { ApartmentCard } from "@/components/site/apartment-card";
 import { apartmentSummaryOf } from "@/components/site/apartment-summary";
 import { PageBand, PageHeading } from "@/components/site/page-heading";
 import { dockAfterId } from "@/components/site/site-dock";
 import { ButtonLink } from "@/components/ui/button";
+import { cx } from "@/components/ui/cx";
 import { sitePagePaths } from "@/lib/content/pages";
 import { nightlyFromPrices } from "@/server/rates";
 import { getSiteContent } from "@/server/site-content";
@@ -18,29 +18,38 @@ export function generateMetadata(): Promise<Metadata> {
 }
 
 /**
- * Every room type the site offers, as cards with the same anatomy in the
- * same places, so guests can compare who each sleeps and on what beds.
- * Each opens its own page; "Check dates" opens the Book page.
+ * Every room type the site offers, as the approved design's room cards with
+ * the same parts in the same places, so guests can compare who each sleeps,
+ * on what beds and from what price. Large photos, two to a row; with an odd
+ * number of rooms the first runs the full width with its words beside it,
+ * so no card is left alone at the end. Each opens its own page; "Check
+ * availability" opens the Book page.
  */
 export default async function ApartmentsPage() {
   const [{ apartments }, fromPrices] = await Promise.all([getSiteContent(), nightlyFromPrices()]);
   const offered = apartments.items.filter((item) => item.published);
+  const featureFirst = offered.length % 2 === 1 && offered.length > 1;
   return (
     <main id="main" className="flex-1">
-      <PageBand tone="cream">
+      <PageBand spacing="head">
         <PageHeading title={apartments.heading} intro={apartments.intro}>
           <div id={dockAfterId}>
-            <ButtonLink href={sitePagePaths.book} size="lg" icon={<CalendarDays aria-hidden="true" strokeWidth={1.75} className="size-5" />}>
-              Check dates and availability
+            <ButtonLink href={sitePagePaths.book} size="lg">
+              Check availability
             </ButtonLink>
           </div>
         </PageHeading>
       </PageBand>
       <PageBand>
         <h2 className="sr-only">All rooms</h2>
-        <div className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-          {offered.map((apartment) => (
-            <ApartmentCard key={apartment.slug} apartment={apartmentSummaryOf(apartment, fromPrices[apartment.slug] ?? null)} />
+        <div className="grid gap-x-8 gap-y-14 min-[40rem]:grid-cols-2 min-[67.5rem]:gap-x-12">
+          {offered.map((apartment, index) => (
+            <ApartmentCard
+              key={apartment.slug}
+              apartment={apartmentSummaryOf(apartment, fromPrices[apartment.slug] ?? null)}
+              layout={featureFirst && index === 0 ? "feature" : "standard"}
+              className={cx(featureFirst && index === 0 && "min-[40rem]:col-span-full")}
+            />
           ))}
         </div>
       </PageBand>

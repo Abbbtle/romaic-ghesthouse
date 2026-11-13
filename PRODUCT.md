@@ -149,18 +149,22 @@ All three claims come from the host's listing text and still need the client's c
     - Josefin Sans 500/600 for headlines, upper case and tracked;
     - Sacramento for script accents: gold, large only, sparingly;
     - Arimo 400/700 for body, amenities and labels.
+
+    The public site's premium direction (2026-11-13, see Visual direction) keeps the faces but sets headings in Josefin Sans light, large and in sentence case, and uses no script.
   - **Graphic elements:**
     - gold frame bars holding headlines and framing photos;
     - thin gold borders on photos;
     - soft Carrara-style marble behind text panels;
     - a faint palm-leaf watermark on Cream, never behind body text;
     - a full-width Midnight Navy contact bar at the bottom edge (gold label, white bold contact text, gold line icons).
+
+    On the public site the premium direction replaces the frame bars and thick photo borders with an offset gold hairline around the large photographs, and folds the contact bar into a Midnight Navy footer.
   - **Photography:** warm golden light (lamps on, dusk), rich reds, golds and creams, real spaces, tidy and straight, framed in thin gold.
 - **Positioning (the brand guide marks it as a suggestion):** "For business travellers, contractors and families visiting Welkom, Romaic Guesthouse is a warm, secure home base — upmarket in feel, affordable in spirit, and always connected." Personality: warm, safe, homely, upmarket yet affordable.
 - **Terminology (client's correction, 2026-11-13):** Romaic is a guesthouse with **rooms**. Never call them "apartments" in anything a guest or the owner reads; say "room" or "room type", and mention the kitchenette as a feature. The code keeps `apartments`/`Apartment` as internal names (content section key, types, tables, the `/admin/apartments` path) so stored data keeps working; the public pages are at `/rooms`, and `/apartments` redirects there permanently.
 - **Tagline lead:** "Spacious. Comfortable. Reliable." comes from the Booking.com listing. It isn't in the brand guide, which headlines "Spacious Apartments" (superseded by the client's correction above). Not binding.
 - **Contact (from the brand guide and posters):** WhatsApp or call +27 76 957 9928 (076 957 9928); guesthouseromaic@gmail.com; 286 Stateway, Bedelia, Welkom.
-- **Visual direction (chosen by the client, 2026-11-12):** the classic accommodation-site layout, done at full craft. That means a large real photo, the name, a dates-and-guests search, then room cards. Convention is the commitment: it's executed without irony or smuggled quirks, and the quality bar is set by the best-performing accommodation sites (references recorded in DESIGN.md). Other directions offered and not chosen: Pantry Pack, Face Brick and Stoep, Clear-Line Drawings, Steel Window Panes.
+- **Visual direction (approved by Weberu, 2026-11-13; it replaces the classic layout chosen on 2026-11-12):** the premium direction, "a gold-town guesthouse after dark". Midnight navy and Romaic gold; large photographs framed with an offset gold hairline; Josefin Sans light and large, in sentence case, with Arimo for reading. Space comes from the photographs, never from stretched sections. The home page keeps the accommodation essentials in the classic order: a full-bleed photo with the name and address, the dates-and-guests search over its foot, then the house, the rooms, the house times, how to get here and a closing invitation to book. The mock-up is `docs/planning/proposals/premium/` (local); DESIGN.md records the shipped system. It supersedes the earlier gold frame bars and tracked capitals on the public site; the dashboard keeps its own look. Directions offered earlier and not chosen: Pantry Pack, Face Brick and Stoep, Clear-Line Drawings, Steel Window Panes.
 - **Voice (brand guide):** warm, clear and reassuring. Speak like a welcoming host: short sentences, real amenities, always end with how to book, and no claims we can't show. Sentence case in running text; British/South African spelling.
 - **Must not feel like (confirmed 2026-11-12):**
   - a generic hotel chain, interchangeable and corporate;

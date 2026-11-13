@@ -46,6 +46,14 @@ describe("formValues", () => {
     }
   });
 
+  it("reads an evening band whose photos were all removed as one with no photos", () => {
+    const form = withoutFieldsUnder(formOf(sampleContent().home), "evenings.photos");
+    const read = formValues(sectionSchemas.home, form);
+    const parsed = parseSection("home", read);
+    assert.ok(parsed.ok);
+    assert.deepEqual(parsed.value.evenings?.photos, []);
+  });
+
   it("reads a switch as on only when it posted", () => {
     const schema = z.object({ visible: z.boolean(), featured: z.boolean() });
     const form = new FormData();

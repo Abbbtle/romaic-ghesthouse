@@ -100,7 +100,7 @@ export function RequestForm({ action, formToken, apartment, arrive, leave, guest
       </div>
 
       <fieldset className="grid gap-4">
-        <legend className="mb-1 text-h4 font-bold text-ink">Who&rsquo;s coming</legend>
+        <legend className="mb-2 font-display text-title-sm text-ink">Who&rsquo;s coming</legend>
         <div className="grid grid-cols-2 gap-4">
           <Select
             name="adults"
@@ -114,7 +114,7 @@ export function RequestForm({ action, formToken, apartment, arrive, leave, guest
       </fieldset>
 
       <fieldset className="grid gap-4">
-        <legend className="mb-1 text-h4 font-bold text-ink">Your details</legend>
+        <legend className="mb-2 font-display text-title-sm text-ink">Your details</legend>
         <TextField name="name" label="Your name" autoComplete="name" maxLength={limits.nameMax} />
         <PhoneField name="phone" label="Mobile number" hint="We'll WhatsApp or call you on this number." />
         <TextField name="email" type="email" label="Email" optional autoComplete="email" inputMode="email" hint="If you'd like our reply by email too." />
@@ -134,7 +134,7 @@ export function RequestForm({ action, formToken, apartment, arrive, leave, guest
         required
         label={consentLabel}
         hint={
-          <Link href={privacyHref} className="font-bold text-link underline underline-offset-4 hover:text-link-hover">
+          <Link href={privacyHref} className="font-bold text-link underline decoration-romaic-gold decoration-2 underline-offset-[6px] hover:decoration-current">
             Read the privacy notice
           </Link>
         }

@@ -14,7 +14,8 @@ export type PhotoSource = {
   focus?: { x: number; y: number };
 };
 
-export type PhotoAspect = "4/5" | "1/1" | "3/2" | "4/3" | "16/9";
+/** "free" sets no ratio: the caller sizes the photo, such as one filling the height of a card. */
+export type PhotoAspect = "4/5" | "1/1" | "3/2" | "4/3" | "16/9" | "free";
 
 const aspects: Record<PhotoAspect, string> = {
   "4/5": "aspect-4/5",
@@ -22,6 +23,7 @@ const aspects: Record<PhotoAspect, string> = {
   "3/2": "aspect-3/2",
   "4/3": "aspect-4/3",
   "16/9": "aspect-video",
+  free: "",
 };
 
 /** Kept for older callers that passed a corner size; any value other than "none" now means the gold frame. */
@@ -40,6 +42,8 @@ type PhotoProps = {
   corner?: CornerSize | "none";
   /** Sizing beyond the aspect ratio, such as a maximum height. */
   className?: string;
+  /** Classes for the image itself, such as a hover zoom. */
+  imageClassName?: string;
 };
 
 /**
@@ -47,7 +51,7 @@ type PhotoProps = {
  * colour: no tint, no overlay, no text on it. Until it loads, the frame
  * shows a quiet Cream at the final size, so nothing shifts.
  */
-export function Photo({ image, sizes, preload = false, aspect = "4/3", frame, corner, className }: PhotoProps) {
+export function Photo({ image, sizes, preload = false, aspect = "4/3", frame, corner, className, imageClassName }: PhotoProps) {
   const framed = frame ?? corner !== "none";
   return (
     <div className={cx("relative w-full overflow-hidden bg-media", aspects[aspect], framed && "photo-frame", className)}>
@@ -57,7 +61,7 @@ export function Photo({ image, sizes, preload = false, aspect = "4/3", frame, co
         fill
         sizes={sizes}
         preload={preload}
-        className="object-cover"
+        className={cx("object-cover", imageClassName)}
         style={image.focus ? { objectPosition: `${image.focus.x}% ${image.focus.y}%` } : undefined}
       />
     </div>
