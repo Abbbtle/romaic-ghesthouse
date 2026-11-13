@@ -3,7 +3,7 @@ import type { AuditRecorder } from "@/lib/kernel/audit";
 import type { Clock, FieldCipher } from "@/lib/kernel/ports";
 import { tooManyMessage, type RateLimiter } from "@/lib/kernel/rate-limit";
 import { done, refused, refusedWith, type ChangeResult } from "@/lib/kernel/result";
-import { mfaRequiredFor, nextStepFor, type NextStep, type SignedInState } from "./access";
+import { anySignedInRole, dashboardAccess, mfaRequiredFor, nextStepFor, type NextStep, type SignedInState } from "./access";
 import { passwordProblem, type ChangePasswordInput, type ReplaceTemporaryPasswordInput, type SignInInput } from "./input";
 import { mfaSecretContext, refreshMfaSecret } from "./mfa-secrets";
 import { mfaLimit, signInLimit } from "./rate-limits";
@@ -74,6 +74,7 @@ const accountDisabled = "Your account is turned off. Ask the owner to turn it ba
 const temporaryExpired = "Your temporary password has expired. Ask for a new one.";
 const wrongCode = "That code didn't work. Check your authenticator app and try again.";
 const sessionGone = "You've been signed out. Sign in again.";
+const enrolmentStepUpDue = "Confirm it's you before setting up an authenticator: reload the page to enter your password again.";
 
 const recoveryCodePattern = /^[a-z0-9]{5}-?[a-z0-9]{5}$/i;
 const recoveryCodeCount = 10;
@@ -120,11 +121,27 @@ export function createAccountService(deps: AccountServiceDependencies) {
     sessionHandle: sessionHandle(session.tokenHash),
   });
 
-  /** Replaces a session with a new token that has passed the authenticator step, keeping its absolute limit. */
-  const rotateVerified = async (old: { tokenHash: string; session: Session; account: Account }, device: string): Promise<NewSession> => {
-    const next = await startSession(deps, old.account, { mfaVerified: true, device, absoluteExpiresAt: old.session.absoluteExpiresAt });
+  /**
+   * Replaces a session with a new token that has passed the authenticator step, keeping its absolute limit.
+   * It counts as stepped up now, unless `stepUpAt` carries over when the password was last re-entered.
+   */
+  const rotateVerified = async (old: { tokenHash: string; session: Session; account: Account }, device: string, { stepUpAt }: { stepUpAt?: Date | null } = {}): Promise<NewSession> => {
+    const next = await startSession(deps, old.account, { mfaVerified: true, device, absoluteExpiresAt: old.session.absoluteExpiresAt, stepUpAt });
     await deps.sessions.delete(old.tokenHash);
     return next;
+  };
+
+  /**
+   * Whether an authenticator is being added once every sign-in step is done
+   * (from the account page, not the set-up step of signing in), and if so
+   * whether the session's step-up has lapsed. Adding one changes how someone
+   * signs in, so, like the account page's other such changes, it needs the
+   * password re-entered in the last 15 minutes.
+   */
+  const enrolmentFromDashboard = (live: { session: Session; account: Account; mfaEnabled: boolean; now: Date }): { fromDashboard: boolean; stepUpDue: boolean } => {
+    const state = stateOf(live.session, live.account, live.mfaEnabled);
+    if (nextStepFor(state) !== "dashboard") return { fromDashboard: false, stepUpDue: false };
+    return { fromDashboard: true, stepUpDue: dashboardAccess(state, { ...anySignedInRole, stepUp: true }, live.now).status !== "allowed" };
   };
 
   /** Checks an authenticator or recovery code for an account, using either up. */
@@ -248,6 +265,7 @@ export function createAccountService(deps: AccountServiceDependencies) {
       if (!live) return refusedWith(sessionGone);
       if (live.account.mustChangePassword) return refusedWith("Choose your own password first.");
       if (live.mfaEnabled) return refusedWith("An authenticator is already set up for your account.");
+      if (enrolmentFromDashboard(live).stepUpDue) return refusedWith(enrolmentStepUpDue);
       const secret = deps.totp.newSecret();
       const started = await deps.mfa.beginEnrolment(live.account.id, { secretCiphertext: deps.cipher.encrypt(secret, mfaSecretContext(live.account.id)), at: live.now });
       if (!started) return refusedWith("An authenticator is already set up for your account.");
@@ -261,6 +279,8 @@ export function createAccountService(deps: AccountServiceDependencies) {
       if (!(await deps.mfaLimiter.tryConsume(`mfa:${live.account.id}`))) return refusedWith(tooManyCodes);
       const pending = await deps.mfa.find(live.account.id);
       if (!pending || pending.confirmedAt) return refusedWith("Start setting up your authenticator again: reload the page.");
+      const enrolment = enrolmentFromDashboard(live);
+      if (enrolment.stepUpDue) return refusedWith(enrolmentStepUpDue);
       const secret = deps.cipher.decrypt(pending.secretCiphertext, mfaSecretContext(live.account.id));
       const match = deps.totp.verify(secret, code, live.now);
       if (!match) return refused({ code: wrongCode });
@@ -272,7 +292,8 @@ export function createAccountService(deps: AccountServiceDependencies) {
       });
       if (!confirmed) return refusedWith("Start setting up your authenticator again: reload the page.");
       await deps.mfaLimiter.reset(`mfa:${live.account.id}`);
-      const session = await rotateVerified(live, device);
+      // No password was asked for here, so from the dashboard the new session keeps the old one's step-up rather than a fresh one.
+      const session = await rotateVerified(live, device, enrolment.fromDashboard ? { stepUpAt: live.session.stepUpAt } : {});
       await deps.audit.record({ actor: actorOf(live.account), category: "security", action: "mfa.enabled", target: { type: "account", id: live.account.id }, summary: "Set up an authenticator app" });
       return done({ session, recoveryCodes });
     },
