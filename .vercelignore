@@ -1,0 +1,8 @@
+# Never upload the local database or env files when deploying with the Vercel CLI.
+/data.nosync
+.env*
+!.env.example
+# Local build output and internal planning notes stay on this machine.
+/.next
+/.next.nosync
+/docs/planning

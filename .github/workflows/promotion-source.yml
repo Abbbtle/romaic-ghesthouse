@@ -1,0 +1,46 @@
+# Every environment branch takes changes from one source only, by pull request:
+#   feature branches -> dev -> sit -> uat -> preprod -> prod
+# This check fails a pull request whose source isn't the one its target is
+# promoted from. Branch protection on dev, sit, uat, preprod and prod requires
+# it, so nothing reaches production except through that chain.
+name: Promotion source
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, edited]
+    branches: [dev, sit, uat, preprod, prod]
+
+permissions: {}
+
+jobs:
+  promotion-source:
+    name: promotion-source
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Check the pull request comes from its target's source
+        env:
+          TARGET: ${{ github.base_ref }}
+          SOURCE: ${{ github.head_ref }}
+          SAME_REPO: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+        run: |
+          case "$TARGET" in
+            dev)
+              case "$SOURCE" in
+                dev|sit|uat|preprod|prod)
+                  echo "::error::dev takes feature branches. $SOURCE is an environment branch, so it can't be merged back into dev."
+                  exit 1 ;;
+              esac
+              echo "Feature branch $SOURCE into dev: allowed."
+              exit 0 ;;
+            sit) expected=dev ;;
+            uat) expected=sit ;;
+            preprod) expected=uat ;;
+            prod) expected=preprod ;;
+            *) echo "$TARGET isn't an environment branch: nothing to check."; exit 0 ;;
+          esac
+          if [ "$SAME_REPO" != "true" ] || [ "$SOURCE" != "$expected" ]; then
+            echo "::error::$TARGET is promoted from $expected only. This pull request comes from $SOURCE."
+            exit 1
+          fi
+          echo "$SOURCE into $TARGET: allowed."
