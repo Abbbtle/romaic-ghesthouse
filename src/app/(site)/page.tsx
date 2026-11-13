@@ -38,10 +38,11 @@ function riseDelay(seconds: number): CSSProperties {
 }
 
 /**
- * The hero's photograph, full bleed under two navy gradients (the top one
- * keeps the header legible, the bottom one the headline). It settles once
- * on load, never under reduced motion. A stand-in says so quietly at the
- * bottom right, above where the availability bar overlaps.
+ * The hero's photograph, full bleed under navy gradients: from the top for
+ * the header, and from the bottom and the left for the address, headline
+ * and introduction, so they stay legible whatever photo the owner chooses.
+ * It settles once on load, never under reduced motion. A stand-in says so
+ * quietly at the bottom right, above where the availability bar overlaps.
  */
 function HeroPhoto({ image }: { image: ImageRef }) {
   const source = standInSource(image.src);
@@ -58,7 +59,7 @@ function HeroPhoto({ image }: { image: ImageRef }) {
       />
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-[linear-gradient(0deg,rgb(10_17_25/0.92)_0%,rgb(10_17_25/0.6)_55%,rgb(10_17_25/0.35)_100%)] min-[56.25rem]:bg-[linear-gradient(180deg,rgb(10_17_25/0.72)_0%,rgb(10_17_25/0)_22%),linear-gradient(0deg,rgb(10_17_25/0.86)_0%,rgb(10_17_25/0.35)_46%,rgb(10_17_25/0)_70%)]"
+        className="absolute inset-0 bg-[linear-gradient(0deg,rgb(10_17_25/0.92)_0%,rgb(10_17_25/0.6)_55%,rgb(10_17_25/0.35)_100%)] min-[56.25rem]:bg-[linear-gradient(180deg,rgb(10_17_25/0.72)_0%,rgb(10_17_25/0)_22%),linear-gradient(0deg,rgb(10_17_25/0.86)_0%,rgb(10_17_25/0.4)_46%,rgb(10_17_25/0)_75%),linear-gradient(90deg,rgb(10_17_25/0.62)_0%,rgb(10_17_25/0.3)_40%,rgb(10_17_25/0)_65%)]"
       />
       {source && <StandInCaption source={source} placement="custom" className="absolute right-[max(var(--spacing-gutter),env(safe-area-inset-right))] bottom-[5.25rem] text-on-navy-2" />}
     </figure>

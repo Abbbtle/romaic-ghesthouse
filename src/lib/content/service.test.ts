@@ -74,6 +74,18 @@ describe("content service: reading", () => {
     assert.deepEqual(problems, []);
   });
 
+  it("reads a home page saved before the house photo and the evening band, with theirs from the defaults", async () => {
+    const { evenings, ...savedBefore } = sampleContent().home;
+    const { photo, ...highlightsBefore } = savedBefore.highlights;
+    const stored = { ...savedBefore, hero: { ...savedBefore.hero, headline: "An older headline" }, highlights: highlightsBefore };
+    const { service, problems } = setUp(createMemoryContentStore([{ key: "home", data: stored, revision: 4 }]));
+    const home = await service.getSection("home");
+    assert.equal(home.hero.headline, "An older headline");
+    assert.deepEqual(home.highlights.photo, photo);
+    assert.deepEqual(home.evenings, evenings);
+    assert.deepEqual(problems, []);
+  });
+
   it("hands out copies, so a page changing what it's given changes nothing for the next", async () => {
     const { service } = setUp(createMemoryContentStore([{ key: "site", data: "not a section", revision: 2 }]));
     const first = await service.getSection("site");

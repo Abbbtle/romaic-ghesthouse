@@ -219,7 +219,7 @@ export function DatesSearch({
       <div
         className={cx(
           "col-span-2 flex items-center justify-between gap-3 border-t border-hairline py-2 pr-2 pl-4 min-[35rem]:pl-6",
-          bar && "min-[56.25rem]:col-span-1 min-[56.25rem]:grid min-[56.25rem]:content-between min-[56.25rem]:justify-stretch min-[56.25rem]:gap-0 min-[56.25rem]:border-t-0 min-[56.25rem]:py-3",
+          bar && "min-[56.25rem]:col-span-1 min-[56.25rem]:grid min-[56.25rem]:content-between min-[56.25rem]:justify-stretch min-[56.25rem]:gap-0 min-[56.25rem]:border-t-0 min-[56.25rem]:pt-4 min-[56.25rem]:pb-1.5",
         )}
       >
         <span id={guestsId} className="font-display text-label font-semibold tracking-[0.04em] text-gold-text">

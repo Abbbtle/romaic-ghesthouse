@@ -4,7 +4,8 @@ import { VisuallyHidden, newTabHint, whatsappHint } from "@/components/ui/visual
 import type { SiteNavLink } from "./mobile-menu";
 import type { SiteFacts } from "./site-facts";
 
-const linkClasses = "inline-flex min-h-11 items-center transition-colors hover:text-romaic-gold";
+// 44 px targets on phones and tablets; a little closer on a laptop, where a pointer is fine-grained.
+const linkClasses = "inline-flex min-h-11 items-center transition-colors hover:text-romaic-gold lg:min-h-9";
 const headingClasses = "mb-1 font-display text-base tracking-[0.04em] text-fg";
 
 /**
@@ -83,7 +84,7 @@ export function SiteFooter({
             <h2 id="footer-pages" className={headingClasses}>
               Pages
             </h2>
-            <ul className="grid grid-cols-2 gap-x-6 sm:grid-cols-1">
+            <ul className="grid grid-cols-2 gap-x-6">
               {links.map((link) => (
                 <li key={link.href}>
                   <Link href={link.href} className={linkClasses}>
