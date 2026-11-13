@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import type { FieldCipher } from "@/lib/kernel/ports";
-import { countingLimiter, plainCipher } from "./testing/fakes";
+import { countingLimiter, keyedRecoveryCodes, plainCipher, plainTokens } from "./testing/fakes";
 import { accountHarness } from "./testing/harness";
 
 const device = "Safari on iPhone";
@@ -143,6 +143,44 @@ describe("authenticators", () => {
     const two = (await h.accounts.signIn({ email: owner.email, password: "a long passphrase" }, { visitorKey: "visitor", device })) as { ok: true; session: { token: string } };
     assert.equal((await h.accounts.verifyMfa(two.session.token, code, { device })).ok, false);
     assert.equal(await h.accounts.recoveryCodesLeft({ id: owner.id, role: "owner", name: owner.name }), 9);
+  });
+
+  it("stores recovery codes under the keyed recovery-code hash for the account, not the token hash", async () => {
+    const h = accountHarness();
+    const owner = await h.addAccount("owner");
+    const { recoveryCodes } = await h.enrol(await h.signInFully(owner), owner.id);
+    const normalized = recoveryCodes[0]!.replace("-", "");
+    assert.equal(await h.stores.mfa.useRecoveryCode(owner.id, plainTokens.hash(normalized), h.clock.now()), false);
+    assert.equal(await h.stores.mfa.useRecoveryCode(owner.id, h.recoveryCodes.hash(owner.id, normalized), h.clock.now()), true);
+  });
+
+  it("makes new recovery codes that work for signing in and step-up, and stops the old ones", async () => {
+    const h = accountHarness();
+    const owner = await h.addAccount("owner");
+    const actor = { id: owner.id, role: owner.role, name: owner.name };
+    const { token, recoveryCodes: old } = await h.enrol(await h.signInFully(owner), owner.id);
+    const made = await h.accounts.regenerateRecoveryCodes(actor);
+    assert.ok(made.ok);
+    assert.equal(made.recoveryCodes.length, 10);
+    const signIn = async (code: string) => {
+      const started = (await h.accounts.signIn({ email: owner.email, password: "a long passphrase" }, { visitorKey: "visitor", device })) as { ok: true; session: { token: string } };
+      return h.accounts.verifyMfa(started.session.token, code, { device });
+    };
+    assert.equal((await signIn(old[0]!)).ok, false);
+    assert.equal((await signIn(made.recoveryCodes[0]!)).ok, true);
+    assert.equal((await h.accounts.stepUp(token, { password: "a long passphrase", code: made.recoveryCodes[1]! })).ok, true);
+    assert.equal(await h.accounts.recoveryCodesLeft(actor), 8);
+  });
+
+  it("still accepts a recovery code made under a data key that's no longer the newest", async () => {
+    const h = accountHarness({ recoveryCodes: keyedRecoveryCodes(["k2", "k1"]) });
+    const owner = await h.addAccount("owner");
+    await h.enrol(await h.signInFully(owner), owner.id);
+    await h.stores.mfa.replaceRecoveryCodes(owner.id, [keyedRecoveryCodes(["k1"]).hash(owner.id, "older00001")], h.clock.now());
+    const started = (await h.accounts.signIn({ email: owner.email, password: "a long passphrase" }, { visitorKey: "visitor", device })) as { ok: true; session: { token: string } };
+    const used = await h.accounts.verifyMfa(started.session.token, "older-00001", { device });
+    assert.ok(used.ok);
+    assert.equal(used.usedRecoveryCode, true);
   });
 
   it("limits code attempts per account", async () => {

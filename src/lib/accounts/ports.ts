@@ -195,13 +195,27 @@ export interface PasswordHasher {
 
 /**
  * One-way hashing for long random secrets that are looked up but never
- * stored as they are: session tokens, link tokens, recovery codes, the setup
- * token. Never for passwords.
+ * stored as they are: session tokens, link tokens, the setup token. Never
+ * for passwords, nor for recovery codes (see RecoveryCodeHasher).
  */
 export interface TokenHasher {
   hash(token: string): string;
   /** Whether `token` hashes to `tokenHash`, compared in constant time. */
   matches(token: string, tokenHash: string): boolean;
+}
+
+/**
+ * One-way hashing for recovery codes. A code is short (about 49 bits), so a
+ * plain hash read from the database could be reversed by trying every code:
+ * these are keyed with a secret the database never holds, and tied to the
+ * account. Still the same for the same code, so a typed code is found by its
+ * hash. Codes are normalised (no hyphen, lower case) before they're hashed.
+ */
+export interface RecoveryCodeHasher {
+  /** The hash to store for a new recovery code, under the current key. */
+  hash(accountId: string, code: string): string;
+  /** Every hash a stored code may have, one per key still configured, the current key's first. */
+  candidateHashes(accountId: string, code: string): string[];
 }
 
 /** New secrets, from a cryptographically secure source. */

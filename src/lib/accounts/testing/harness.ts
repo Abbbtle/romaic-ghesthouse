@@ -4,23 +4,26 @@ import type { EmailMessage, EmailSender } from "@/lib/kernel/email";
 import type { FieldCipher } from "@/lib/kernel/ports";
 import { createAccountService } from "../account-service";
 import { createEmailLinkService } from "../email-link-service";
-import type { Account } from "../ports";
+import type { Account, RecoveryCodeHasher } from "../ports";
 import { createSetupService } from "../setup-service";
 import { createTeamService } from "../team-service";
-import { fakeTotp, memoryAccountStores, movableClock, plainCipher, plainPasswords, plainTokens, sequentialSecrets, unlimited, uuidIds } from "./fakes";
+import { fakeTotp, keyedRecoveryCodes, memoryAccountStores, movableClock, plainCipher, plainPasswords, plainTokens, sequentialSecrets, unlimited, uuidIds } from "./fakes";
 
 /**
  * Every account service over one set of in-memory stores, with fakes for
  * time, ids, secrets, authenticator codes and email: what the account tests
  * share. `addAccount` puts someone on the team directly.
  */
-export function accountHarness(options: { signInLimiter?: typeof unlimited; mfaLimiter?: typeof unlimited; email?: boolean; cipher?: FieldCipher } = {}) {
+export function accountHarness(
+  options: { signInLimiter?: typeof unlimited; mfaLimiter?: typeof unlimited; email?: boolean; cipher?: FieldCipher; recoveryCodes?: RecoveryCodeHasher } = {},
+) {
   const stores = memoryAccountStores();
   const clock = movableClock("2026-11-12T08:00:00.000Z");
   const ids = uuidIds();
   const secrets = sequentialSecrets();
   const totp = fakeTotp();
   const audit = memoryAuditRecorder();
+  const recoveryCodes = options.recoveryCodes ?? keyedRecoveryCodes();
   const sent: EmailMessage[] = [];
   const email: EmailSender | null =
     options.email === false
@@ -36,6 +39,7 @@ export function accountHarness(options: { signInLimiter?: typeof unlimited; mfaL
     ...stores,
     passwords: plainPasswords,
     tokens: plainTokens,
+    recoveryCodes,
     secrets,
     totp,
     cipher: options.cipher ?? plainCipher,
@@ -112,5 +116,5 @@ export function accountHarness(options: { signInLimiter?: typeof unlimited; mfaL
     return { token: confirmed.session.token, recoveryCodes: confirmed.recoveryCodes, secret: started.secret };
   };
 
-  return { stores, clock, ids, secrets, totp, audit, sent, accounts, team, setup, emailLinks, addAccount, signInFully, enrol };
+  return { stores, clock, ids, secrets, totp, audit, recoveryCodes, sent, accounts, team, setup, emailLinks, addAccount, signInFully, enrol };
 }

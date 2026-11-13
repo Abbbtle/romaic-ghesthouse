@@ -12,6 +12,7 @@ import type {
   AccountStore,
   MfaStore,
   PasswordHasher,
+  RecoveryCodeHasher,
   SecretGenerator,
   RequestContext,
   Session,
@@ -49,6 +50,8 @@ export type AccountServiceDependencies = {
   mfa: MfaStore;
   passwords: PasswordHasher;
   tokens: TokenHasher;
+  /** Hashes recovery codes with a key the database never holds. */
+  recoveryCodes: RecoveryCodeHasher;
   secrets: SecretGenerator;
   totp: TotpAuthenticator;
   /** Encrypts authenticator secrets at rest. */
@@ -130,8 +133,12 @@ export function createAccountService(deps: AccountServiceDependencies) {
     if (!stored?.confirmedAt) return null;
     const typed = code.trim();
     if (recoveryCodePattern.test(typed)) {
-      const used = await deps.mfa.useRecoveryCode(account.id, deps.tokens.hash(normalizeRecoveryCode(typed)), deps.clock.now());
-      return used ? "recovery" : null;
+      // Each key still configured is tried, newest first, so codes made before the key was rotated still work.
+      const at = deps.clock.now();
+      for (const codeHash of deps.recoveryCodes.candidateHashes(account.id, normalizeRecoveryCode(typed))) {
+        if (await deps.mfa.useRecoveryCode(account.id, codeHash, at)) return "recovery";
+      }
+      return null;
     }
     const secret = deps.cipher.decrypt(stored.secretCiphertext, mfaSecretContext(account.id));
     const match = deps.totp.verify(secret, typed, deps.clock.now());
@@ -261,7 +268,7 @@ export function createAccountService(deps: AccountServiceDependencies) {
       const confirmed = await deps.mfa.confirmEnrolment(live.account.id, {
         at: live.now,
         step: match.step,
-        recoveryCodeHashes: recoveryCodes.map((recovery) => deps.tokens.hash(normalizeRecoveryCode(recovery))),
+        recoveryCodeHashes: recoveryCodes.map((recovery) => deps.recoveryCodes.hash(live.account.id, normalizeRecoveryCode(recovery))),
       });
       if (!confirmed) return refusedWith("Start setting up your authenticator again: reload the page.");
       await deps.mfaLimiter.reset(`mfa:${live.account.id}`);
@@ -287,7 +294,7 @@ export function createAccountService(deps: AccountServiceDependencies) {
       const stored = await deps.mfa.find(actor.id);
       if (!stored?.confirmedAt) return refusedWith("Set up an authenticator first.");
       const recoveryCodes = Array.from({ length: recoveryCodeCount }, () => deps.secrets.recoveryCode());
-      await deps.mfa.replaceRecoveryCodes(actor.id, recoveryCodes.map((recovery) => deps.tokens.hash(normalizeRecoveryCode(recovery))), deps.clock.now());
+      await deps.mfa.replaceRecoveryCodes(actor.id, recoveryCodes.map((recovery) => deps.recoveryCodes.hash(actor.id, normalizeRecoveryCode(recovery))), deps.clock.now());
       await deps.audit.record({ actor, category: "security", action: "mfa.recovery-codes-replaced", target: { type: "account", id: actor.id }, summary: "Made new recovery codes" });
       return done({ recoveryCodes });
     },

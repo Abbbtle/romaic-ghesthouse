@@ -1,4 +1,6 @@
 import "server-only";
+import { parseDataKeys } from "@/adapters/crypto/field-encryption";
+import { createRecoveryCodeHasher } from "@/adapters/crypto/hmac";
 import { scryptPasswordHasher } from "@/adapters/crypto/passwords";
 import { randomSecrets, sha256TokenHasher } from "@/adapters/crypto/tokens";
 import { rfc6238Authenticator } from "@/adapters/crypto/totp";
@@ -10,6 +12,7 @@ import { createPostgresMfaStore } from "@/adapters/postgres/mfa-store";
 import { createAccountService, type AccountService } from "@/lib/accounts/account-service";
 import { createEmailLinkService, type EmailLinkService } from "@/lib/accounts/email-link-service";
 import { reencryptMfaSecrets } from "@/lib/accounts/mfa-secrets";
+import type { RecoveryCodeHasher } from "@/lib/accounts/ports";
 import { emailLinkLimit, mfaLimit, setupLimit, signInLimit } from "@/lib/accounts/rate-limits";
 import { createRecoveryService, type RecoveryService } from "@/lib/accounts/recovery-service";
 import { createSetupService, type SetupService } from "@/lib/accounts/setup-service";
@@ -18,7 +21,7 @@ import type { FieldCipher } from "@/lib/kernel/ports";
 import { adminPaths } from "./admin-paths";
 import { auditRecorder } from "./audit";
 import { env } from "./env";
-import { clock, database, emailSender, fieldCipher, ids, rateLimiter } from "./infrastructure";
+import { clock, database, emailSender, fieldCipher, ids, processSingleton, rateLimiter } from "./infrastructure";
 
 /** The name authenticator apps show, and emails sign with. */
 export const businessName = "Romaic Guesthouse";
@@ -45,6 +48,18 @@ const lazyCipher: FieldCipher = {
   needsReencryption: (ciphertext) => fieldCipher().needsReencryption(ciphertext),
 };
 
+/**
+ * Recovery codes are hashed with keys derived from DATA_ENCRYPTION_KEY (see
+ * createRecoveryCodeHasher), made on first use for the same reason as the
+ * cipher: only the authenticator steps need the key, and they fail closed
+ * without it.
+ */
+const recoveryCodeHasher = () => processSingleton("recovery-code-hasher", () => createRecoveryCodeHasher(parseDataKeys(env.dataEncryptionKeys())));
+const lazyRecoveryCodes: RecoveryCodeHasher = {
+  hash: (accountId, code) => recoveryCodeHasher().hash(accountId, code),
+  candidateHashes: (accountId, code) => recoveryCodeHasher().candidateHashes(accountId, code),
+};
+
 /** Where dashboard links point: its own host when one is set (ADMIN_HOST), otherwise the site's. */
 export function dashboardOrigin(): string {
   const host = env.adminHost();
@@ -54,10 +69,11 @@ export function dashboardOrigin(): string {
 
 /**
  * The account services over the app's database: scrypt for passwords,
- * SHA-256 for tokens, RFC 6238 authenticator codes, secrets encrypted with
- * the data key, rate limits counted in Postgres, every change recorded in
- * the audit log. Made on first use, never while building, and kept per
- * module: a development reload rebuilds them with the edited code.
+ * SHA-256 for tokens, RFC 6238 authenticator codes, secrets encrypted and
+ * recovery codes keyed with the data key, rate limits counted in Postgres,
+ * every change recorded in the audit log. Made on first use, never while
+ * building, and kept per module: a development reload rebuilds them with
+ * the edited code.
  */
 export function accountServices(): AccountServices {
   services ??= createAccountServices();
@@ -83,6 +99,7 @@ function createAccountServices(): AccountServices {
     accounts: createAccountService({
       ...stores,
       ...crypto,
+      recoveryCodes: lazyRecoveryCodes,
       mfa,
       totp: rfc6238Authenticator,
       cipher: lazyCipher,

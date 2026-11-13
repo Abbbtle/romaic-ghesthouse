@@ -1,10 +1,12 @@
 import "server-only";
 import { createHmac, timingSafeEqual } from "node:crypto";
+import type { RecoveryCodeHasher } from "@/lib/accounts/ports";
 
 /**
  * HMAC-SHA256 with a secret every server shares (VISITOR_KEY_SECRET in
  * production): keys that count visitors without keeping their IP
- * addresses, and short signed tokens.
+ * addresses, and short signed tokens. Recovery codes are hashed with keys
+ * derived from DATA_ENCRYPTION_KEY instead (createRecoveryCodeHasher).
  */
 
 export type HmacSecret = string | Uint8Array;
@@ -63,5 +65,29 @@ export function createTokenSigner(secret: HmacSecret, purpose: string): TokenSig
       if (actual.length !== expected.length || !timingSafeEqual(actual, expected)) return null;
       return Buffer.from(encoded, "base64url").toString("utf8");
     },
+  };
+}
+
+/**
+ * Recovery codes hashed for app.mfa_recovery_codes: HMAC-SHA256 of the
+ * account id and the code, under a key derived for this purpose alone from
+ * each of DATA_ENCRYPTION_KEY's keys. The database never holds the key, so a
+ * leaked copy of the database can't be searched for codes the way a plain
+ * hash of a 10-character code can; and the account id in the HMAC means a
+ * code (or a row copied between accounts) only ever matches its own account.
+ *
+ * Stored as "hmac-sha256.<key id>.<HMAC, base64url>". New codes use the first
+ * (newest) key; a code made under any key still listed matches too, so
+ * rotating the data key the documented way (new key in front, old one kept)
+ * leaves recovery codes working.
+ */
+export function createRecoveryCodeHasher(keys: readonly { id: string; key: HmacSecret }[]): RecoveryCodeHasher {
+  if (keys.length === 0) throw new Error("No key to hash recovery codes with.");
+  const derived = keys.map(({ id, key }) => ({ id, key: createHmac("sha256", key).update("romaic-recovery-code").digest() }));
+  const hashWith = ({ id, key }: { id: string; key: Buffer }, accountId: string, code: string) =>
+    `hmac-sha256.${id}.${createHmac("sha256", key).update(`${accountId}:${code}`).digest("base64url")}`;
+  return {
+    hash: (accountId, code) => hashWith(derived[0]!, accountId, code),
+    candidateHashes: (accountId, code) => derived.map((key) => hashWith(key, accountId, code)),
   };
 }
