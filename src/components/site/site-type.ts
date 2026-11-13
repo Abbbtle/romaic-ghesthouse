@@ -16,6 +16,8 @@ export const siteText = {
   section: "font-display text-display font-light tracking-[-0.01em] text-ink text-balance",
   /** A heading inside a page's body: "In the room", "Nearby". */
   sub: "font-display text-display-sm font-light tracking-[-0.005em] text-ink text-balance",
+  /** The lead room's name: light, like the display headings, but smaller. */
+  titleLarge: "font-display text-[2rem] leading-[1.1] font-light text-ink",
   /** Room names and block titles. */
   title: "font-display text-title font-normal text-ink",
   /** Smaller titles: room names in a row of four, info blocks, footer headings. */

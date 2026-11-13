@@ -792,6 +792,12 @@
     --color-link: var(--color-midnight-navy);
     --color-link-hover: var(--color-gold-text);
     --color-canvas: var(--color-paper);
+    /* Secondary buttons: a navy outline on the page's own ground. */
+    --color-btn-secondary-bg: transparent;
+    --color-btn-secondary-fg: var(--color-midnight-navy);
+    --color-btn-secondary-border: var(--color-midnight-navy);
+    --color-btn-secondary-hover: rgb(17 29 41 / 0.05);
+    --color-btn-secondary-active: rgb(17 29 41 / 0.1);
     --radius-xs: 0px;
     --radius-sm: 0px;
     --radius-md: 0px;

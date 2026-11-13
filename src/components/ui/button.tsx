@@ -7,11 +7,13 @@ import { newTabHint, VisuallyHidden } from "./visually-hidden";
 
 /**
  * Button looks (design-spec §6.3). Primary is the one main action in a view;
- * the on-dark variants sit on the navy contact bar and dark panels; danger is for confirm dialogs.
- * Ghost reads as a link, for inline actions like "See 1:1 pricing".
+ * the on-dark variants sit on navy footers and dark panels; danger is for confirm dialogs.
+ * Ghost reads as a link, for inline actions like "See 1:1 pricing". Gold is the
+ * public site's booking action on navy (the header, the phone menu and dock).
  */
 export const buttonVariants = [
   "primary",
+  "gold",
   "secondary",
   "ghost",
   "ghost-danger",
@@ -37,9 +39,11 @@ export type ButtonStyle = {
 // Every look has a 1.5 px border, so all buttons share one height; looks without
 // a visible edge make it transparent (it shows in forced-colours mode). Each
 // variant sets its own border colour: two colour utilities on one element
-// would leave the winner to the stylesheet's order.
+// would leave the winner to the stylesheet's order. On the public site
+// (site:) labels are Josefin Sans 600 at 15 px, tracked 0.04em, as the
+// approved premium mock-up sets them; the dashboard keeps bold Arimo.
 const base =
-  "relative inline-flex items-center justify-center gap-2 rounded-sm border-[1.5px] font-bold leading-tight whitespace-nowrap select-none [transition:color_150ms,background-color_150ms,border-color_150ms,scale_100ms] motion-safe:active:scale-[.98] aria-busy:cursor-progress aria-disabled:not-aria-busy:cursor-not-allowed aria-disabled:not-aria-busy:opacity-50";
+  "relative inline-flex items-center justify-center gap-2 rounded-sm border-[1.5px] font-bold leading-tight whitespace-nowrap select-none [transition:color_150ms,background-color_150ms,border-color_150ms,scale_100ms] motion-safe:active:scale-[.98] aria-busy:cursor-progress aria-disabled:not-aria-busy:cursor-not-allowed aria-disabled:not-aria-busy:opacity-50 site:font-display site:font-semibold site:tracking-[0.04em] site:text-[0.9375rem]";
 
 const heights: Record<ButtonSize, string> = {
   lg: "h-13 text-base",
@@ -48,10 +52,11 @@ const heights: Record<ButtonSize, string> = {
   sm: "h-9 text-sm after:absolute after:-inset-1",
 };
 
-const paddings: Record<ButtonSize, string> = { lg: "px-5.5", md: "px-4.5", sm: "px-3.5" };
+const paddings: Record<ButtonSize, string> = { lg: "px-5.5 site:px-7", md: "px-4.5 site:px-5.5", sm: "px-3.5" };
 
 const variants: Record<ButtonVariant, string> = {
   primary: "border-transparent bg-primary text-on-primary hover:bg-primary-hover active:bg-primary-active",
+  gold: "border-transparent bg-romaic-gold text-midnight-navy hover:bg-[#d9bc77] active:bg-champagne",
   secondary: "border-btn-secondary-border bg-btn-secondary-bg text-btn-secondary-fg hover:bg-btn-secondary-hover active:bg-btn-secondary-active",
   ghost: "border-transparent text-link underline decoration-1 underline-offset-4 hover:text-link-hover hover:decoration-2",
   "ghost-danger": "border-transparent text-danger-700 underline decoration-1 underline-offset-4 hover:text-danger-800 hover:decoration-2",
