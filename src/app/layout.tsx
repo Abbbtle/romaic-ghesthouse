@@ -6,11 +6,16 @@ import "./globals.css";
 // The brand guide's typefaces (closest free matches to the poster's lettering,
 // all SIL Open Font License). next/font downloads them at build time and serves
 // them from this site, so pages never call Google and the CSP stays 'self'.
-// Josefin Sans: headlines, upper case and tracked. Arimo: everything you read.
-// Sacramento: rare, large, gold script accents only, so it isn't preloaded.
-// Josefin Sans and Arimo load as variable fonts, so every weight in between is real.
+// Josefin Sans: the public site's display type, light (300) and large, and its
+// labels and buttons at 400-600. Arimo: everything you read. Sacramento: rare,
+// large, gold script accents only (the design preview), so it isn't preloaded.
+// Josefin Sans and Arimo load as variable fonts, so every weight in between is
+// real. Josefin's is named "variable" on purpose: its one file carries 100 to
+// 700, including the light 300 the public site's headings use. A list of
+// static weights would download a file per weight instead.
 const josefin = Josefin_Sans({
   subsets: ["latin"],
+  weight: "variable",
   variable: "--font-josefin",
   display: "swap",
 });

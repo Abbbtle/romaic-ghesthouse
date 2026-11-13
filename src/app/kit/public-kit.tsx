@@ -2,20 +2,19 @@ import { CircleAlert, Phone } from "lucide-react";
 import { AmenityGroups } from "@/components/site/amenity-groups";
 import { ApartmentCard, type ApartmentSummary } from "@/components/site/apartment-card";
 import { BookingDock } from "@/components/site/booking-dock";
-import { ContactBar } from "@/components/site/contact-bar";
-import { GoldBarHeading } from "@/components/site/gold-bar-heading";
 import { MotionGate } from "@/components/site/motion-gate";
 import { romaicFacts } from "@/components/site/romaic-facts";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SiteHeader } from "@/components/site/site-header";
+import { siteText } from "@/components/site/site-type";
 import { StandInPhoto } from "@/components/site/stand-in-photo";
 import { NotFoundView, ServerErrorMessage } from "@/components/site/status-views";
+import { ToConfirm } from "@/components/site/to-confirm";
 import { Badge } from "@/components/ui/badge";
 import { buttonClasses } from "@/components/ui/button";
 import { errorClasses, hintClasses, inputClasses, labelClasses, selectClasses, textareaClasses } from "@/components/ui/form-controls";
 import { LogoSlot } from "@/components/ui/logo-slot";
 import { Notice } from "@/components/ui/notice";
-import { textStyles } from "@/components/ui/typography";
 import { WhatsAppButton } from "@/components/ui/whatsapp-button";
 import { WhatsAppGlyph } from "@/components/ui/whatsapp-glyph";
 import { KitHeader, KitSection, Specimen, Swatch } from "./kit-parts";
@@ -53,6 +52,7 @@ const sampleApartments: ApartmentSummary[] = [
   {
     name: "Family room with shower",
     href: "#booking",
+    summary: "Our largest: beds for up to five, a kitchenette and a private bathroom.",
     sleeps: 5,
     beds: "5 single beds",
     photo: photos.warm,
@@ -66,6 +66,7 @@ const sampleApartments: ApartmentSummary[] = [
   {
     name: "Deluxe double room with bath",
     href: "#booking",
+    summary: "A large double bed and a bathroom with both a bath and a shower.",
     sleeps: 2,
     beds: "1 large double bed",
     photo: photos.bed,
@@ -79,6 +80,7 @@ const sampleApartments: ApartmentSummary[] = [
   {
     name: "Double or twin room with shower",
     href: "#booking",
+    summary: "One extra-large double or two singles, looking onto the inner courtyard.",
     sleeps: 2,
     beds: "1 extra-large double or 2 single beds",
     photo: photos.desk,
@@ -98,24 +100,20 @@ export function PublicKit() {
       <MotionGate />
       <KitHeader view="public" sections={sections} />
       <main id="main" className="flex-1">
-        {/* The home page's first viewport, as the direction contract sets it (Phase 2 builds the page). */}
-        <section id="home" aria-labelledby="home-title" className="scroll-mt-20 bg-cream">
-          <div className="mx-auto grid max-w-page gap-8 px-[max(1rem,env(safe-area-inset-left))] pt-8 pb-12 lg:grid-cols-12 lg:items-center lg:gap-12 lg:pt-12 lg:pb-16">
-            <div className="order-2 grid gap-5 lg:order-1 lg:col-span-5">
-              <div className="hidden lg:block">
-                <LogoSlot kind="wordmark" />
-              </div>
-              <GoldBarHeading as="h2" size="hero" sweep>
-                <span id="home-title">A secure guesthouse in Welkom</span>
-              </GoldBarHeading>
-              <p className="text-center font-display text-sm font-semibold tracking-[0.24em] text-ink uppercase lg:text-left">{addressLine}</p>
+        {/* The home page's first words, set as the approved premium design sets them over the photograph. */}
+        <section id="home" aria-labelledby="home-title" className="scroll-mt-20 bg-paper">
+          <div className="site-wrap grid gap-12 py-12 lg:grid-cols-12 lg:items-center lg:gap-16 lg:py-16">
+            <div className="grid gap-6 lg:col-span-5">
+              <p className="font-display text-nav tracking-[0.04em] text-gold-text">{addressLine}</p>
+              <h2 id="home-title" className={`${siteText.hero} text-ink`}>
+                A secure guesthouse in Welkom
+              </h2>
               <SearchDemo />
             </div>
-            <div className="order-1 grid justify-items-center gap-5 lg:order-2 lg:col-span-7">
-              <div className="lg:hidden">
-                <LogoSlot kind="wordmark" />
+            <div className="lg:col-span-7">
+              <div className="framed">
+                <StandInPhoto photo={photos.warm} aspect="aspect-4/3" preload sizes="(min-width: 1024px) 58vw, 100vw" />
               </div>
-              <StandInPhoto photo={photos.warm} aspect="aspect-4/3" preload sizes="(min-width: 1024px) 58vw, 100vw" />
             </div>
           </div>
         </section>
@@ -157,12 +155,14 @@ export function PublicKit() {
           id="colour"
           title="Colour"
           tone="white"
-          spec="From the brand guide. About half of every layout is Cream, Marble or white; gold about a fifth; navy anchors; ink carries text. The corner-mark colours never appear in the interface."
+          spec="The brand guide's colours, as the approved premium design uses them on the public site: Paper and Cream grounds, Midnight Navy for the header, footer and evening band, Romaic Gold for hairlines and the booking button on navy, navy ink and cool greys for text. The corner-mark colours never appear in the interface."
         >
           <div className="grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
-            <Swatch name="Romaic Gold" token="romaic-gold" value="#CBA959" use="Frame bars, rules, icons on navy. Never text on light." ratio="Ink on gold 8.2:1" />
-            <Swatch name="Midnight Navy" token="midnight-navy" value="#111D29" use="Contact bar, dock, primary buttons, links." ratio="White on navy 17.1:1" />
-            <Swatch name="Ink Black" token="ink-black" value="#151316" use="Headlines and body text." ratio="On Cream 15.1:1" />
+            <Swatch name="Romaic Gold" token="romaic-gold" value="#CBA959" use="Hairline frames and rules, the booking button and labels on navy. Never text on light." ratio="Navy on gold 7.6:1" />
+            <Swatch name="Midnight Navy" token="midnight-navy" value="#111D29" use="Header, footer, evening band, dock; text and primary buttons on light." ratio="On Paper 16.1:1" />
+            <Swatch name="Paper" token="paper" value="#FAF8F3" use="The public site's canvas." />
+            <Swatch name="Ink 2" token="ink-2" value="#4A4F57" use="Secondary text on the public site." ratio="On Paper 7.8:1" />
+            <Swatch name="On navy" token="on-navy · on-navy-2" value="#F3EFE6" use="Text on navy; #B8BEC7 for its secondary text." ratio="14.9:1 · 9.1:1" />
             <Swatch name="Cream" token="cream" value="#ECE8DD" use="Main backgrounds, the logo plate." />
             <Swatch name="Deep Gold" token="deep-gold" value="#AA823A" use="Gradient stops and large shapes only." />
             <Swatch name="Champagne" token="champagne" value="#E3CE74" use="Gold highlight; text selection." />
@@ -173,59 +173,47 @@ export function PublicKit() {
             <Swatch name="Crimson" token="crimson" value="#BE042A" use="Errors; a sparing accent." ratio="On Cream 5.3:1" />
             <Swatch name="Corner marks only" token="royal-purple · coral · teal" value="#3D2175" use="Purple #3D2175, coral #E04922, teal #119AA0: inside the logo files only." />
           </div>
-          <Specimen label="Gold gradient, 100°: the frame bar">
-            <div className="gold-bar h-14" aria-hidden="true" />
-          </Specimen>
         </KitSection>
 
         <KitSection
           id="type"
           title="Type"
-          spec="Josefin Sans in capitals, tracked, for headlines. Arimo for everything people read. Sacramento in gold, large, at most once in a view. All three are self-hosted."
+          spec="Josefin Sans light, large and in sentence case for display headings, tracked no wider than 0.04em; Josefin at 400-600 for titles, labels, buttons and the nav; Arimo at 17 px for everything people read. All self-hosted."
         >
           <div className="grid gap-8 lg:grid-cols-2">
             <div className="grid content-start gap-6">
-              <Specimen label="Hero · Josefin Sans 600, caps, +0.1em">
-                <p className={textStyles.hero}>A secure guesthouse</p>
+              <Specimen label="Hero · Josefin Sans 300">
+                <p className={siteText.hero}>A secure guesthouse</p>
               </Specimen>
-              <Specimen label="H1 · Josefin Sans 600, caps">
-                <p className={textStyles.h1}>Our rooms</p>
+              <Specimen label="Page heading · Josefin Sans 300">
+                <p className={siteText.page}>Our rooms</p>
               </Specimen>
-              <Specimen label="H2 · Josefin Sans 600, caps">
-                <p className={textStyles.h2}>Where to find us</p>
+              <Specimen label="Section heading · Josefin Sans 300">
+                <p className={siteText.section}>What keeps working</p>
               </Specimen>
-              <Specimen label="H3 · Arimo 700">
-                <p className={textStyles.h3}>Family room with shower</p>
-              </Specimen>
-              <Specimen label="H4 · Arimo 700">
-                <p className={textStyles.h4}>In your room</p>
+              <Specimen label="Title · Josefin Sans 400">
+                <p className={siteText.title}>Family room with shower</p>
               </Specimen>
             </div>
             <div className="grid content-start gap-6">
-              <Specimen label="Script · Sacramento, gold, large only">
-                <p className={textStyles.script}>Welcome home</p>
+              <Specimen label="Lede · Arimo 400">
+                <p className={siteText.lede}>Within walking distance of the city centre, with fast Wi-Fi that&rsquo;s always online.</p>
               </Specimen>
-              <Specimen label="Lead · Arimo 400">
-                <p className={textStyles.lead}>Within walking distance of the city centre, with fast Wi-Fi that&rsquo;s always online.</p>
-              </Specimen>
-              <Specimen label="Body · Arimo 400, 16 px">
-                <p className={textStyles.body}>
+              <Specimen label="Body · Arimo 400, 17 px">
+                <p className={siteText.body}>
                   Each room has a kitchenette with a fridge and microwave, an iron and ironing board, with 3 L of drinking water, coffee, tea and
                   cookies waiting when you arrive.
                 </p>
               </Specimen>
-              <Specimen label="Label · Josefin Sans 600, caps, +0.14em">
-                <p className={textStyles.label}>Connectivity</p>
-              </Specimen>
-              <Specimen label="Meta · Arimo 400, 12 px">
-                <p className={textStyles.meta}>Check-in times and policies to be confirmed by the owner.</p>
+              <Specimen label="Label · Josefin Sans 600, +0.04em, gold">
+                <p className={siteText.label}>Arrive</p>
               </Specimen>
               <Specimen label="Price and date numerals">
                 <div className="flex flex-wrap items-baseline gap-6">
-                  <p className={textStyles.price} data-placeholder="price">
-                    R0,000
+                  <p className="font-display text-[1.0625rem] text-ink" data-placeholder="price">
+                    Price on request
                   </p>
-                  <p className="font-display text-date font-semibold text-ink" data-numeric>
+                  <p className="font-display text-[2rem] leading-none font-light text-ink" data-numeric>
                     12
                   </p>
                 </div>
@@ -234,21 +222,19 @@ export function PublicKit() {
           </div>
         </KitSection>
 
-        <KitSection id="elements" title="Elements" tone="white" spec="The brand's graphic elements: gold frame bars, thin gold photo frames, marble panels and gold rules.">
+        <KitSection id="elements" title="Elements" tone="white" spec="The approved design's elements: large photographs framed with a gold hairline set off their edge, gold rules over info blocks, and the quiet honesty marks.">
           <div className="grid gap-8 lg:grid-cols-2">
-            <Specimen label="Gold frame bar holding a headline">
-              <GoldBarHeading as="h3">Spacious rooms</GoldBarHeading>
+            <Specimen label="A large photo in its offset gold hairline (a labelled stand-in)">
+              <div className="framed">
+                <StandInPhoto photo={photos.bed} aspect="aspect-3/2" sizes="(min-width: 1024px) 40vw, 100vw" />
+              </div>
             </Specimen>
-            <Specimen label="Gold rule">
-              <hr className="gold-rule w-24" />
-            </Specimen>
-            <Specimen label="Photo in its gold frame (a labelled stand-in)">
-              <StandInPhoto photo={photos.bed} aspect="aspect-3/2" sizes="(min-width: 1024px) 40vw, 100vw" />
-            </Specimen>
-            <Specimen label="Marble panel with a gold edge">
-              <div className="marble border-4 border-romaic-gold p-6">
-                <p className={textStyles.h4}>Connectivity and water</p>
-                <p className="mt-1 text-base text-fg-2">Fast, always-on Wi-Fi. Backup gas water heaters and two JoJo water tanks.</p>
+            <Specimen label="An info block under a 2 px gold rule, and a fact still to confirm">
+              <div className="grid gap-2 border-t-2 border-romaic-gold pt-5">
+                <p className={siteText.titleSm}>Nearby</p>
+                <p className="text-[0.9375rem] text-fg-2">
+                  Nando&rsquo;s · About 320 m <ToConfirm />
+                </p>
               </div>
             </Specimen>
           </div>
@@ -257,7 +243,7 @@ export function PublicKit() {
           </Specimen>
         </KitSection>
 
-        <KitSection id="actions" title="Actions" spec="One navy primary action per view. Secondary is outlined in ink; links are navy and underline on hover. Every target is at least 44 px.">
+        <KitSection id="actions" title="Actions" spec="One navy primary action per light view, the gold booking button on navy. Secondary is a navy outline; links are bold with a gold underline. Every target is at least 44 px.">
           <div className="grid gap-8 lg:grid-cols-2">
             <Specimen label="Buttons on light">
               <div className="flex flex-wrap items-center gap-3">
@@ -280,8 +266,8 @@ export function PublicKit() {
             </Specimen>
             <Specimen label="Buttons on navy">
               <div className="on-dark flex flex-wrap items-center gap-3 bg-midnight-navy p-5">
-                <button type="button" className={buttonClasses({ variant: "on-dark" })}>
-                  Check dates
+                <button type="button" className={buttonClasses({ variant: "gold" })}>
+                  Check availability
                 </button>
                 <button type="button" className={buttonClasses({ variant: "on-dark-secondary" })}>
                   <Phone aria-hidden="true" strokeWidth={1.5} className="size-5" />
@@ -292,7 +278,7 @@ export function PublicKit() {
             <Specimen label="Links">
               <p className="text-base">
                 Read the{" "}
-                <a href="#states" className="font-bold text-link underline underline-offset-4 hover:text-link-hover">
+                <a href="#states" className={siteText.link}>
                   house rules
                 </a>{" "}
                 before you arrive, or{" "}
@@ -397,12 +383,12 @@ export function PublicKit() {
 
         <section id="chrome" aria-labelledby="chrome-title" className="scroll-mt-20 border-t border-hairline bg-white">
           <div className="mx-auto grid max-w-page gap-2 px-[max(1rem,env(safe-area-inset-left))] pt-14 pb-6">
-            <h2 id="chrome-title" className="font-display text-h2 font-semibold tracking-[0.08em] text-ink uppercase">
+            <h2 id="chrome-title" className={siteText.section}>
               Header and footer
             </h2>
             <p className="max-w-[68ch] text-base text-fg-2">
               The header with the main pages and the booking action; the menu on phones (open it at narrow widths); the phone booking dock; and the
-              footer ending in the navy contact bar.
+              navy footer with the contact details.
             </p>
           </div>
           <div className="grid grid-cols-[minmax(0,1fr)] gap-8 pb-14">
@@ -434,7 +420,6 @@ export function PublicKit() {
           </div>
         </KitSection>
       </main>
-      <ContactBar facts={romaicFacts} />
     </div>
   );
 }

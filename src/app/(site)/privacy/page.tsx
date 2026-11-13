@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { PageBand } from "@/components/site/page-heading";
-import { GoldBarHeading } from "@/components/site/gold-bar-heading";
+import { siteText } from "@/components/site/site-type";
 import { NotYetKnown } from "@/components/site/to-confirm";
 import { Prose } from "@/components/ui/prose";
 import { formatPhoneNumber, telHref } from "@/lib/format/phone";
@@ -66,12 +66,10 @@ export default async function PrivacyPage() {
   const officerSection = withOfficer(blocks, officer);
   return (
     <main id="main" className="flex-1">
-      <PageBand tone="cream">
-        <div className="grid justify-items-start gap-4">
-          <GoldBarHeading as="h1" size="hero">
-            {privacy.heading}
-          </GoldBarHeading>
-          <p className="text-sm text-fg-2">
+      <PageBand spacing="head">
+        <div className="grid justify-items-start gap-5">
+          <h1 className={siteText.page}>{privacy.heading}</h1>
+          <p className={siteText.secondary}>
             Version {privacy.version}, updated {formatDayLong(privacy.updatedOn)}
           </p>
         </div>

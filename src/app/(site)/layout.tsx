@@ -1,3 +1,4 @@
+import type { Viewport } from "next";
 import { MotionGate } from "@/components/site/motion-gate";
 import { SiteDock } from "@/components/site/site-dock";
 import { siteFactsOf } from "@/components/site/site-facts";
@@ -16,11 +17,16 @@ import { getSiteContent } from "@/server/site-content";
  */
 export const instant = false;
 
+/** The browser's own bars match the public site's navy header (the dashboard keeps the root layout's Cream). */
+export const viewport: Viewport = {
+  themeColor: "#111d29",
+};
+
 /**
- * The public site's frame: the header with the main pages and the booking
- * action, then the page, then the footer ending in the navy contact bar, and
- * on phones the booking dock. The business's name, phone, email and address
- * come from content.
+ * The public site's frame: the navy header with the main pages and the
+ * booking action, then the page, then the navy footer with the contact
+ * details, and on phones the booking dock. The business's name, phone,
+ * email, address and description come from content.
  */
 export default async function SiteLayout({ children }: LayoutProps<"/">) {
   const content = await getSiteContent();
@@ -30,7 +36,7 @@ export default async function SiteLayout({ children }: LayoutProps<"/">) {
       <MotionGate />
       <SiteHeader links={mainNav} bookHref={sitePagePaths.book} facts={facts} />
       {children}
-      <SiteFooter links={footerNav} facts={facts} />
+      <SiteFooter links={footerNav} facts={facts} description={content.site.description} />
       <SiteDock facts={facts} />
     </div>
   );

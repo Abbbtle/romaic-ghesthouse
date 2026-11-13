@@ -38,7 +38,8 @@ export function sampleContent(): SiteContent {
     home: {
       hero: { headline: "Sample rooms", lead: "A sample lead about the guesthouse.", welcome: "Hello", photo: { ...samplePhoto } },
       apartments: { heading: "Rooms", intro: "Sample rooms." },
-      highlights: { heading: "Highlights", intro: "", items: [{ icon: "wifi", title: "Wi-Fi", lines: ["Fast Wi-Fi"] }] },
+      highlights: { heading: "Highlights", intro: "", items: [{ icon: "wifi", title: "Wi-Fi", lines: ["Fast Wi-Fi"] }], photo: { ...samplePhoto } },
+      evenings: { heading: "Evenings", intro: "A sample evening.", photos: [{ ...samplePhoto }] },
       location: { heading: "Where we are", text: "In Testville." },
     },
     apartments: {
