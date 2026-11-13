@@ -11,12 +11,16 @@ export function generateMetadata(): Promise<Metadata> {
   return pageMetadata("gallery");
 }
 
-/** The gallery: every photo in its gold frame, with its caption where it has one. Stand-ins say so on their faces. */
+/**
+ * The gallery: the photographs large and close together, carrying the page,
+ * each with its caption where it has one. Stand-ins say so quietly on their
+ * faces.
+ */
 export default async function GalleryPage() {
   const { gallery } = await getSiteContent();
   return (
     <main id="main" className="flex-1">
-      <PageBand tone="cream">
+      <PageBand spacing="head">
         <PageHeading title={gallery.heading} intro={gallery.intro} />
       </PageBand>
       <PageBand>
@@ -26,15 +30,19 @@ export default async function GalleryPage() {
             {gallery.photos.map(({ photo, caption }, index) => (
               // The first photo leads at double size from 1024 px, which also keeps ten photos from leaving one alone on the last row.
               <li key={photo.src} className={index === 0 && gallery.photos.length % 3 === 1 ? "lg:col-span-2 lg:row-span-2" : undefined}>
-                <figure className="grid gap-2">
-                  <ContentPhoto image={photo} sizes="(min-width: 1024px) 22rem, (min-width: 640px) 50vw, calc(100vw - 2rem)" />
-                  {caption && <figcaption className="text-sm text-fg-2">{caption}</figcaption>}
+                <figure className="m-0 grid h-full grid-rows-[minmax(0,1fr)_auto] gap-2">
+                  <ContentPhoto
+                    image={photo}
+                    sizes={index === 0 ? "(min-width: 1024px) 52rem, (min-width: 640px) 50vw, calc(100vw - 2.5rem)" : "(min-width: 1024px) 26rem, (min-width: 640px) 50vw, calc(100vw - 2.5rem)"}
+                    className={index === 0 && gallery.photos.length % 3 === 1 ? "lg:h-full lg:aspect-auto" : undefined}
+                  />
+                  {caption && <figcaption className="text-[0.9375rem] text-fg-2">{caption}</figcaption>}
                 </figure>
               </li>
             ))}
           </ul>
         ) : (
-          <p data-placeholder="photo" className="text-base text-fg-3">
+          <p data-placeholder="photo" className="text-fg-3">
             Photos are on their way.
           </p>
         )}

@@ -21,6 +21,7 @@ export function apartmentSummaryOf(apartment: Apartment, fromCents: number | nul
   return {
     name: apartment.name,
     href: apartmentPath(apartment.slug),
+    summary: apartment.summary,
     sleeps: apartment.sleeps,
     beds: apartment.beds,
     photo: apartment.photos[0] ?? null,

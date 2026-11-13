@@ -1,12 +1,11 @@
 import { CircleCheck, Phone } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { GoldBarHeading } from "@/components/site/gold-bar-heading";
 import { PageBand } from "@/components/site/page-heading";
 import { siteFactsOf, whatsappWith } from "@/components/site/site-facts";
+import { siteText } from "@/components/site/site-type";
 import { buttonClasses } from "@/components/ui/button";
 import { Paragraphs } from "@/components/ui/paragraphs";
-import { textStyles } from "@/components/ui/typography";
 import { WhatsAppButton } from "@/components/ui/whatsapp-button";
 import { sitePagePaths } from "@/lib/content/pages";
 import { stayLabel } from "@/lib/inventory/stays";
@@ -38,45 +37,43 @@ export default async function BookingConfirmedPage({ searchParams }: PageProps<"
 
   return (
     <main id="main" className="flex-1">
-      <PageBand tone="cream">
-        <div className="grid max-w-form justify-items-start gap-6">
-        <CircleCheck aria-hidden="true" strokeWidth={1.25} className="size-14 text-success-700" />
-        <GoldBarHeading as="h1" size="hero">
-          {book.confirmation.heading}
-        </GoldBarHeading>
-        {receipt && (
-          <dl className="grid w-full gap-4 border-y border-romaic-gold/60 py-5">
-            <div className="grid gap-1">
-              <dt className="text-sm font-bold text-fg-3">Your reference</dt>
-              <dd className="font-mono text-h2 font-bold tracking-[0.12em] text-ink">{receipt.ref}</dd>
-            </div>
-            {apartment && (
-              <div className="grid gap-1">
-                <dt className="text-sm font-bold text-fg-3">Room</dt>
-                <dd className="text-base text-ink">{apartment.name}</dd>
+      <PageBand spacing="band">
+        <div className="grid max-w-form justify-items-start gap-7">
+          <CircleCheck aria-hidden="true" strokeWidth={1} className="size-14 text-success-700" />
+          <h1 className={siteText.page}>{book.confirmation.heading}</h1>
+          {receipt && (
+            <dl className="grid w-full gap-x-8 sm:grid-cols-2">
+              <div className="grid gap-1 border-t border-hairline py-4 sm:col-span-2">
+                <dt className={siteText.label}>Your reference</dt>
+                <dd className="font-mono text-h2 font-bold tracking-[0.12em] text-ink">{receipt.ref}</dd>
               </div>
-            )}
-            <div className="grid gap-1">
-              <dt className="text-sm font-bold text-fg-3">Your stay</dt>
-              <dd className="text-base text-ink" data-numeric>
-                {stayLabel({ arrive: receipt.arrive, leave: receipt.leave })}, {receipt.guests} {receipt.guests === 1 ? "guest" : "guests"}
-              </dd>
-            </div>
-          </dl>
-        )}
-        {book.confirmation.text && <Paragraphs text={book.confirmation.text} className={textStyles.lead} />}
-        <div className="flex w-full flex-wrap gap-3">
-          <WhatsAppButton href={whatsapp} size="lg" className="w-full sm:w-auto">
-            WhatsApp us
-          </WhatsAppButton>
-          <a href={facts.phone.tel} className={buttonClasses({ variant: "secondary", size: "lg" }, "w-full sm:w-auto")}>
-            <Phone aria-hidden="true" strokeWidth={1.5} className="size-5" />
-            <span data-numeric>Call {facts.phone.display}</span>
-          </a>
-        </div>
-        <Link href={sitePagePaths.home} className="inline-flex min-h-11 items-center font-bold text-link underline underline-offset-4 hover:text-link-hover">
-          Back to the home page
-        </Link>
+              {apartment && (
+                <div className="grid gap-1 border-t border-hairline py-4">
+                  <dt className={siteText.label}>Room</dt>
+                  <dd className="text-ink">{apartment.name}</dd>
+                </div>
+              )}
+              <div className="grid gap-1 border-t border-hairline py-4">
+                <dt className={siteText.label}>Your stay</dt>
+                <dd className="text-ink" data-numeric>
+                  {stayLabel({ arrive: receipt.arrive, leave: receipt.leave })}, {receipt.guests} {receipt.guests === 1 ? "guest" : "guests"}
+                </dd>
+              </div>
+            </dl>
+          )}
+          {book.confirmation.text && <Paragraphs text={book.confirmation.text} className={siteText.lede} />}
+          <div className="flex w-full flex-wrap gap-3">
+            <WhatsAppButton href={whatsapp} size="lg" className="w-full sm:w-auto">
+              WhatsApp us
+            </WhatsAppButton>
+            <a href={facts.phone.tel} className={buttonClasses({ variant: "secondary", size: "lg" }, "w-full sm:w-auto")}>
+              <Phone aria-hidden="true" strokeWidth={1.5} className="size-5" />
+              <span data-numeric>Call {facts.phone.display}</span>
+            </a>
+          </div>
+          <Link href={sitePagePaths.home} className={siteText.link}>
+            Back to the home page
+          </Link>
         </div>
       </PageBand>
     </main>
