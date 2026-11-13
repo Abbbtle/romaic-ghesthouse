@@ -7,7 +7,7 @@ import { WhatsAppGlyph } from "@/components/ui/whatsapp-glyph";
 import { IconButton } from "@/components/ui/icon-button";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useRef } from "react";
+import { useId, useRef, useState } from "react";
 import { isCurrent } from "./header-nav";
 import type { SiteFacts } from "./site-facts";
 
@@ -17,11 +17,14 @@ export type SiteNavLink = { href: string; label: string };
  * The phone menu: a native modal dialog (focus moves in, Escape closes, the
  * page behind is inert), opened from a 44 px button. Cream panel, Josefin
  * capitals, and the contact details at the foot so a guest can book from the
- * menu itself.
+ * menu itself. The button says whether the menu is open (aria-expanded),
+ * however it closes: a link, the close button, Escape or a tap beside it.
  */
 export function MobileMenu({ links, facts, bookHref }: { links: readonly SiteNavLink[]; facts: Pick<SiteFacts, "phone" | "email" | "whatsapp">; bookHref?: string }) {
   const pathname = usePathname();
   const dialog = useRef<HTMLDialogElement>(null);
+  const dialogId = useId();
+  const [open, setOpen] = useState(false);
   const close = () => dialog.current?.close();
   return (
     <>
@@ -30,11 +33,18 @@ export function MobileMenu({ links, facts, bookHref }: { links: readonly SiteNav
         icon={<Menu />}
         align="end"
         aria-haspopup="dialog"
-        onClick={() => dialog.current?.showModal()}
+        aria-expanded={open}
+        aria-controls={dialogId}
+        onClick={() => {
+          dialog.current?.showModal();
+          setOpen(true);
+        }}
         className="text-ink xl:hidden"
       />
       <dialog
         ref={dialog}
+        id={dialogId}
+        onClose={() => setOpen(false)}
         aria-label="Menu"
         // Tapping the dimmed page beside the panel closes it, as people expect of a side menu.
         closedby="any"

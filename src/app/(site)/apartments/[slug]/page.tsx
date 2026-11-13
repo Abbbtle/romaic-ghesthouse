@@ -114,7 +114,8 @@ export default async function ApartmentPage({ params }: PageProps<"/apartments/[
           </GoldBarHeading>
           {!apartment.confirmed && <ToConfirm className="justify-self-start" />}
           <p className={textStyles.lead}>{apartment.summary}</p>
-          <dl className="grid gap-4 border-y border-romaic-gold/60 py-5">
+          {/* From 1024 px the facts follow the price and the dates button, so the button is on the first screen. */}
+          <dl className="grid gap-4 border-y border-romaic-gold/60 py-5 lg:order-last">
             <Fact icon={<Users aria-hidden="true" strokeWidth={1.5} className={icon} />} label="Sleeps">
               Up to {apartment.sleeps} {apartment.sleeps === 1 ? "guest" : "guests"}
             </Fact>

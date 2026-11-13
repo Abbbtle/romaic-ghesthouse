@@ -10,6 +10,7 @@ import { GoldBarHeading } from "@/components/site/gold-bar-heading";
 import { siteFactsOf } from "@/components/site/site-facts";
 import { dockAfterId } from "@/components/site/site-dock";
 import { jsonLdText, lodgingBusinessData } from "@/components/site/structured-data";
+import { buttonClasses } from "@/components/ui/button";
 import { textStyles } from "@/components/ui/typography";
 import { Paragraphs } from "@/components/ui/paragraphs";
 import { VisuallyHidden, whatsappHint } from "@/components/ui/visually-hidden";
@@ -52,18 +53,20 @@ export default async function HomePage() {
         <div className="mx-auto grid max-w-page grid-cols-[minmax(0,1fr)] gap-8 px-[max(1rem,env(safe-area-inset-left))] pt-6 pb-section-sm sm:gap-10 lg:grid-cols-12 lg:items-start lg:gap-14 lg:pt-14">
           {/* The warm, gold-framed photo leads (brand guide p10): an inset on phones, the right 7/12 on desktop. */}
           {/* From 1024 px the frame runs the full height of the text column beside it, so no Cream gap opens under it. */}
+          {/* That frame is taller than it is wide, so a landscape photo fills it at about twice the column's width: sizes asks for that much, so it stays sharp. */}
+          {/* On tablets the photo is 16:9, so the dates search still starts on the first screen. */}
           <div className="lg:order-last lg:col-span-7 lg:self-stretch">
-            <ContentPhoto image={home.hero.photo} preload sizes="(min-width: 1024px) 40rem, calc(100vw - 2rem)" className="lg:aspect-auto lg:h-full lg:min-h-[28rem]" />
+            <ContentPhoto image={home.hero.photo} preload sizes="(min-width: 1024px) 80rem, calc(100vw - 2rem)" className="sm:aspect-video lg:aspect-auto lg:h-full lg:min-h-[28rem]" />
           </div>
           <div className="grid gap-6 text-center lg:col-span-5 lg:text-left">
             <GoldBarHeading as="h1" size="hero" sweep>
               <span id="hero-title">{home.hero.headline}</span>
             </GoldBarHeading>
             <p className="font-display text-sm font-semibold tracking-[0.24em] text-ink uppercase sm:text-base">{facts.addressLine}</p>
-            {/* On phones the search follows the address, inside the first screen; the lead and welcome come after it. */}
-            <p className="order-1 mx-auto max-w-[52ch] text-lead text-fg-2 lg:order-none lg:mx-0">{home.hero.lead}</p>
+            {/* On phones, and on laptop screens under about 900 px tall, the search follows the address, inside the first screen; the lead and welcome come after it. */}
+            <p className="order-1 mx-auto max-w-[52ch] text-lead text-fg-2 lg:mx-0 [@media(min-width:64rem)_and_(min-height:56rem)]:order-none">{home.hero.lead}</p>
             {home.hero.welcome && (
-              <p className={`${textStyles.script} order-1 -my-1 lg:order-none`} lang="en">
+              <p className={`${textStyles.script} order-1 -my-1 [@media(min-width:64rem)_and_(min-height:56rem)]:order-none`} lang="en">
                 {home.hero.welcome}
               </p>
             )}
@@ -115,11 +118,12 @@ export default async function HomePage() {
             </h2>
             {home.highlights.intro && <Paragraphs text={home.highlights.intro} className={textStyles.lead} />}
           </div>
-          <div className="marble border-4 border-romaic-gold p-6 shadow-2 sm:p-8">
+          {/* Below 360 px the panel and icon column tighten, so a long capitalised word ("Connectivity") still fits a 320 px screen. */}
+          <div className="marble border-4 border-romaic-gold p-4 shadow-2 min-[360px]:p-6 sm:p-8">
             <ul className="grid divide-y divide-romaic-gold/60 lg:auto-cols-fr lg:grid-flow-col lg:divide-x lg:divide-y-0">
               {home.highlights.items.map((item) => (
-                <li key={item.title} className="grid grid-cols-[3rem_1fr] items-start gap-5 py-5 first:pt-0 last:pb-0 lg:px-6 lg:py-0 lg:first:pl-0 lg:last:pr-0">
-                  <AmenityIconGlyph icon={item.icon} className="size-11 text-gold-text" />
+                <li key={item.title} className="grid grid-cols-[2.5rem_1fr] items-start gap-4 py-5 first:pt-0 last:pb-0 min-[360px]:grid-cols-[3rem_1fr] min-[360px]:gap-5 lg:px-6 lg:py-0 lg:first:pl-0 lg:last:pr-0">
+                  <AmenityIconGlyph icon={item.icon} className="size-10 text-gold-text min-[360px]:size-11" />
                   <div className="grid gap-1.5 border-l border-romaic-gold pl-5">
                     <h3 className="font-display text-h4 font-semibold tracking-[0.14em] text-ink uppercase">{item.title}</h3>
                     {item.lines.map((line) => (
@@ -170,6 +174,12 @@ export default async function HomePage() {
                 </a>
               </li>
             </ul>
+            {/* The page ends on its booking action, in the header's words. On phones the booking dock already carries it. */}
+            <p className="mt-3 hidden lg:block">
+              <Link href={sitePagePaths.book} className={buttonClasses({ variant: "primary", size: "lg" })}>
+                Check dates
+              </Link>
+            </p>
           </div>
         </div>
       </section>

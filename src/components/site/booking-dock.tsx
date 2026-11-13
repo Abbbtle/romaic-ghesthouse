@@ -29,7 +29,7 @@ export function BookingDock({
       aria-hidden={hidden || undefined}
       inert={hidden}
       className={cx(
-        "on-dark z-40 grid grid-cols-2 gap-2 border-t-2 border-romaic-gold bg-midnight-navy px-[max(0.75rem,env(safe-area-inset-left))] pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-sheet",
+        "on-dark z-40 grid grid-cols-[repeat(2,minmax(0,1fr))] gap-2 border-t-2 border-romaic-gold bg-midnight-navy px-[max(0.75rem,env(safe-area-inset-left))] pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-sheet",
         inline ? "relative" : "fixed inset-x-0 bottom-0 transition-[translate,visibility] duration-200 ease-out motion-reduce:transition-none lg:hidden",
         hidden && "invisible translate-y-full",
       )}
