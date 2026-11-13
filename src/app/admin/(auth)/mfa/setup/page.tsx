@@ -3,9 +3,11 @@ import { redirect } from "next/navigation";
 import { renderSVG } from "uqr";
 import { MfaSetupForm } from "@/components/admin/account/mfa-setup-form";
 import { textStyles } from "@/components/ui/typography";
+import { anySignedInRole, dashboardAccess } from "@/lib/accounts/access";
 import { accountServices } from "@/server/accounts";
 import { adminPaths } from "@/server/admin-paths";
 import { currentSessionToken, requireSignIn } from "@/server/admin-session";
+import { clock } from "@/server/infrastructure";
 import { confirmMfaSetup, signOut } from "../../actions";
 
 export const metadata: Metadata = { title: "Set up your authenticator" };
@@ -33,6 +35,10 @@ export default async function MfaSetupPage() {
   const signedIn = await requireSignIn();
   if (signedIn.mfaDue) redirect(adminPaths.mfa);
   if (signedIn.mustChangePassword) redirect(adminPaths.changePassword);
+  // From the account page, adding one changes how someone signs in: confirm the password first, then back to the account page.
+  if (!signedIn.mfaEnabled && dashboardAccess(signedIn, { ...anySignedInRole, stepUp: true }, clock.now()).status === "step-up-due") {
+    redirect(`${adminPaths.stepUp}?next=${encodeURIComponent(`${adminPaths.home}/account`)}`);
+  }
   const started = signedIn.mfaEnabled ? null : await accountServices().accounts.beginMfaEnrolment(await currentSessionToken());
   if (started && !started.ok) redirect(adminPaths.home);
   const enrolment = started?.ok ? started : null;

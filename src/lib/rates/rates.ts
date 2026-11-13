@@ -1,5 +1,5 @@
 import { addDays, type IsoDate } from "@/lib/format/zoned-time";
-import { nightsIn, type Stay } from "@/lib/inventory/stays";
+import { nightsIn, nightsOf, type Stay } from "@/lib/inventory/stays";
 
 /**
  * What a stay costs. Each apartment type has one rate plan: a nightly price
@@ -63,12 +63,23 @@ export type Quote = {
 };
 
 /**
+ * The longest stay a quote prices. Each night is priced in turn, so this
+ * keeps a quote's work small whatever range it's asked for. It matches the
+ * longest booking the dashboard takes (maxBookingNights in
+ * src/lib/reservations, which the rates can't import); the Book page asks
+ * for shorter stays (stayLimits.maxNights).
+ */
+export const maxQuotedNights = 90;
+
+/**
  * The price of `stay` for `guests` in the apartment `plan` is for, given
  * the seasons (any order; only those covering the stay's nights matter).
- * Null without an active plan: the site then says "Price on request".
+ * Null without an active plan: the site then says "Price on request". Null
+ * too for a stay longer than maxQuotedNights.
  */
 export function quoteFor(plan: RatePlan | null, seasons: readonly Season[], stay: Stay, guests: number): Quote | null {
   if (!plan || !plan.active) return null;
+  if (nightsOf(stay) > maxQuotedNights) return null;
   const extraGuests = Math.max(0, guests - plan.baseGuests);
   let minNights = plan.minNights;
   const nights = nightsIn(stay).map((date): NightPrice => {

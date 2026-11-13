@@ -15,6 +15,12 @@
  * It works on whatever database the shell, .env.local or .env points at:
  * DATABASE_URL_UNPOOLED, then DATABASE_URL, then POSTGRES_URL_NON_POOLING and
  * POSTGRES_URL, else the local PGlite (stop `next dev` first).
+ *
+ * It also needs DATA_ENCRYPTION_KEY, set (the same way) to exactly the site's,
+ * every key, newest first: the audit entry is signed with it. Before changing
+ * anything it refuses to run against a real database without one (or with
+ * the public development key), and refuses a key that didn't sign the audit
+ * log's newest entry.
  */
 import { parseArgs } from "node:util";
 import { openDatabase } from "../src/adapters/postgres/database";
@@ -40,7 +46,9 @@ async function main(): Promise<void> {
   const { driver, target } = scriptDriver();
   const db = openDatabase(driver, { migrations });
   try {
-    const result = await recoveryService(db).resetAccess(email, { operator, reason });
+    // Checks DATA_ENCRYPTION_KEY against the audit log before anything changes.
+    const recovery = await recoveryService(db);
+    const result = await recovery.resetAccess(email, { operator, reason });
     if (result.status === "not-found") {
       console.error(`No dashboard account uses ${email} (${target}).`);
       process.exitCode = 1;

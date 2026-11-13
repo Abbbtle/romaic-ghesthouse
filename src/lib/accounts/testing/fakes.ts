@@ -7,6 +7,7 @@ import type {
   AccountTokenStore,
   MfaStore,
   PasswordHasher,
+  RecoveryCodeHasher,
   SecretGenerator,
   Session,
   SessionStore,
@@ -52,6 +53,19 @@ export const plainTokens: TokenHasher = {
   hash: (token) => `hashed:${token}`,
   matches: (token, tokenHash) => tokenHash === `hashed:${token}`,
 };
+
+/**
+ * A stand-in for the keyed recovery-code hash (the real one is tested in
+ * src/adapters/crypto): each hash names its key and account. New codes use
+ * the first key; a code stored under any listed key still matches.
+ */
+export function keyedRecoveryCodes(keyIds: readonly string[] = ["k1"]): RecoveryCodeHasher {
+  const hashWith = (keyId: string, accountId: string, code: string) => `keyed(${keyId}):${accountId}:${code}`;
+  return {
+    hash: (accountId, code) => hashWith(keyIds[0]!, accountId, code),
+    candidateHashes: (accountId, code) => keyIds.map((keyId) => hashWith(keyId, accountId, code)),
+  };
+}
 
 /** Tokens shaped like real ones, temporary passwords long enough to pass the rules, and recovery codes, in order. */
 export function sequentialSecrets(): SecretGenerator {

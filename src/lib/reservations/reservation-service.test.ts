@@ -2,14 +2,17 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { createMemoryBookingStore } from "@/lib/booking/testing/memory-store";
 import { testRequest } from "@/lib/booking/testing/store-contract";
+import { addDays } from "@/lib/format/zoned-time";
+import type { Stay } from "@/lib/inventory/stays";
 import { createMemoryInventoryStore } from "@/lib/inventory/testing/memory-store";
 import { testBlock, testUnit } from "@/lib/inventory/testing/store-contract";
 import { testActor, TestNotAllowedError } from "@/lib/inventory/testing/harness";
 import type { Role } from "@/lib/kernel/actor";
 import { memoryAuditRecorder } from "@/lib/kernel/audit";
 import type { Clock } from "@/lib/kernel/ports";
+import { maxQuotedNights } from "@/lib/rates/rates";
 import type { ReservationAccess, ReservationPermission } from "./ports";
-import { createReservationService } from "./reservation-service";
+import { createReservationService, maxBookingNights } from "./reservation-service";
 import type { Booking } from "./reservations";
 import { createMemoryReservationStore, memoryReservationState } from "./testing/memory-store";
 
@@ -41,12 +44,16 @@ function harness(now = "2026-11-12T08:00:00Z") {
   const store = createMemoryReservationStore(state);
   const audit = memoryAuditRecorder();
   const checkedOut: Booking[] = [];
+  const quoted: Stay[] = [];
   let next = 0;
   const service = createReservationService({
     store,
     inventory,
     requests,
-    quote: async (_apartment, stay) => (stay.leave > stay.arrive ? 120_000 : null),
+    quote: async (_apartment, stay) => {
+      quoted.push(stay);
+      return stay.leave > stay.arrive ? 120_000 : null;
+    },
     apartmentNames: async () => ({ "family-shower": "Family room with shower", "deluxe-double-bath": "Deluxe double room with bath" }),
     onCheckedOut: async (booking) => void checkedOut.push(booking),
     reportProblem: () => {},
@@ -65,6 +72,7 @@ function harness(now = "2026-11-12T08:00:00Z") {
     store,
     audit,
     checkedOut,
+    quoted,
     setNow(value: string) {
       instant = new Date(value);
     },
@@ -144,6 +152,37 @@ describe("making and changing bookings", () => {
     assert.deepEqual(await service.cancel(owner, created.ok ? created.id : "", { reason: "Plans changed" }), { ok: true });
     assert.deepEqual(await inventory.blocksOverlapping({ arrive: "2026-12-10", leave: "2026-12-13" }), []);
     assert.equal((await service.create(owner, form())).ok, true, "the nights can be booked again");
+  });
+});
+
+describe("the rates' price for the new-booking form", () => {
+  it("asks the rates for a stay of up to the longest booking", async () => {
+    const { service, quoted } = harness();
+    const short = { arrive: "2026-12-10", leave: "2026-12-13" };
+    const longest = { arrive: "2026-12-10", leave: addDays("2026-12-10", maxBookingNights) };
+    assert.equal(await service.suggestedTotal(sales, "family-shower", short, 2), 120_000);
+    assert.equal(await service.suggestedTotal(owner, "family-shower", longest, 2), 120_000);
+    assert.deepEqual(quoted, [short, longest]);
+  });
+
+  it("gives no price, without asking the rates, for dates no booking could have", async () => {
+    const { service, quoted } = harness();
+    const arrive = "2026-12-10";
+    const stays: Stay[] = [
+      { arrive, leave: addDays(arrive, maxBookingNights + 1) },
+      { arrive: "0100-01-01", leave: "9999-12-31" },
+      { arrive: "2026-02-28", leave: "2026-02-30" },
+      { arrive: "", leave: "2026-12-13" },
+      { arrive, leave: "13/12/2026" },
+      { arrive, leave: arrive },
+      { arrive, leave: "2026-12-09" },
+    ];
+    for (const stay of stays) assert.equal(await service.suggestedTotal(sales, "family-shower", stay, 2), null, `${stay.arrive} to ${stay.leave}`);
+    assert.deepEqual(quoted, []);
+  });
+
+  it("keeps the longest booking within what the rates will price", () => {
+    assert.ok(maxBookingNights <= maxQuotedNights);
   });
 });
 
