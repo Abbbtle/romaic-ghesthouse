@@ -5,6 +5,8 @@ import { inventoryStoreContract, testBlock, testUnit } from "@/lib/inventory/tes
 import { createPostgresBookingStore } from "./booking-store";
 import { ExclusionViolationError } from "./errors";
 import { createPostgresInventoryStore } from "./inventory-store";
+import { reservationStoreContract } from "@/lib/reservations/testing/store-contract";
+import { createPostgresReservationStore } from "./reservation-store";
 import type { TestDatabases } from "./testing/test-databases";
 
 /**
@@ -69,5 +71,34 @@ export function describeStaysStoresContract(databases: TestDatabases): void {
       await assert.rejects(store.create(testRequest({ ref: "RG-IIIII", phone: "+27830000077" }), { maxWaitingPerPhone: 3, today }));
       await assert.rejects(store.create(testRequest({ phone: "0821234567" }), { maxWaitingPerPhone: 3, today }));
     });
+  });
+
+  describe(`${databases.label}: reservations`, () => {
+    for (const { name, run } of reservationStoreContract) {
+      it(name, async () => {
+        const db = databases.migrated();
+        const inventory = createPostgresInventoryStore(db);
+        await run({
+          reservations: createPostgresReservationStore(db),
+          requests: createPostgresBookingStore(db),
+          inventory,
+          // The channels store's own tables, filled directly: one calendar per unit and channel, its stay, and the stay's block.
+          async seedChannelStay(stay, block) {
+            const calendarId = `00000000-0000-4000-8000-${stay.unitId.slice(-12)}`.replace(/^(.{24}).{4}/, "$1ca1e");
+            await db.run(
+              `insert into app.channel_calendars (id, unit_id, channel, url_cipher, url_host, created_at)
+               values (:calendarId, :unitId, :channel, 'sealed', 'ical.example.com', now()) on conflict (unit_id, channel) do nothing`,
+              { calendarId, unitId: stay.unitId, channel: stay.channel },
+            );
+            await db.run(
+              `insert into app.channel_events (id, calendar_id, uid, arrive, leave, status, booking_id, first_seen, last_seen)
+               select :id::uuid, id, :id::text, :arrive::date, :leave::date, :status, :bookingId::uuid, now(), now() from app.channel_calendars where unit_id = :unitId and channel = :channel`,
+              { id: stay.id, unitId: stay.unitId, channel: stay.channel, arrive: stay.stay.arrive, leave: stay.stay.leave, status: stay.status, bookingId: stay.bookingId },
+            );
+            if (block) assert.equal((await inventory.addBlock(block)).status, "added");
+          },
+        });
+      });
+    }
   });
 }

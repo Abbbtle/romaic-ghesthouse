@@ -8,6 +8,7 @@ import { facilitiesDefaults } from "./facilities";
 import { galleryDefaults } from "./gallery";
 import { homeDefaults } from "./home";
 import { locationDefaults } from "./location";
+import { messagesDefaults } from "./messages";
 import { policiesDefaults } from "./policies";
 import { privacyDefaults } from "./privacy";
 import { seoDefaults } from "./seo";
@@ -24,6 +25,7 @@ export const contentDefaults: SiteContent = {
   site: siteDefaults,
   contact: contactDefaults,
   bookingTerms: bookingTermsDefaults,
+  messages: messagesDefaults,
   home: homeDefaults,
   apartments: apartmentsDefaults,
   gallery: galleryDefaults,

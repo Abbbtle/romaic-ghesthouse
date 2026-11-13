@@ -21,7 +21,7 @@ export function testUnit(id: string, name: string, apartment = "family-shower", 
 }
 
 export function testBlock(id: string, unitId: string, arrive: string, leave: string, reason: AvailabilityBlock["reason"] = "owner"): AvailabilityBlock {
-  return { id, unitId, stay: { arrive, leave }, reason, note: null, requestId: null, createdBy: ownerId, createdAt: at };
+  return { id, unitId, stay: { arrive, leave }, reason, note: null, requestId: null, bookingId: null, channelEventId: null, createdBy: ownerId, createdAt: at };
 }
 
 const unitA = "00000000-0000-4000-8000-00000000a0a1";

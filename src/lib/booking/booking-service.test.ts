@@ -50,7 +50,7 @@ function countingLimiter(max: number): RateLimiter & { used: Map<string, number>
   };
 }
 
-function harness({ perHour = 5, siteWide = 60 } = {}) {
+function harness({ perHour = 5, siteWide = 60, minimumNights }: { perHour?: number; siteWide?: number; minimumNights?: number } = {}) {
   let now = new Date("2026-11-12T08:00:00Z");
   const clock: Clock = { now: () => new Date(now) };
   const state = memoryInventoryState();
@@ -78,6 +78,7 @@ function harness({ perHour = 5, siteWide = 60 } = {}) {
     consentVersions: async () => ({ consent: "0.1", notice: "0.2" }),
     email: { send: async (message) => (sent.push(message), { ok: true }) },
     alertAddress: async () => "guesthouse@example.com",
+    minimumNights: async () => minimumNights ?? null,
     runAfterResponse: (task) => void task(),
     reportProblem: (message) => problems.push(message),
     requestsPageUrl: "https://example.com/admin/requests",
@@ -173,6 +174,16 @@ describe("sending a booking request", () => {
     assert.deepEqual(await service.form.submit(form(), visitor), { status: "unavailable", reason: "full" });
   });
 
+  it("refuses a stay shorter than the rates' minimum, even when posted directly", async () => {
+    const { service, inventoryStore, form } = harness({ minimumNights: 4 });
+    await inventoryStore.addUnit(testUnit("u1", "Unit 1"), { maxUnits: 10 });
+    assert.deepEqual(await service.form.submit(form(), visitor), {
+      status: "invalid",
+      errors: { form: "Stays on these dates are at least 4 nights. Go back and choose a later leaving day." },
+    });
+    assert.equal((await service.form.submit(form({ leave: "2026-12-14" }), visitor)).status, "sent");
+  });
+
   it("limits each visitor, each phone and duplicates", async () => {
     const { service, form } = harness({ perHour: 4 });
     assert.equal((await service.form.submit(form(), visitor)).status, "sent");
@@ -196,43 +207,14 @@ describe("deciding a request", () => {
     return { ...h, request: request! };
   }
 
-  it("accepts into a free unit and closes its nights to everyone else", async () => {
-    const { service, inventoryStore, request, audit, form } = await waitingRequest();
-    assert.deepEqual(await service.decisions.accept(sales, request.id, { unitId: "u1" }), { ok: true });
-    assert.equal((await service.inbox.request(owner, request.id))?.status, "accepted");
-    const blocks = await inventoryStore.blocksOverlapping(request.stay);
-    assert.deepEqual(blocks.map((block) => [block.unitId, block.reason, block.requestId]), [["u1", "request", request.id]]);
-    assert.match(audit.events.at(-1)!.summary, /^Accepted request RG-\w{5} for Family apartment with shower, Thu 10 Dec to Sun 13 Dec 2026, 3 nights, in Unit 1$/);
-    // Unit 2 is still free, so the apartment is still offered; once it's taken too, it's full.
-    await inventoryStore.addBlock(testBlock("b2", "u2", "2026-12-10", "2026-12-13"));
-    assert.deepEqual(await service.form.submit(form({ phone: "083 000 0000" }), { key: "visitor-2" }), { status: "unavailable", reason: "full" });
-  });
-
-  it("cancels an accepted request, opening its nights again, and says so in the audit log", async () => {
-    const { service, inventoryStore, request, audit } = await waitingRequest();
-    await service.decisions.accept(owner, request.id, { unitId: "u1" });
-    assert.deepEqual(await service.decisions.cancel(sales, request.id), { ok: true });
-    assert.deepEqual(await inventoryStore.blocksOverlapping(request.stay), []);
-    const cancelled = await service.inbox.request(owner, request.id);
-    assert.equal(cancelled?.status, "declined");
-    assert.equal(cancelled?.decision?.note, "Cancelled after accepting");
-    assert.equal(audit.events.at(-1)?.action, "request.cancelled");
-    assert.equal((await service.decisions.cancel(owner, request.id)).ok, false, "only once");
-  });
-
-  it("refuses a unit that's taken, and a request already handled", async () => {
-    const { service, inventoryStore, request } = await waitingRequest();
-    await inventoryStore.addBlock(testBlock("b1", "u1", "2026-12-12", "2026-12-14"));
-    assert.deepEqual(await service.decisions.accept(owner, request.id, { unitId: "u1" }), {
-      ok: false,
-      errors: { unitId: "That unit isn't free for every night of this stay. Choose another, or decline the request." },
-    });
-    assert.deepEqual(await service.decisions.decline(owner, request.id, { note: "Full that week" }), { ok: true });
-    assert.deepEqual(await service.decisions.accept(owner, request.id, { unitId: "u2" }), {
+  it("declines a waiting request with a private note, once", async () => {
+    const { service, request } = await waitingRequest();
+    assert.deepEqual(await service.decisions.decline(sales, request.id, { note: "Full that week" }), { ok: true });
+    assert.equal((await service.inbox.handled(owner))[0]?.decision?.note, "Full that week");
+    assert.deepEqual(await service.decisions.decline(owner, request.id, {}), {
       ok: false,
       errors: { form: "This request was already handled, or it has expired. Reload the page." },
     });
-    assert.equal((await service.inbox.handled(owner))[0]?.decision?.note, "Full that week");
   });
 
   it("refuses admin and staff the inbox and every decision", async () => {
@@ -242,9 +224,7 @@ describe("deciding a request", () => {
       await assert.rejects(service.inbox.waiting(actor), TestNotAllowedError);
       await assert.rejects(service.inbox.handled(actor), TestNotAllowedError);
       await assert.rejects(service.inbox.request(actor, request.id), TestNotAllowedError);
-      await assert.rejects(service.decisions.accept(actor, request.id, { unitId: "u1" }), TestNotAllowedError);
       await assert.rejects(service.decisions.decline(actor, request.id, {}), TestNotAllowedError);
-      await assert.rejects(service.decisions.cancel(actor, request.id), TestNotAllowedError);
       assert.equal(await service.inbox.waitingCount(actor), 0);
     }
   });

@@ -20,7 +20,6 @@ export type BookingStoreCase = { name: string; run: (stores: BookingStores) => P
 
 const ownerId = "00000000-0000-4000-8000-0000000000a1";
 const unitA = "00000000-0000-4000-8000-00000000a0a1";
-const unitB = "00000000-0000-4000-8000-00000000a0b2";
 const today = "2026-11-12";
 const sentAt = new Date("2026-11-12T08:00:00.000Z");
 const later = new Date("2026-11-12T09:30:00.000Z");
@@ -105,69 +104,16 @@ export const bookingStoreContract: readonly BookingStoreCase[] = [
     },
   },
   {
-    name: "accepts a waiting request and closes the unit's nights in one go",
-    async run({ requests, inventory }) {
-      await inventory.addUnit(testUnit(unitA, "Unit 1"), { maxUnits: 10 });
-      const request = testRequest();
-      await requests.create(request, rules);
-      const block = { ...testBlock("00000000-0000-4000-8000-0000000b0001", unitA, "2026-12-10", "2026-12-13", "request"), requestId: request.id };
-      expectSame(await requests.accept({ requestId: request.id, block, at: later, by: ownerId, today }), { status: "accepted" }, "accept");
-      const accepted = await requests.request(request.id);
-      expectSame(accepted?.status, "accepted", "status");
-      expectSame(accepted?.decision, { at: later, by: ownerId, note: null, unitId: unitA }, "decision");
-      expectSame((await inventory.blocksOverlapping(request.stay)).map((stored) => stored.requestId), [request.id], "block");
-      expectSame(await requests.accept({ requestId: request.id, block: { ...block, id: "00000000-0000-4000-8000-0000000b0009" }, at: later, by: ownerId, today }), { status: "request-changed" }, "again");
-    },
-  },
-  {
-    name: "leaves a request waiting when the unit is already taken on one of its nights",
-    async run({ requests, inventory }) {
-      await inventory.addUnit(testUnit(unitA, "Unit 1"), { maxUnits: 10 });
-      await inventory.addUnit(testUnit(unitB, "Unit 2"), { maxUnits: 10 });
-      await inventory.addBlock(testBlock("00000000-0000-4000-8000-0000000b0001", unitA, "2026-12-12", "2026-12-14"));
-      const request = testRequest();
-      await requests.create(request, rules);
-      const blockOn = (unitId: string, id: string) => ({ ...testBlock(id, unitId, "2026-12-10", "2026-12-13", "request"), requestId: request.id });
-      expectSame(
-        await requests.accept({ requestId: request.id, block: blockOn(unitA, "00000000-0000-4000-8000-0000000b0002"), at: later, by: ownerId, today }),
-        { status: "overlaps" },
-        "taken",
-      );
-      expectSame((await requests.request(request.id))?.status, "waiting", "still waiting");
-      expectSame(
-        await requests.accept({ requestId: request.id, block: blockOn(unitB, "00000000-0000-4000-8000-0000000b0003"), at: later, by: ownerId, today }),
-        { status: "accepted" },
-        "another unit",
-      );
-    },
-  },
-  {
     name: "declines only a request that's still waiting",
     async run({ requests }) {
       const request = testRequest();
       await requests.create(request, rules);
       expectSame(await requests.decline({ requestId: request.id, at: later, by: ownerId, note: "Full that week", today }), true, "decline");
-      expectSame((await requests.request(request.id))?.decision, { at: later, by: ownerId, note: "Full that week", unitId: null }, "decision");
+      expectSame((await requests.request(request.id))?.decision, { at: later, by: ownerId, note: "Full that week", bookingId: null }, "decision");
       expectSame(await requests.decline({ requestId: request.id, at: later, by: ownerId, note: null, today }), false, "again");
       const expired = testRequest({ stay: { arrive: "2026-11-10", leave: "2026-11-11" }, phone: "+27830000009" });
       await requests.create(expired, { ...rules, today: "2026-11-01" });
       expectSame(await requests.decline({ requestId: expired.id, at: later, by: ownerId, note: null, today }), false, "past arrival");
-    },
-  },
-  {
-    name: "cancels an accepted request before the guest leaves, opening its nights again",
-    async run({ requests, inventory }) {
-      await inventory.addUnit(testUnit(unitA, "Unit 1"), { maxUnits: 10 });
-      const request = testRequest();
-      await requests.create(request, rules);
-      const block = { ...testBlock("00000000-0000-4000-8000-0000000b0001", unitA, "2026-12-10", "2026-12-13", "request"), requestId: request.id };
-      await requests.accept({ requestId: request.id, block, at: later, by: ownerId, today });
-      expectSame(await requests.release({ requestId: request.id, at: later, by: ownerId, note: "Cancelled after accepting", today: "2026-12-13" }), false, "after leaving");
-      expectSame(await requests.release({ requestId: request.id, at: later, by: ownerId, note: "Cancelled after accepting", today }), true, "cancel");
-      expectSame((await requests.request(request.id))?.decision, { at: later, by: ownerId, note: "Cancelled after accepting", unitId: null }, "recorded");
-      expectSame((await requests.request(request.id))?.status, "declined", "status");
-      expectSame(await inventory.blocksOverlapping(request.stay), [], "nights open");
-      expectSame(await requests.release({ requestId: request.id, at: later, by: ownerId, note: "again", today }), false, "again");
     },
   },
   {
@@ -177,12 +123,19 @@ export const bookingStoreContract: readonly BookingStoreCase[] = [
       const old = new Date("2026-07-01T08:00:00.000Z");
       const expiring = testRequest({ stay: { arrive: "2026-11-11", leave: "2026-11-12" }, phone: "+27830000011", createdAt: new Date("2026-11-10T08:00:00.000Z") });
       const oldDeclined = testRequest({ phone: "+27830000012", createdAt: old, consent: { at: old, consentVersion: "0.1", noticeVersion: "0.1" } });
-      const oldAccepted = testRequest({ phone: "+27830000013", stay: { arrive: "2026-07-10", leave: "2026-07-12" }, createdAt: old });
+      // Accepted long ago (the reservations core accepts requests; here it's stored that way).
+      const oldAccepted = testRequest({
+        phone: "+27830000013",
+        stay: { arrive: "2026-07-10", leave: "2026-07-12" },
+        createdAt: old,
+        status: "accepted",
+        decision: { at: old, by: ownerId, note: null, bookingId: null },
+      });
       const fresh = testRequest({ phone: "+27830000014" });
       for (const request of [expiring, oldDeclined, oldAccepted, fresh]) await requests.create(request, { ...rules, today: "2026-07-01" });
       await requests.decline({ requestId: oldDeclined.id, at: old, by: ownerId, note: null, today: "2026-07-01" });
-      const block = { ...testBlock("00000000-0000-4000-8000-0000000b0001", unitA, "2026-07-10", "2026-07-12", "request"), requestId: oldAccepted.id };
-      await requests.accept({ requestId: oldAccepted.id, block, at: old, by: ownerId, today: "2026-07-01" });
+      // A Phase 2 request block still pointing at it, which deleting the request must unlink.
+      await inventory.addBlock({ ...testBlock("00000000-0000-4000-8000-0000000b0001", unitA, "2026-07-10", "2026-07-12", "request"), requestId: oldAccepted.id });
 
       const report = await requests.housekeeping({
         expireArrivingBefore: today,
@@ -193,7 +146,7 @@ export const bookingStoreContract: readonly BookingStoreCase[] = [
       });
       expectSame(report, { expired: 1, deleted: 2, visitorKeysForgotten: 1 }, "report");
       expectSame((await requests.request(expiring.id))?.status, "expired", "expired");
-      expectSame((await requests.request(expiring.id))?.decision, { at: later, by: null, note: null, unitId: null }, "expired decision");
+      expectSame((await requests.request(expiring.id))?.decision, { at: later, by: null, note: null, bookingId: null }, "expired decision");
       expectSame(await requests.request(oldDeclined.id), null, "old declined deleted");
       expectSame(await requests.request(oldAccepted.id), null, "old accepted deleted");
       expectSame((await inventory.blocksOverlapping({ arrive: "2026-07-01", leave: "2026-08-01" })).map((stored) => stored.requestId), [null], "block kept, unlinked");

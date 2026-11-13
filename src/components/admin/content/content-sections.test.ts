@@ -11,7 +11,7 @@ describe("finding the content", () => {
 
   it("shows each person only the sections they may edit, without empty groups", () => {
     const pages = ["home", "apartments", "gallery", "facilities", "location", "policies", "contactPage", "book"];
-    assert.deepEqual(editableSections({ role: "owner" }), ["site", "contact", "bookingTerms", ...pages, "seo", "privacy"]);
+    assert.deepEqual(editableSections({ role: "owner" }), ["site", "contact", "bookingTerms", "messages", ...pages, "seo", "privacy"]);
     // Admins (Weberu) look after the site, but never the contact details guests use or the terms that move money.
     assert.deepEqual(editableSections({ role: "admin" }), ["site", ...pages, "seo", "privacy"]);
     assert.deepEqual(editableSections({ role: "sales" }), []);

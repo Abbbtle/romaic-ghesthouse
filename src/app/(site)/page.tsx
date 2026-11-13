@@ -15,6 +15,7 @@ import { Paragraphs } from "@/components/ui/paragraphs";
 import { VisuallyHidden, whatsappHint } from "@/components/ui/visually-hidden";
 import { sitePagePaths } from "@/lib/content/pages";
 import { env } from "@/server/env";
+import { nightlyFromPrices } from "@/server/rates";
 import { inventoryService } from "@/server/stays";
 import { getSiteContent } from "@/server/site-content";
 import { pageMetadata } from "./page-metadata";
@@ -34,7 +35,7 @@ export function generateMetadata(): Promise<Metadata> {
  * and photo comes from the site's content.
  */
 export default async function HomePage() {
-  const content = await getSiteContent();
+  const [content, fromPrices] = await Promise.all([getSiteContent(), nightlyFromPrices()]);
   const { home, apartments } = content;
   const facts = siteFactsOf(content);
   const offered = apartments.items.filter((item) => item.published);
@@ -94,7 +95,7 @@ export default async function HomePage() {
           </div>
           <div className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
             {featured.map((apartment) => (
-              <ApartmentCard key={apartment.slug} apartment={apartmentSummaryOf(apartment)} />
+              <ApartmentCard key={apartment.slug} apartment={apartmentSummaryOf(apartment, fromPrices[apartment.slug] ?? null)} />
             ))}
           </div>
           <p>

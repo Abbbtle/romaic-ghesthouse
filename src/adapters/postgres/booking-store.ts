@@ -1,9 +1,8 @@
 import "server-only";
-import type { AcceptOutcome, BookingStore, HousekeepingReport, RequestCreation } from "@/lib/booking/ports";
+import type { BookingStore, HousekeepingReport, RequestCreation } from "@/lib/booking/ports";
 import { requestStatuses, type BookingRequest, type RequestStatus } from "@/lib/booking/requests";
 import type { Database } from "./database";
 import { UniqueViolationError } from "./errors";
-import { insertBlock, isOverlap } from "./inventory-store";
 import { advisoryLocks } from "./locks";
 import { isUuid } from "./uuid";
 
@@ -30,11 +29,11 @@ type RequestRow = {
   decided_at: Date | null;
   decided_by: string | null;
   decision_note: string | null;
-  unit_id: string | null;
+  booking_id: string | null;
 };
 
 const columns = `id, reference, apartment, apartment_name, arrive, leave, adults, children, name, phone, email, arrival_time, notes,
-  consented_at, consent_version, notice_version, status, visitor_key, created_at, decided_at, decided_by, decision_note, unit_id`;
+  consented_at, consent_version, notice_version, status, visitor_key, created_at, decided_at, decided_by, decision_note, booking_id`;
 
 const isStatus = (value: string): value is RequestStatus => (requestStatuses as readonly string[]).includes(value);
 
@@ -60,11 +59,11 @@ function requestOf(row: RequestRow): BookingRequest {
     status: isStatus(row.status) ? row.status : "declined",
     visitorKey: row.visitor_key,
     createdAt: row.created_at,
-    decision: row.decided_at ? { at: row.decided_at, by: row.decided_by, note: row.decision_note, unitId: row.unit_id } : null,
+    decision: row.decided_at ? { at: row.decided_at, by: row.decided_by, note: row.decision_note, bookingId: row.booking_id } : null,
   };
 }
 
-/** Booking requests in Postgres (./migrations/120-booking-requests.ts), with accepting atomic with the inventory's block. */
+/** Booking requests in Postgres (./migrations/120-booking-requests.ts). Accepting one is the reservation store's (./reservation-store.ts). */
 export function createPostgresBookingStore(db: Database): BookingStore {
   return {
     async request(id) {
@@ -112,7 +111,7 @@ export function createPostgresBookingStore(db: Database): BookingStore {
             `insert into app.booking_requests (${columns})
              values (:id, :reference, :apartment, :apartmentName, :arrive::date, :leave::date, :adults, :children, :name, :phone, :email,
                :arrivalTime, :notes, :consentedAt, :consentVersion, :noticeVersion, :status, :visitorKey, :createdAt, :decidedAt, :decidedBy,
-               :decisionNote, :unitId)`,
+               :decisionNote, :bookingId)`,
             {
               id: request.id,
               reference: request.ref,
@@ -136,36 +135,13 @@ export function createPostgresBookingStore(db: Database): BookingStore {
               decidedAt: request.decision?.at ?? null,
               decidedBy: request.decision?.by ?? null,
               decisionNote: request.decision?.note ?? null,
-              unitId: request.decision?.unitId ?? null,
+              bookingId: request.decision?.bookingId ?? null,
             },
           );
           return { status: "created" } as const;
         });
       } catch (error) {
         if (error instanceof UniqueViolationError && error.constraint === "booking_requests_reference_unique") return { status: "ref-taken" };
-        throw error;
-      }
-    },
-
-    async accept({ requestId, block, at, by, today }): Promise<AcceptOutcome> {
-      if (!isUuid(requestId) || !isUuid(block.unitId)) return { status: "request-changed" };
-      try {
-        return await db.transaction(async (tx) => {
-          const waiting = await tx.get<{ id: string }>(`select id from app.booking_requests where id = :id and ${waitingOn} for update`, {
-            id: requestId,
-            today,
-          });
-          if (!waiting) return { status: "request-changed" } as const;
-          if ((await insertBlock(tx, block)) === "unit-unavailable") return { status: "unit-unavailable" } as const;
-          await tx.run(
-            "update app.booking_requests set status = 'accepted', decided_at = :at, decided_by = :by, unit_id = :unitId where id = :id",
-            { id: requestId, at, by, unitId: block.unitId },
-          );
-          return { status: "accepted" } as const;
-        });
-      } catch (error) {
-        // The unit was taken on one of the nights: the whole transaction rolled back, so the request is still waiting.
-        if (isOverlap(error)) return { status: "overlaps" };
         throw error;
       }
     },
@@ -178,23 +154,6 @@ export function createPostgresBookingStore(db: Database): BookingStore {
         { id: requestId, at, by, note, today },
       );
       return changes === 1;
-    },
-
-    async release({ requestId, at, by, note, today }) {
-      if (!isUuid(requestId)) return false;
-      return db.transaction(async (tx) => {
-        const accepted = await tx.get<{ id: string }>(
-          "select id from app.booking_requests where id = :id and status = 'accepted' and leave > :today::date for update",
-          { id: requestId, today },
-        );
-        if (!accepted) return false;
-        await tx.run("delete from app.availability_blocks where request_id = :id", { id: requestId });
-        await tx.run(
-          "update app.booking_requests set status = 'declined', decided_at = :at, decided_by = :by, decision_note = :note, unit_id = null where id = :id",
-          { id: requestId, at, by, note },
-        );
-        return true;
-      });
     },
 
     async housekeeping(rules): Promise<HousekeepingReport> {

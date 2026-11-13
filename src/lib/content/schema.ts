@@ -22,12 +22,14 @@ import {
   gallerySchema,
   homeSchema,
   locationSchema,
+  messagesSchema,
   policiesSchema,
 } from "./page-sections";
 import { sitePages, type SitePage } from "./pages";
 
 export { contentIconNames, contentIcons, imageRefSchema, standInSource, type ContentIcon, type ImageRef } from "./shapes";
-export type { Apartment, Facility, FacilityGroup, GalleryPhoto, Highlight, HouseRule, NearbyPlace, TimeWindow } from "./page-sections";
+export type { Apartment, Facility, FacilityGroup, GalleryPhoto, Highlight, HouseRule, MessagePlaceholder, NearbyPlace, TimeWindow } from "./page-sections";
+export { messagePlaceholders } from "./page-sections";
 
 /**
  * Everything on the public site the dashboard can change, as one schema per
@@ -176,6 +178,7 @@ export const sectionKeys = [
   "site",
   "contact",
   "bookingTerms",
+  "messages",
   "home",
   "apartments",
   "gallery",
@@ -194,6 +197,7 @@ export const sectionSchemas = {
   site: siteSchema,
   contact: contactSchema,
   bookingTerms: bookingTermsSchema,
+  messages: messagesSchema,
   home: homeSchema,
   apartments: apartmentsSchema,
   gallery: gallerySchema,
@@ -214,6 +218,7 @@ export type SiteContent = { [K in SectionKey]: SectionData<K> };
 export type SiteSection = SectionData<"site">;
 export type ContactSection = SectionData<"contact">;
 export type BookingTermsSection = SectionData<"bookingTerms">;
+export type MessagesSection = SectionData<"messages">;
 export type HomeSection = SectionData<"home">;
 export type ApartmentsSection = SectionData<"apartments">;
 export type GallerySection = SectionData<"gallery">;
@@ -242,6 +247,7 @@ export const sectionPermissions = {
   site: "content:edit",
   contact: "settings:contact",
   bookingTerms: "settings:booking-rules",
+  messages: "settings:booking-rules",
   home: "content:edit",
   apartments: "content:edit",
   gallery: "content:edit",
@@ -273,6 +279,7 @@ const sectionParsers: { [K in SectionKey]: (input: unknown) => Parsed<SectionDat
   site: (input) => parseSectionWith(siteSchema, input),
   contact: (input) => parseSectionWith(contactSchema, input),
   bookingTerms: (input) => parseSectionWith(bookingTermsSchema, input),
+  messages: (input) => parseSectionWith(messagesSchema, input),
   home: (input) => parseSectionWith(homeSchema, input),
   apartments: (input) => parseSectionWith(apartmentsSchema, input),
   gallery: (input) => parseSectionWith(gallerySchema, input),
@@ -300,6 +307,7 @@ export const sectionNames: Record<SectionKey, string> = {
   site: "Business details",
   contact: "Contact details",
   bookingTerms: "Booking terms",
+  messages: "Guest messages",
   home: "Home page",
   apartments: "Apartments",
   gallery: "Gallery",
@@ -317,6 +325,7 @@ export const sectionDescriptions: Record<SectionKey, string> = {
   site: "Your business name, address, description and social links, used across the whole site.",
   contact: "The phone number, WhatsApp number and email address guests use to reach you and book.",
   bookingTerms: "Your deposit, balance, cancellation and payment terms for direct bookings.",
+  messages: "The WhatsApp messages your team sends from a booking: the confirmation, directions and check-in details.",
   home: "The headline, photo and introduction guests see first, and what the home page highlights.",
   apartments: "Each apartment's name, beds, bathroom, features, photos and who it sleeps.",
   gallery: "The photos on the gallery page, with their captions.",
@@ -331,6 +340,8 @@ export const sectionDescriptions: Record<SectionKey, string> = {
 
 /** Extra guidance where a section needs it. */
 export const sectionHelp: Partial<Record<SectionKey, string>> = {
+  messages:
+    "Only the owner can change these. {guestName}, {ref}, {apartment}, {arrive}, {leave} and {nights} fill in the booking's details; {businessName}, {location} and {phone} your business's; {checkInFrom}, {checkInUntil} and {checkOutUntil} the times from your house rules. Nothing is sent by itself: the team opens each message in WhatsApp, checks it and sends it.",
   bookingTerms:
     "Only the owner can change these. Leave a term empty until you've decided it: the site then says it's still to be confirmed rather than guessing. Each change is recorded in the audit log.",
   apartments:
@@ -344,10 +355,11 @@ export const sectionHelp: Partial<Record<SectionKey, string>> = {
 };
 
 /** The page each section's "View on site" link opens. */
-export const sectionPages: Record<SectionKey, SitePage> = {
+export const sectionPages: Record<SectionKey, SitePage | null> = {
   site: "home",
   contact: "contact",
   bookingTerms: "policies",
+  messages: null,
   home: "home",
   apartments: "apartments",
   gallery: "gallery",

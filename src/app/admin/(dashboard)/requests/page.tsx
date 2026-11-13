@@ -14,8 +14,9 @@ import { requireDashboardActor } from "@/server/admin-session";
 import { env } from "@/server/env";
 import { clock } from "@/server/infrastructure";
 import { getSiteContent } from "@/server/site-content";
-import { bookingService, inventoryService } from "@/server/stays";
-import { acceptRequest, cancelAcceptedRequest, declineRequest } from "./actions";
+import { bookingService, inventoryService, reservationService } from "@/server/stays";
+import { centsForInput } from "@/lib/format/money";
+import { acceptRequest, declineRequest } from "./actions";
 
 export const metadata: Metadata = { title: "Booking requests" };
 
@@ -50,7 +51,6 @@ export default async function RequestsPage({ searchParams }: PageProps<"/admin/r
       canDecline={can(actor, "bookings:cancel")}
       acceptAction={acceptRequest}
       declineAction={declineRequest}
-      cancelAction={cancelAcceptedRequest}
       bookPageHref={`${env.siteUrl()}/book`}
       apartmentsHref={adminRoutes.apartments}
       hrefs={hrefs}
@@ -82,7 +82,15 @@ async function rowOf(actor: Actor, request: BookingRequest, businessName: string
     decision: decided && [decided, request.decision?.note].filter(Boolean).join(" · "),
     freeUnits: freeUnits.map((unit) => ({ id: unit.id, name: unit.name })),
     hasUnits: units.some((unit) => unit.active && unit.apartment === request.apartment),
-    cancellable: request.status === "accepted" && request.stay.leave > inventory.today(),
+    suggestedTotal: await suggestedTotalFor(actor, request),
+    bookingHref: request.decision?.bookingId ? `${adminRoutes.bookings}/${request.decision.bookingId}` : null,
     consent: `The booking form's consent (version ${request.consent.consentVersion}) and the privacy notice (version ${request.consent.noticeVersion})`,
   };
+}
+
+/** The rates' total for a waiting request's stay, ready for the accept form; "" when there's none or it isn't needed. */
+async function suggestedTotalFor(actor: Actor, request: BookingRequest): Promise<string> {
+  if (request.status !== "waiting" || !can(actor, "bookings:create")) return "";
+  const cents = await reservationService().suggestedTotal(actor, request.apartment, request.stay, guestsOf(request));
+  return cents === null ? "" : centsForInput(cents);
 }

@@ -8,6 +8,10 @@ import { createBookingService, type BookingService } from "@/lib/booking/booking
 import { requestRateLimits } from "@/lib/booking/spam-rules";
 import { businessTimeZone } from "@/lib/format/zoned-time";
 import { createInventoryService, type ApartmentType, type InventoryService } from "@/lib/inventory/inventory-service";
+import { createReservationService, type ReservationService } from "@/lib/reservations/reservation-service";
+import { createPostgresReservationStore } from "@/adapters/postgres/reservation-store";
+import { publicQuote, quoteStay } from "./rates";
+import { afterCheckOut } from "./tasks";
 import { dashboardOrigin } from "./accounts";
 import { auditRecorder } from "./audit";
 import { contentService } from "./content";
@@ -32,6 +36,7 @@ async function apartmentTypes(): Promise<ApartmentType[]> {
 
 let inventory: InventoryService | null = null;
 let booking: BookingService | null = null;
+let reservations: ReservationService | null = null;
 
 export function inventoryService(): InventoryService {
   inventory ??= createInventoryService({
@@ -63,6 +68,10 @@ export function bookingService(): BookingService {
     },
     email: emailSender(),
     alertAddress: async () => (await contentService().getAll()).contact.email,
+    minimumNights: async (apartment, stay, guests) => {
+      const quote = await publicQuote(apartment, { arrive: stay.arrive, leave: stay.leave }, guests);
+      return quote && !quote.meetsMinimum ? quote.minNights : null;
+    },
     runAfterResponse: (task) => runAfterResponse(task, "The new-request alert failed"),
     reportProblem: (message) => reportError(message, new Error(message)),
     requestsPageUrl: `${dashboardOrigin()}${requestsPath}`,
@@ -72,4 +81,34 @@ export function bookingService(): BookingService {
     access: { can, assertCan },
   });
   return booking;
+}
+
+/** The apartment types' names by slug, from the content as it is now. */
+async function apartmentNames(): Promise<Record<string, string>> {
+  return Object.fromEntries((await apartmentTypes()).map((type) => [type.slug, type.name]));
+}
+
+/** Bookings and guests: the dashboard's reservations, with prices from the rates and the clean after each check-out. */
+export function reservationService(): ReservationService {
+  reservations ??= createReservationService({
+    store: createPostgresReservationStore(database()),
+    inventory: createPostgresInventoryStore(database()),
+    requests: createPostgresBookingStore(database()),
+    quote: quoteStay,
+    apartmentNames,
+    onCheckedOut: afterCheckOut,
+    reportProblem: (message) => reportError(message, new Error(message)),
+    random: cryptoRandom,
+    clock,
+    ids,
+    audit: auditRecorder(),
+    access: { can, assertCan },
+    timeZone: businessTimeZone,
+  });
+  return reservations;
+}
+
+/** Every unit, for forms and names in the dashboard. Pages that show them check their own permission first. */
+export function allUnits() {
+  return createPostgresInventoryStore(database()).units();
 }

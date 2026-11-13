@@ -1,7 +1,6 @@
 import type { IsoDate } from "@/lib/format/zoned-time";
 import type { InventoryService, StaySearch } from "@/lib/inventory/inventory-service";
-import { stayLabel, type Stay } from "@/lib/inventory/stays";
-import type { AvailabilityBlock } from "@/lib/inventory/units";
+import { nightsOf, stayLabel, type Stay } from "@/lib/inventory/stays";
 import type { Actor } from "@/lib/kernel/actor";
 import type { AuditRecorder } from "@/lib/kernel/audit";
 import type { EmailSender } from "@/lib/kernel/email";
@@ -11,7 +10,7 @@ import { parseWith } from "@/lib/forms/parse";
 import type { BookingAccess, BookingStore, FormTokens, RandomSource, RequestCreation, RequestRateLimits } from "./ports";
 import { newRequestRef } from "./reference-codes";
 import { newRequestEmail } from "./request-email";
-import { acceptInputSchema, botSignalsOf, declineInputSchema, echoedRequestOf, parseRequestInput } from "./request-input";
+import { botSignalsOf, declineInputSchema, echoedRequestOf, parseRequestInput } from "./request-input";
 import { guestsOf, statusOn, type BookingRequest } from "./requests";
 import { housekeepingAt } from "./retention";
 import { formTimingOf, maxWaitingPerPhone, phoneLimitMessage, siteWideKey, staleFormMessage } from "./spam-rules";
@@ -30,6 +29,12 @@ export type BookingServiceDependencies = {
   email: EmailSender | null;
   /** The guesthouse's own address the alert goes to (the site's contact email); null when there's none. */
   alertAddress: () => Promise<string | null>;
+  /**
+   * The fewest nights a stay in the apartment on these dates must have (the
+   * rates' minimum stay), or null when any length will do. The Book page
+   * hides the form for a short stay; this refuses one posted directly.
+   */
+  minimumNights?: (apartment: string, stay: Stay, guests: number) => Promise<number | null>;
   /** Runs work after the response has gone (Next's after()), so a slow mail server never keeps a guest waiting. */
   runAfterResponse: (task: () => Promise<void>) => void;
   /** Logs a problem nobody can be shown, such as an alert that couldn't be sent. */
@@ -74,14 +79,12 @@ function wholeRequestProblem(message: string): SubmitResult {
 
 const requestGone = "This request was already handled, or it has expired. Reload the page.";
 
-/** The note an accepted request carries once it's cancelled. */
-export const cancelledNote = "Cancelled after accepting";
 
 /**
  * Booking requests, from the public form to the owner's decision:
  * - form: the signed form token, and sending a request (guests);
  * - inbox: the waiting and handled lists, one request, the waiting count;
- * - decisions: accept (with the unit, atomic with closing its nights) and decline;
+ * - decisions: decline (accepting makes a booking: src/lib/reservations);
  * - maintenance: the daily expiry, retention and visitor-key clean-up.
  */
 export function createBookingService(deps: BookingServiceDependencies) {
@@ -175,6 +178,10 @@ export function createBookingService(deps: BookingServiceDependencies) {
 
       const requestable = await inventory.requestability(draft.apartment, search.value);
       if (!requestable.ok) return { status: "unavailable", reason: requestable.reason };
+      const minimum = await deps.minimumNights?.(requestable.apartment.slug, search.value, draft.adults + draft.children);
+      if (minimum && nightsOf(search.value) < minimum) {
+        return wholeRequestProblem(`Stays on these dates are at least ${minimum} nights. Go back and choose a later leaving day.`);
+      }
 
       const versions = await deps.consentVersions();
       const stored = await store({
@@ -232,43 +239,6 @@ export function createBookingService(deps: BookingServiceDependencies) {
   };
 
   const decisions = {
-    /** Accepts a waiting request into the chosen unit, closing its nights to everyone else, all at once. */
-    async accept(actor: Actor, requestId: string, input: unknown): Promise<ChangeResult> {
-      access.assertCan(actor, "bookings:create");
-      const parsed = parseWith(acceptInputSchema, input);
-      if (!parsed.ok) return refused(parsed.errors);
-      const request = await waitingRequest(requestId);
-      if (!request) return refusedWith(requestGone);
-      const free = await inventory.freeUnits(actor, request.apartment, request.stay);
-      if (!free.some((unit) => unit.id === parsed.value.unitId)) {
-        return refused({ unitId: "That unit isn't free for every night of this stay. Choose another, or decline the request." });
-      }
-      const now = clock.now();
-      const block: AvailabilityBlock = {
-        id: ids.newId(),
-        unitId: parsed.value.unitId,
-        stay: request.stay,
-        reason: "request",
-        note: `Request ${request.ref}`,
-        requestId: request.id,
-        createdBy: actor.id,
-        createdAt: now,
-      };
-      const outcome = await requests.accept({ requestId, block, at: now, by: actor.id, today: today() });
-      if (outcome.status === "request-changed") return refusedWith(requestGone);
-      if (outcome.status === "overlaps") return refused({ unitId: "Someone just closed or booked that unit on one of these nights. Choose another." });
-      if (outcome.status === "unit-unavailable") return refused({ unitId: "That unit isn't offered any more. Choose another." });
-      const unitName = free.find((unit) => unit.id === parsed.value.unitId)?.name ?? "a unit";
-      await audit.record({
-        actor,
-        category: "bookings",
-        action: "request.accepted",
-        target: { type: "booking-request", id: requestId },
-        summary: `Accepted request ${request.ref} for ${request.apartmentName}, ${stayLabel(request.stay)}, in ${unitName}`,
-      });
-      return done();
-    },
-
     /** Declines a waiting request, with an optional private note. */
     async decline(actor: Actor, requestId: string, input: unknown): Promise<ChangeResult> {
       access.assertCan(actor, "bookings:cancel");
@@ -284,27 +254,6 @@ export function createBookingService(deps: BookingServiceDependencies) {
         action: "request.declined",
         target: { type: "booking-request", id: requestId },
         summary: `Declined request ${request.ref} for ${request.apartmentName}, ${stayLabel(request.stay)}`,
-      });
-      return done();
-    },
-
-    /**
-     * Cancels an accepted request whose guest hasn't left yet: its nights open
-     * again in the unit, and it moves to declined with a note saying why.
-     * Nothing is sent to the guest.
-     */
-    async cancel(actor: Actor, requestId: string): Promise<ChangeResult> {
-      access.assertCan(actor, "bookings:cancel");
-      const request = await requests.request(requestId);
-      if (!request || request.status !== "accepted") return refusedWith("This booking was already cancelled, or isn't an accepted request. Reload the page.");
-      const released = await requests.release({ requestId, at: clock.now(), by: actor.id, note: cancelledNote, today: today() });
-      if (!released) return refusedWith("This stay has already ended, so it can't be cancelled here.");
-      await audit.record({
-        actor,
-        category: "bookings",
-        action: "request.cancelled",
-        target: { type: "booking-request", id: requestId },
-        summary: `Cancelled accepted request ${request.ref} for ${request.apartmentName}, ${stayLabel(request.stay)}; its nights are open again`,
       });
       return done();
     },

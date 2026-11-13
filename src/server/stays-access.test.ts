@@ -55,9 +55,7 @@ describe("inventory and booking requests with the real permission matrix (roles.
       const { inventory, booking } = services();
       await assert.rejects(booking.inbox.waiting(actor(role)), NotAllowedError, role);
       await assert.rejects(booking.inbox.handled(actor(role)), NotAllowedError, role);
-      await assert.rejects(booking.decisions.accept(actor(role), "r", { unitId: "u" }), NotAllowedError, role);
       await assert.rejects(booking.decisions.decline(actor(role), "r", {}), NotAllowedError, role);
-      await assert.rejects(booking.decisions.cancel(actor(role), "r"), NotAllowedError, role);
       await assert.rejects(inventory.overview(actor(role)), NotAllowedError, role);
       await assert.rejects(inventory.addUnit(actor(role), { apartment: "family-shower", name: "Unit 1" }), NotAllowedError, role);
       await assert.rejects(inventory.addBlock(actor(role), {}), NotAllowedError, role);

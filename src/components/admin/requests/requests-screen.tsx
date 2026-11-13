@@ -8,7 +8,7 @@ import { PageHeader } from "../page-header";
 import { StatusPill, type StatusTone } from "../status-pill";
 import { Tabs } from "../tabs";
 import { useToast } from "../toast";
-import { Select } from "@/components/ui/fields";
+import { Select, TextField } from "@/components/ui/fields";
 import { Notice } from "@/components/ui/notice";
 
 
@@ -33,8 +33,10 @@ export type RequestRow = {
   /** Waiting requests only: the units free for every night, and whether the apartment has any units at all. */
   freeUnits: { id: string; name: string }[];
   hasUnits: boolean;
-  /** An accepted request whose guest hasn't left yet, which can still be cancelled. */
-  cancellable: boolean;
+  /** The total the rates give for this stay, for the accept form ("" when there's no rate). */
+  suggestedTotal: string;
+  /** For an accepted request: its booking's page. */
+  bookingHref: string | null;
   consent: string;
 };
 
@@ -44,9 +46,8 @@ type RequestsScreenProps = {
   waitingCount: number;
   canAccept: boolean;
   canDecline: boolean;
-  acceptAction: (requestId: string, unitId: string) => Promise<ConfirmedActionResult>;
+  acceptAction: (requestId: string, terms: { unitId: string; total: string; depositDue: string }) => Promise<ConfirmedActionResult>;
   declineAction: (requestId: string) => Promise<ConfirmedActionResult>;
-  cancelAction: (requestId: string) => Promise<ConfirmedActionResult>;
   apartmentsHref: string;
   /** The website's Book page, for the empty inbox. */
   bookPageHref: string;
@@ -70,11 +71,12 @@ function RequestCard({
   canDecline,
   acceptAction,
   declineAction,
-  cancelAction,
   apartmentsHref,
 }: Omit<RequestsScreenProps, "rows" | "waitingCount" | "hrefs" | "bookPageHref"> & { row: RequestRow }) {
   const toasts = useToast();
   const [unitId, setUnitId] = useState(row.freeUnits[0]?.id ?? "");
+  const [total, setTotal] = useState(row.suggestedTotal);
+  const [depositDue, setDepositDue] = useState("0");
   const unitName = row.freeUnits.find((unit) => unit.id === unitId)?.name ?? "the unit";
   return (
     <li className="grid gap-4 rounded-md border border-hairline bg-white p-4 sm:p-5">
@@ -137,6 +139,17 @@ function RequestCard({
                   onValueChange={setUnitId}
                   hint="Free for every night of this stay."
                 />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <TextField
+                    name={`total-${row.id}`}
+                    label="Total for the stay (R)"
+                    inputMode="decimal"
+                    defaultValue={row.suggestedTotal}
+                    onValueChange={setTotal}
+                    hint={row.suggestedTotal ? "From your rates. Change it if you agreed another price." : "No rate set for this apartment: enter the price you'll quote."}
+                  />
+                  <TextField name={`deposit-${row.id}`} label="Deposit due (R)" inputMode="decimal" defaultValue="0" onValueChange={setDepositDue} />
+                </div>
                 <div>
                   <ConfirmButton
                     variant="primary"
@@ -145,7 +158,7 @@ function RequestCard({
                     description={`${row.stay}. These nights close in ${unitName} for everyone else. You can cancel it later from Handled. Nothing is sent to the guest: reply on WhatsApp or by email.`}
                     confirmLabel="Accept request"
                     pendingLabel="Accepting…"
-                    action={() => acceptAction(row.id, unitId)}
+                    action={() => acceptAction(row.id, { unitId, total, depositDue })}
                     onDone={() => toasts?.show({ message: `${row.ref} accepted into ${unitName}` })}
                   >
                     Accept
@@ -180,21 +193,11 @@ function RequestCard({
         </div>
       )}
 
-      {list === "handled" && row.cancellable && canDecline && (
+      {list === "handled" && row.bookingHref && (
         <div className="border-t border-hairline pt-4">
-          <ConfirmButton
-            size="sm"
-            variant="ghost"
-            tone="primary"
-            title={`Cancel ${row.name}'s booking?`}
-            description="Its nights open again for everyone. Nothing is sent to the guest: let them know on WhatsApp or by email."
-            confirmLabel="Cancel booking"
-            pendingLabel="Cancelling…"
-            action={() => cancelAction(row.id)}
-            onDone={() => toasts?.show({ message: `${row.ref} cancelled; its nights are open again` })}
-          >
-            Cancel booking
-          </ConfirmButton>
+          <a href={row.bookingHref} className="inline-flex min-h-11 items-center font-bold text-link underline underline-offset-4">
+            Open the booking
+          </a>
         </div>
       )}
     </li>

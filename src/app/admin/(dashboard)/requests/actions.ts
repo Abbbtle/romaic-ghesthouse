@@ -3,7 +3,7 @@
 import { refresh } from "next/cache";
 import { failedState, formStateOf, type FormState } from "@/lib/forms/form-state";
 import { dashboardAction } from "@/server/admin-actions";
-import { bookingService } from "@/server/stays";
+import { bookingService, reservationService } from "@/server/stays";
 
 /*
  * Deciding booking requests. Every action checks the session and the
@@ -15,21 +15,17 @@ import { bookingService } from "@/server/stays";
 
 const reloadMessage = "Reload the page and try again.";
 
-/** Accepts a request into the unit chosen on its card, once confirmed. */
-export const acceptRequest = dashboardAction(async (actor, requestId: unknown, unitId: unknown): Promise<FormState> => {
-  if (typeof requestId !== "string") return failedState(reloadMessage);
-  const result = await bookingService().decisions.accept(actor, requestId, { unitId });
+/**
+ * Accepts a request into a booking in the unit chosen on its card, with the
+ * agreed total and deposit, once confirmed. Cancelling it later happens on
+ * the booking.
+ */
+export const acceptRequest = dashboardAction(async (actor, requestId: unknown, terms: unknown): Promise<FormState> => {
+  if (typeof requestId !== "string" || typeof terms !== "object" || terms === null) return failedState(reloadMessage);
+  const result = await reservationService().acceptRequest(actor, requestId, terms);
   if (result.ok) refresh();
-  return formStateOf(result, "Request accepted. Its nights are now closed in that unit.");
+  return formStateOf(result, "Request accepted: it's now a booking, and its nights are closed in that unit.");
 }, { permission: "bookings:create" });
-
-/** Cancels an accepted request, opening its nights again. */
-export const cancelAcceptedRequest = dashboardAction(async (actor, requestId: unknown): Promise<FormState> => {
-  if (typeof requestId !== "string") return failedState(reloadMessage);
-  const result = await bookingService().decisions.cancel(actor, requestId);
-  if (result.ok) refresh();
-  return formStateOf(result, "Booking cancelled. Its nights are open again.");
-}, { permission: "bookings:cancel" });
 
 /** Declines a request. */
 export const declineRequest = dashboardAction(async (actor, requestId: unknown): Promise<FormState> => {

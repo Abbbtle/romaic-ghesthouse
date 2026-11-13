@@ -62,7 +62,7 @@ export function SectionForm({ section, revision, save, children }: SectionFormPr
       action={action}
       validate={validate}
       subject={sectionNames[section]}
-      savedAction={{ label: "View on site", href: contentPageHref(section) }}
+      savedAction={contentPageHref(section) ? { label: "View on site", href: contentPageHref(section)! } : undefined}
       className="min-w-0"
     >
       {/* A new revision redraws the fields from what was saved. */}

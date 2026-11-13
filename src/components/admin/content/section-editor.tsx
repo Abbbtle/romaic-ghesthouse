@@ -15,6 +15,7 @@ import { FacilitiesEditor, facilitiesParts } from "./editors/facilities-editor";
 import { GalleryEditor, galleryParts } from "./editors/gallery-editor";
 import { HomeEditor, homeParts } from "./editors/home-editor";
 import { LocationEditor, locationParts } from "./editors/location-editor";
+import { MessagesEditor, messagesParts } from "./editors/messages-editor";
 import { PoliciesEditor, policiesParts } from "./editors/policies-editor";
 import { PrivacyEditor, privacyParts } from "./editors/privacy-editor";
 import { SeoEditor, seoParts } from "./editors/seo-editor";
@@ -69,6 +70,8 @@ function editorFor(content: EditableContent, upload: UploadImage): { parts: read
       return { parts: contactParts.links, fields: <ContactEditor data={content.data} /> };
     case "bookingTerms":
       return { parts: bookingTermsParts.links, fields: <BookingTermsEditor data={content.data} /> };
+    case "messages":
+      return { parts: messagesParts.links, fields: <MessagesEditor data={content.data} /> };
     case "home":
       return { parts: homeParts.links, fields: <HomeEditor data={content.data} upload={upload} /> };
     case "apartments":

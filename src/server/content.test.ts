@@ -24,7 +24,7 @@ describe("content composition", () => {
     assert.deepEqual(editableBy(owner), [...sectionKeys]);
     assert.deepEqual(
       editableBy(admin),
-      sectionKeys.filter((key) => key !== "contact" && key !== "bookingTerms"),
+      sectionKeys.filter((key) => key !== "contact" && key !== "bookingTerms" && key !== "messages"),
       "the contact details and booking terms are the owner's alone",
     );
     assert.deepEqual(editableBy(sales), []);
@@ -42,7 +42,7 @@ describe("content composition", () => {
     assert.equal((await service.getSection("contact")).phone, "+27769579928");
     assert.deepEqual(
       (await service.getSummaries(admin)).map(({ key }) => key),
-      sectionKeys.filter((key) => key !== "contact" && key !== "bookingTerms"),
+      sectionKeys.filter((key) => key !== "contact" && key !== "bookingTerms" && key !== "messages"),
     );
     assert.deepEqual(audit.events, []);
   });

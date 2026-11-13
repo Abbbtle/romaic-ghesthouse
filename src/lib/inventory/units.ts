@@ -10,9 +10,10 @@ import type { Stay } from "./stays";
  * inventory's own records; the apartment types themselves are site content.
  *
  * Blocks take a unit out of availability for some nights: the owner closing
- * it, maintenance, or an accepted booking request. Two blocks on one unit
+ * it, maintenance, a booking, or a stay imported from a channel's calendar
+ * (and, from Phase 2, an accepted booking request). Two blocks on one unit
  * never share a night (the store guards this; in Postgres, an exclusion
- * constraint). Channel bookings and full bookings arrive in Phase 3.
+ * constraint), so a booking can never land on a night that's taken.
  */
 
 export type Unit = {
@@ -27,7 +28,7 @@ export type Unit = {
   active: boolean;
 };
 
-export const blockReasons = ["owner", "maintenance", "request"] as const;
+export const blockReasons = ["owner", "maintenance", "request", "booking", "channel"] as const;
 
 export type BlockReason = (typeof blockReasons)[number];
 
@@ -35,10 +36,17 @@ export const blockReasonNames: Record<BlockReason, string> = {
   owner: "Closed",
   maintenance: "Maintenance",
   request: "Booking request",
+  booking: "Booking",
+  channel: "Channel booking",
 };
 
-/** The reasons someone can choose in the dashboard; "request" comes only from accepting a request. */
+/** The reasons someone can choose in the dashboard; the others come from bookings, requests and channel calendars. */
 export const manualBlockReasons = ["owner", "maintenance"] as const satisfies readonly BlockReason[];
+
+/** Whether a block was made by hand (and can be removed by hand). */
+export function isManualBlock(block: Pick<AvailabilityBlock, "reason">): boolean {
+  return (manualBlockReasons as readonly BlockReason[]).includes(block.reason);
+}
 
 export type AvailabilityBlock = {
   id: string;
@@ -49,6 +57,10 @@ export type AvailabilityBlock = {
   note: string | null;
   /** The booking request that made it, for "request" blocks. */
   requestId: string | null;
+  /** The booking that holds these nights, for "booking" blocks. */
+  bookingId: string | null;
+  /** The imported channel stay, for "channel" blocks. */
+  channelEventId: string | null;
   /** Who added it; null for the system. */
   createdBy: string | null;
   createdAt: Date;

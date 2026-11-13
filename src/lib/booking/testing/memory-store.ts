@@ -1,16 +1,19 @@
 import type { IsoDate } from "@/lib/format/zoned-time";
-import { memoryBlockOutcome, memoryInventoryState, type MemoryInventoryState } from "@/lib/inventory/testing/memory-store";
+import { memoryInventoryState, type MemoryInventoryState } from "@/lib/inventory/testing/memory-store";
 import { staysOverlap } from "@/lib/inventory/stays";
-import type { AcceptOutcome, BookingStore, HousekeepingReport, RequestCreation } from "../ports";
+import type { BookingStore, HousekeepingReport, RequestCreation } from "../ports";
 import { statusOn, type BookingRequest } from "../requests";
 
 /**
  * Booking requests in memory, for tests, with the same rules as the Postgres
- * store (./store-contract.ts checks both). Accepting writes the block into
- * the inventory's shared state, so the two can't both take a night.
+ * store (./store-contract.ts checks both). It shares the inventory's state
+ * so deleting a request can unlink the blocks that pointed at it; the
+ * reservations core's memory store accepts requests into bookings.
  */
-export function createMemoryBookingStore(inventory: MemoryInventoryState = memoryInventoryState()): BookingStore {
-  const requests = new Map<string, BookingRequest>();
+export function createMemoryBookingStore(
+  inventory: MemoryInventoryState = memoryInventoryState(),
+  requests: Map<string, BookingRequest> = new Map(),
+): BookingStore {
 
   const copy = (request: BookingRequest): BookingRequest => structuredClone(request);
   const isWaiting = (request: BookingRequest, today: IsoDate) => statusOn(request, today) === "waiting";
@@ -46,30 +49,10 @@ export function createMemoryBookingStore(inventory: MemoryInventoryState = memor
       requests.set(request.id, copy(request));
       return { status: "created" };
     },
-    async accept(acceptance): Promise<AcceptOutcome> {
-      const request = requests.get(acceptance.requestId);
-      if (!request || !isWaiting(request, acceptance.today)) return { status: "request-changed" };
-      const outcome = memoryBlockOutcome(inventory, acceptance.block);
-      if (outcome.status !== "added") return outcome;
-      inventory.blocks.set(acceptance.block.id, structuredClone(acceptance.block));
-      requests.set(request.id, {
-        ...request,
-        status: "accepted",
-        decision: { at: acceptance.at, by: acceptance.by, note: null, unitId: acceptance.block.unitId },
-      });
-      return { status: "accepted" };
-    },
     async decline(decline) {
       const request = requests.get(decline.requestId);
       if (!request || !isWaiting(request, decline.today)) return false;
-      requests.set(request.id, { ...request, status: "declined", decision: { at: decline.at, by: decline.by, note: decline.note, unitId: null } });
-      return true;
-    },
-    async release(release) {
-      const request = requests.get(release.requestId);
-      if (!request || request.status !== "accepted" || request.stay.leave <= release.today) return false;
-      for (const [id, block] of inventory.blocks) if (block.requestId === request.id) inventory.blocks.delete(id);
-      requests.set(request.id, { ...request, status: "declined", decision: { at: release.at, by: release.by, note: release.note, unitId: null } });
+      requests.set(request.id, { ...request, status: "declined", decision: { at: decline.at, by: decline.by, note: decline.note, bookingId: null } });
       return true;
     },
     async housekeeping(rules): Promise<HousekeepingReport> {
@@ -77,7 +60,7 @@ export function createMemoryBookingStore(inventory: MemoryInventoryState = memor
       for (const request of requests.values()) {
         if (request.status === "waiting" && request.stay.arrive < rules.expireArrivingBefore) {
           request.status = "expired";
-          request.decision = { at: rules.now, by: null, note: null, unitId: null };
+          request.decision = { at: rules.now, by: null, note: null, bookingId: null };
           report.expired += 1;
         }
       }

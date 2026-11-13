@@ -48,6 +48,8 @@ type ActionFormProps = {
   onSaved?: (message: string) => void;
   /** button footer only: things beside the button, such as a Cancel link. */
   footerExtras?: ReactNode;
+  /** button footer only: "secondary" when another form on the page holds the one primary action. */
+  submitVariant?: "primary" | "secondary";
   className?: string;
   children: ReactNode;
 };
@@ -70,6 +72,7 @@ export function ActionForm({
   resetOnSave = false,
   onSaved,
   footerExtras,
+  submitVariant = "primary",
   className,
   children,
 }: ActionFormProps) {
@@ -147,7 +150,7 @@ export function ActionForm({
           <SaveBar visible={dirty || pending} pending={pending} saveLabel={submitLabel} pendingLabel={pendingLabel} />
         ) : (
           <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
-            <Button type="submit" pending={pending} pendingLabel={pendingLabel}>
+            <Button type="submit" variant={submitVariant} pending={pending} pendingLabel={pendingLabel}>
               {submitLabel}
             </Button>
             {footerExtras}

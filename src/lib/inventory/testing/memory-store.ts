@@ -1,6 +1,6 @@
 import type { BlockAdd, InventoryStore, UnitAdd, UnitChange } from "../ports";
 import { staysOverlap, type Stay } from "../stays";
-import type { AvailabilityBlock, Unit } from "../units";
+import { isManualBlock, type AvailabilityBlock, type Unit } from "../units";
 
 /**
  * Units and blocks in memory, for tests. It keeps the same rules the
@@ -64,7 +64,7 @@ export function createMemoryInventoryStore(state: MemoryInventoryState = memoryI
     },
     async removeManualBlock(id) {
       const block = state.blocks.get(id);
-      if (!block || block.reason === "request") return false;
+      if (!block || !isManualBlock(block)) return false;
       state.blocks.delete(id);
       return true;
     },
