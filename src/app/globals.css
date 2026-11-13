@@ -1,9 +1,13 @@
 @import "tailwindcss";
 
 /*
- * Romaic Guesthouse design tokens. Colours, faces and elements come from
- * the client's brand guide (Edition 1, November 2026; see PRODUCT.md and
- * DESIGN.md). The layout is the classic accommodation page, done properly.
+ * Romaic Guesthouse design tokens. Colours and faces come from the client's
+ * brand guide (Edition 1, November 2026; see PRODUCT.md and DESIGN.md). The
+ * public site wears the premium direction approved on 2026-11-13, "a
+ * gold-town guesthouse after dark": midnight navy and Romaic gold, large
+ * photographs framed with an offset gold hairline, Josefin Sans light and
+ * large. Its differences from the dashboard live under .theme-site below,
+ * so the dashboard keeps its own look.
  *
  * Tailwind's own colours, type sizes, weights, radii and shadows are cleared,
  * so only the brand's exist as utilities. `static` keeps every variable in
@@ -113,12 +117,27 @@
   /* The WhatsApp glyph only: never text or fills. */
   --color-whatsapp: #25d366;
 
+  /*
+   * The public site's premium palette (the approved mock-up's tokens). Paper is
+   * the canvas; Navy 850 is the raised navy (fields and photo grounds on navy);
+   * Ink 2 and 3 are the cool greys for secondary text (7.8:1 and 6.0:1 on Paper,
+   * 6.7:1 and 5.2:1 on Cream); On Navy 1 and 2 are text on navy (14.9:1, 9.1:1).
+   */
+  --color-paper: #faf8f3;
+  --color-navy-850: #1a2938;
+  --color-ink-2: #4a4f57;
+  --color-ink-3: #5a5f68;
+  --color-on-navy: #f3efe6;
+  --color-on-navy-2: #b8bec7;
+
   /* Faces (brand guide p6): closest free matches, self-hosted by next/font. */
   --font-display: var(--font-josefin), "Josefin Sans", ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-arimo), Arimo, Arial, ui-sans-serif, system-ui, sans-serif;
   --font-script: var(--font-sacramento), "Sacramento", cursive;
   --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
 
+  /* Light is the public site's display weight (Josefin Sans 300). */
+  --font-weight-light: 300;
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
@@ -158,8 +177,38 @@
   --text-date: clamp(2rem, 1.8rem + 1vw, 2.75rem);
   --text-date--line-height: 1;
 
+  /*
+   * The public site's display type: Josefin Sans light, large, sentence case,
+   * tracked no wider than 0.04em (the recipes are in src/components/site/site-type.ts).
+   */
+  --text-display-hero: clamp(2.75rem, 1.6rem + 4.2vw, 5.25rem);
+  --text-display-hero--line-height: 0.98;
+  --text-display-page: clamp(2.375rem, 1.5rem + 3vw, 4.25rem);
+  --text-display-page--line-height: 1.02;
+  --text-display: clamp(2.25rem, 1.4rem + 2.6vw, 3.75rem);
+  --text-display--line-height: 1.04;
+  --text-display-sm: clamp(1.75rem, 1.45rem + 1vw, 2.375rem);
+  --text-display-sm--line-height: 1.1;
+  --text-display-address: clamp(2.5rem, 1.2rem + 5vw, 6rem);
+  --text-display-address--line-height: 1;
+  --text-title: 1.5rem;
+  --text-title--line-height: 1.2;
+  --text-title-sm: 1.25rem;
+  --text-title-sm--line-height: 1.25;
+  --text-label: 0.8125rem;
+  --text-label--line-height: 1.2;
+  --text-nav: 0.9375rem;
+  --text-nav--line-height: 1;
+  --text-lede: clamp(1.0625rem, 1rem + 0.3vw, 1.1875rem);
+  --text-lede--line-height: 1.6;
+
   --spacing-section: clamp(3.5rem, 2.5rem + 4.5vw, 6.5rem);
   --spacing-section-sm: clamp(2.5rem, 2rem + 2.5vw, 4rem);
+  /* The public site's rhythm: a band between sections, and the side gutter (the mock-up's --sec and --gut). */
+  --spacing-band: clamp(4.5rem, 9vw, 8rem);
+  --spacing-band-sm: clamp(3rem, 6vw, 5.5rem);
+  --spacing-gutter: clamp(1.25rem, 5.5vw, 5rem);
+  --container-wrap: 80rem;
   --container-page: 72rem;
   --container-form: 40rem;
   --container-admin: 70rem;
@@ -185,7 +234,7 @@
   --animate-live-pulse: live-pulse 2000ms var(--ease-out) infinite;
   --animate-skeleton: skeleton 1500ms ease-in-out infinite alternate;
 
-  /* The brand's gold gradient for frame bars (brand guide p5): 100°. */
+  /* The brand's gold gradient (brand guide p5): 100°. Only the design preview's gold rule uses it now. */
   --gradient-gold: linear-gradient(100deg, #aa823a 0%, #e3ce74 38%, #cba959 62%, #aa823a 100%);
 
   @keyframes live-pulse {
@@ -208,15 +257,24 @@
     }
   }
 
-  /* The gold bar's one sheen: a highlight crossing the bar, by transform and opacity only. */
-  @keyframes gold-sweep {
+  /* The home hero's entrance (public site): the photo settles and the words rise, by transform and opacity only. */
+  @keyframes hero-settle {
     from {
-      transform: translateX(-120%);
-      opacity: 1;
+      transform: scale(1.06);
     }
     to {
-      transform: translateX(120%);
+      transform: none;
+    }
+  }
+
+  @keyframes hero-rise {
+    from {
       opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
     }
   }
 }
@@ -322,16 +380,25 @@
   color-scheme: light;
 
   /* Chrome heights, for sticky offsets and anchor scrolling. */
-  --site-header-height: 4.25rem;
+  --site-header-height: 4.5rem;
   /* The public booking dock and the admin tab bar on phones, plus the home-indicator area. */
   --dock-height: 4rem;
   --admin-tab-bar-height: 4rem;
   --admin-bottom-inset: calc(var(--admin-tab-bar-height) + env(safe-area-inset-bottom));
 
+  @media (width >= 56.25rem) {
+    --site-header-height: 5.5rem;
+  }
+
   @media (width >= 64rem) {
-    --site-header-height: 5rem;
     --admin-bottom-inset: 0px;
   }
+}
+
+/* The public site's content width with its side gutters (the mock-up's .wrap), clear of a phone's notch. */
+@utility site-wrap {
+  width: min(100% - 2 * max(var(--spacing-gutter), env(safe-area-inset-left), env(safe-area-inset-right)), var(--container-wrap));
+  margin-inline: auto;
 }
 
 /* ------------------------------------------------------------------ */
@@ -462,42 +529,84 @@
     color: var(--color-fg);
   }
 
-  /*
-   * The gold frame bar: a metallic gold band that holds a headline (black
-   * bold type on gold, 8.2:1 at its lightest stop's neighbour). Never behind
-   * body text. The sweep plays once, only after the visitor interacts and
-   * never under reduced motion (see .is-animated, set by the motion gate).
-   */
-  .gold-bar {
-    position: relative;
-    overflow: hidden;
-    isolation: isolate;
-    display: block;
-    padding: 0.7em 1.1em 0.6em;
-    background-image: var(--gradient-gold);
-    background-size: 100% 100%;
-    color: var(--color-ink-black);
-    text-align: center;
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35), inset 0 -1px 0 rgb(21 19 22 / 0.12);
+  /* On the public site, a dark surface's text, links, rules and focus ring take the mock-up's on-navy colours. */
+  .theme-site .on-dark,
+  .theme-site.on-dark {
+    --color-ink: var(--color-on-navy);
+    --color-fg: var(--color-on-navy);
+    --color-fg-2: var(--color-on-navy-2);
+    --color-fg-3: var(--color-on-navy-2);
+    --color-fg-brand: var(--color-romaic-gold);
+    --color-link: var(--color-on-navy);
+    --color-link-hover: var(--color-romaic-gold);
+    --color-focus: var(--color-romaic-gold);
+    --color-hairline: rgb(203 169 89 / 0.3);
   }
 
-  .gold-bar[data-sweep]::after {
+  /*
+   * The public header: solid navy on every page, and transparent over the
+   * home page's photograph (the page marks its hero with data-hero). Where
+   * :has() isn't supported the header simply stays navy above the photo.
+   */
+  .site-header {
+    background: var(--color-midnight-navy);
+  }
+
+  .theme-site:has(> main > [data-hero]) > .site-header {
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 30;
+    background: transparent;
+    border-color: transparent;
+  }
+
+  /*
+   * A large photograph framed with a gold hairline set off its edge, down and
+   * to the right (the approved mock-up's .framed). The frame sits behind the
+   * photo; below 900 px the figure gives up its right margin so the frame
+   * never runs past the screen.
+   */
+  .framed {
+    --frame-offset: clamp(0.75rem, 1.6vw, 1.375rem);
+    position: relative;
+    isolation: isolate;
+    margin: 0 0 var(--frame-offset);
+  }
+
+  .framed::before {
     content: "";
     position: absolute;
-    inset: 0;
+    inset: var(--frame-offset) calc(-1 * var(--frame-offset)) calc(-1 * var(--frame-offset)) var(--frame-offset);
     z-index: -1;
-    background: linear-gradient(100deg, transparent 30%, rgb(255 255 255 / 0.5) 50%, transparent 70%);
-    opacity: 0;
+    border: 1px solid var(--color-romaic-gold);
     pointer-events: none;
   }
 
-  @media (prefers-reduced-motion: no-preference) {
-    .is-animated .gold-bar[data-sweep]::after {
-      animation: gold-sweep 300ms var(--ease-out) both;
+  @media (width < 56.25rem) {
+    .framed {
+      margin-right: var(--frame-offset);
     }
   }
 
-  /* A thin gold rule: dividers and the line under the contact bar label. */
+  /* The home hero's entrance plays once on load, and never under reduced motion. */
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-settle {
+      animation: hero-settle 2.2s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    }
+
+    .hero-rise {
+      animation: hero-rise 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) var(--rise-delay, 0s) both;
+    }
+  }
+
+  /* On the public site, photos sit unframed on a navy ground while they load (the gold frame is .framed, for the large ones). */
+  .theme-site .photo-frame {
+    border: 0;
+    background: var(--color-navy-850);
+    box-shadow: none;
+  }
+
+  /* A thin gold rule: dividers in the design preview. */
   .gold-rule {
     height: 2px;
     border: 0;
@@ -604,13 +713,11 @@
 
   .prose__h2,
   .prose h2 {
-    margin-top: 2.25em;
+    margin-top: 2em;
     font-family: var(--font-display);
-    font-size: var(--text-h3);
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    line-height: 1.25;
+    font-size: var(--text-title);
+    font-weight: 400;
+    line-height: 1.2;
   }
 
   .prose__h3,
@@ -667,6 +774,43 @@
     font-family: var(--font-sans);
     caret-color: var(--color-midnight-navy);
     font-variant-ligatures: common-ligatures;
+  }
+
+  /*
+   * The public site (.theme-site wraps it; the dashboard never sits inside):
+   * navy ink and cool greys on Paper, square corners, Arimo at 17 px (16 px
+   * on small phones), hairlines in navy, and a gold focus ring (Gold Text,
+   * 6.4:1 on Paper; Romaic Gold on navy, through .on-dark).
+   */
+  .theme-site {
+    --color-ink: var(--color-midnight-navy);
+    --color-fg: var(--color-midnight-navy);
+    --color-fg-2: var(--color-ink-2);
+    --color-fg-3: var(--color-ink-3);
+    --color-hairline: rgb(17 29 41 / 0.14);
+    --color-focus: var(--color-gold-text);
+    --color-link: var(--color-midnight-navy);
+    --color-link-hover: var(--color-gold-text);
+    --color-canvas: var(--color-paper);
+    --radius-xs: 0px;
+    --radius-sm: 0px;
+    --radius-md: 0px;
+    --radius-field: 0px;
+    --text-base: 1.0625rem;
+    --text-base--line-height: 1.65;
+    color: var(--color-fg);
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    @media (width < 35rem) {
+      --text-base: 1rem;
+    }
+  }
+
+  .theme-site :focus-visible {
+    outline-offset: 3px;
   }
 
   h1,
