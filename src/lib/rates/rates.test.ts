@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { quoteFor } from "./rates";
+import { addDays } from "@/lib/format/zoned-time";
+import { stayLimits } from "@/lib/inventory/stays";
+import { maxQuotedNights, quoteFor, type Season } from "./rates";
 import { rateHarness, testActor, TestNotAllowedError } from "./testing/harness";
 import { createMemoryRateStore } from "./testing/memory-store";
 import { rateStoreContract, testPlan, testSeason } from "./testing/store-contract";
@@ -42,6 +44,32 @@ describe("quoting a stay", () => {
   it("gives no price without a plan in use", () => {
     assert.equal(quoteFor(null, [], { arrive: "2026-12-10", leave: "2026-12-12" }, 2), null);
     assert.equal(quoteFor({ ...plan, active: false }, [], { arrive: "2026-12-10", leave: "2026-12-12" }, 2), null);
+  });
+
+  it("prices a stay of up to maxQuotedNights, and gives no price for a longer one without looking at any night", () => {
+    const year = testSeason("s3", "2026-01-01", "2028-01-01", { prices: { "family-shower": 90_000 } });
+    let nightReads = 0;
+    const watched: Season = {
+      ...year,
+      get nights() {
+        nightReads++;
+        return year.nights;
+      },
+    };
+    const arrive = "2026-11-20";
+    const longest = quoteFor(plan, [watched], { arrive, leave: addDays(arrive, maxQuotedNights) }, 2);
+    assert.equal(longest?.nights.length, maxQuotedNights);
+    assert.equal(longest?.totalCents, maxQuotedNights * 90_000);
+    assert.deepEqual(longest?.nights.at(-1), { date: addDays(arrive, maxQuotedNights - 1), nightlyCents: 90_000, extraCents: 0, seasonId: "s3" });
+    assert.ok(nightReads > 0, "a stay within the cap is priced night by night");
+    nightReads = 0;
+    assert.equal(quoteFor(plan, [watched], { arrive, leave: addDays(arrive, maxQuotedNights + 1) }, 2), null);
+    assert.equal(quoteFor(plan, [watched], { arrive: "0100-01-01", leave: "9999-12-31" }, 2), null);
+    assert.equal(nightReads, 0, "no night of a longer stay is priced");
+  });
+
+  it("prices every stay the Book page asks about", () => {
+    assert.ok(stayLimits.maxNights <= maxQuotedNights);
   });
 });
 
