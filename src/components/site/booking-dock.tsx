@@ -6,10 +6,12 @@ export type DockAction = { label: string; href: string; icon?: ReactNode; extern
 /**
  * The phone booking dock: two equal actions pinned to the bottom edge, so a
  * guest is always one tap from booking (the craft bar set by the
- * references; see docs/planning/design-references.md). Navy, like the
- * contact bar it sits above, and hidden from large screens, where the header
- * carries the action. Pages that show it pad their foot by --dock-height so
- * it never covers the last content. `inline` renders it in place, for /kit.
+ * references; see docs/planning/design-references.md). Navy with a gold
+ * hairline along its top, like the footer it sits above, the main action
+ * in the site's gold and the other a light outline, both in the buttons'
+ * Josefin Sans. Hidden from large screens, where the header carries the
+ * action. Pages that show it pad their foot by --dock-height so it never
+ * covers the last content. `inline` renders it in place, for /kit.
  */
 export function BookingDock({
   primary,
@@ -29,7 +31,7 @@ export function BookingDock({
       aria-hidden={hidden || undefined}
       inert={hidden}
       className={cx(
-        "on-dark z-40 grid grid-cols-[repeat(2,minmax(0,1fr))] gap-2 border-t-2 border-romaic-gold bg-midnight-navy px-[max(0.75rem,env(safe-area-inset-left))] pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-sheet",
+        "on-dark z-40 grid grid-cols-[repeat(2,minmax(0,1fr))] gap-2 border-t border-romaic-gold/60 bg-midnight-navy px-[max(0.75rem,env(safe-area-inset-left))] pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-sheet",
         inline ? "relative" : "fixed inset-x-0 bottom-0 transition-[translate,visibility] duration-200 ease-out motion-reduce:transition-none lg:hidden",
         hidden && "invisible translate-y-full",
       )}
@@ -40,10 +42,10 @@ export function BookingDock({
           href={action.href}
           {...(action.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
           className={cx(
-            "inline-flex min-h-12 items-center justify-center gap-2 rounded-sm px-3 text-sm font-bold tracking-wide",
+            "inline-flex min-h-12 items-center justify-center gap-2 px-3 font-display text-[0.9375rem] font-semibold tracking-[0.04em] whitespace-nowrap transition-colors",
             index === 1
-              ? "bg-cream text-midnight-navy hover:bg-white"
-              : "border-[1.5px] border-cream/70 text-white hover:bg-white/10",
+              ? "bg-romaic-gold text-midnight-navy hover:bg-[#d9bc77]"
+              : "border border-on-navy/60 text-on-navy hover:bg-white/10",
           )}
         >
           {action.icon}

@@ -6,6 +6,34 @@ import { sampleContent } from "@/lib/content/testing/sample-content";
 import { revisionFields } from "./revision-fields";
 
 describe("an earlier version as a list of fields", () => {
+  it("lists the home page's parts in page order, with the house photo, the evening band and the invitation to book", () => {
+    const fields = revisionFields("home", sampleContent().home);
+    assert.deepEqual(
+      fields.map((field) => field.label),
+      [
+        "Headline",
+        "Introduction",
+        "Main photo",
+        "Highlights heading",
+        "Highlights introduction",
+        "Highlights",
+        "House photo",
+        "Rooms heading",
+        "Rooms introduction",
+        "Evenings heading",
+        "Evenings introduction",
+        "Evening photos",
+        "Location heading",
+        "Location text",
+        "Invitation to book heading",
+      ],
+    );
+    const value = (label: string) => fields.find((field) => field.label === label)?.value;
+    assert.equal(value("Highlights"), "Wi-Fi: Fast Wi-Fi", "the home page shows no icons, so neither does its history");
+    assert.equal(value("House photo"), "A sample photo (/images/sample.jpg)");
+    assert.equal(value("Invitation to book heading"), "Hello");
+  });
+
   it("lists every section's fields with its editor's labels", () => {
     const content = sampleContent();
     for (const key of sectionKeys) {

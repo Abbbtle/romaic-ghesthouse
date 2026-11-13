@@ -7,9 +7,14 @@ import { standIns } from "./stand-ins";
  * walking distance to the city centre, what's in each room (every one has
  * a kitchenette), the backup water and gas geysers, the fence, cameras and
  * enclosed parking. Solar backup power is left out: only the Booking.com
- * listing claims it. The photo is a labelled stand-in. The headline follows
+ * listing claims it. The photos are labelled stand-ins. The headline follows
  * the client's correction: Romaic is a guesthouse with rooms, never
  * "apartments".
+ *
+ * The evening band (premium design, 2026-11-13) claims nothing beyond the
+ * client's own facts: the enclosed parking on the property. The courtyard,
+ * garden and braai area are from the listing and still "To confirm", so its
+ * words don't name them; its times come from the house rules, marked there.
  */
 export const homeDefaults: HomeSection = {
   hero: {
@@ -42,6 +47,12 @@ export const homeDefaults: HomeSection = {
         lines: ["Spacious enclosed parking, electric fencing and security cameras"],
       },
     ],
+    photo: standIns.coffeeTray,
+  },
+  evenings: {
+    heading: "Settle in for the evening",
+    intro: "Park inside the enclosed property, close the door and make yourself at home. These are the times to know.",
+    photos: [standIns.patio, standIns.braai],
   },
   location: {
     heading: "Where to find us",

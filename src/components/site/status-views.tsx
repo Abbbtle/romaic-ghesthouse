@@ -2,11 +2,12 @@ import { Phone } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { buttonClasses } from "@/components/ui/button";
-import { LogoSlot } from "@/components/ui/logo-slot";
 import { WhatsAppGlyph } from "@/components/ui/whatsapp-glyph";
-import { ContactBar } from "./contact-bar";
 import { romaicFacts } from "./romaic-facts";
 import type { SiteFacts } from "./site-facts";
+import { SiteFooter } from "./site-footer";
+import { SiteHeader } from "./site-header";
+import { siteText } from "./site-type";
 
 /**
  * The 404 and error screens. Each says what happened in plain words, offers
@@ -18,11 +19,11 @@ type HeadingLevel = 1 | 2 | 3;
 function StatusBody({ title, children, actions, level = 1 }: { title: string; children: ReactNode; actions: ReactNode; level?: HeadingLevel }) {
   const Heading = `h${level}` as const;
   return (
-    <div className="mx-auto grid w-full max-w-form gap-6 px-[max(1rem,env(safe-area-inset-left))] py-section-sm text-center">
-      <hr className="gold-rule mx-auto w-16" />
-      <Heading className="font-display text-h1 font-semibold tracking-[0.08em] text-ink uppercase">{title}</Heading>
-      <div className="mx-auto grid max-w-[52ch] gap-3 text-lead text-fg-2">{children}</div>
-      <div className="flex flex-wrap items-center justify-center gap-3">{actions}</div>
+    <div className="site-wrap grid justify-items-start gap-6 py-band-sm">
+      <div className="h-px w-12 bg-romaic-gold" />
+      <Heading className={siteText.page}>{title}</Heading>
+      <div className="grid max-w-[34em] gap-3 text-lede text-fg-2">{children}</div>
+      <div className="flex flex-wrap items-center gap-3">{actions}</div>
     </div>
   );
 }
@@ -85,17 +86,20 @@ export function ServerErrorMessage({ retry, headingLevel = 1, facts = romaicFact
   );
 }
 
-/** A whole page for when nothing else could render: the logo slot, the message, and the contact bar. */
+/**
+ * A whole page for when nothing else could render: the navy header with the
+ * name, the message, and the navy footer with the brand guide's contact
+ * details (nothing here reads the database, so it renders even when that's
+ * down).
+ */
 export function StandaloneErrorPage({ children }: { children: ReactNode }) {
   return (
-    <>
-      <header className="flex justify-center border-b border-hairline bg-cream px-4 py-4">
-        <LogoSlot kind="wordmark" className="w-48 sm:w-60" />
-      </header>
-      <main id="main" className="flex flex-1 items-center bg-canvas">
+    <div className="theme-site flex min-h-svh flex-col bg-canvas">
+      <SiteHeader facts={romaicFacts} />
+      <main id="main" className="flex flex-1 items-center">
         {children}
       </main>
-      <ContactBar facts={romaicFacts} />
-    </>
+      <SiteFooter facts={romaicFacts} />
+    </div>
   );
 }

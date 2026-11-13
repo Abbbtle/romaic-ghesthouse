@@ -1,69 +1,57 @@
 ---
-version: 1
+version: 2
 slug: "src-app-site-page-tsx"
 primary_target: "src/app/(site)/page.tsx"
-related_targets: ["src/app/kit/page.tsx"]
+related_targets: ["src/app/(site)", "src/components/site", "src/app/kit/page.tsx"]
 ---
 
-# Public site: home, holding page and /kit
+# Public site: home, every public page and /kit
 
 **Mode:** Persuade. Guests decide to book direct.
 
-**Scope:**
-
-- Phase 1: the holding page at "/" and the design system shown in /kit (public view, plus the dashboard view in Operate mode);
-- Phase 2: the full public site.
+**Scope:** the whole public site (home, Rooms, a room, Book and its confirmation, Facilities, Gallery, Location, Contact, House rules, the privacy notice, loading, 404 and error pages) and the public view of /kit. The dashboard (/admin) is out of scope and keeps its own look.
 
 **Audience and job:**
 
 - work travellers (business, contractors) and families visiting Welkom, mostly on phones, comparing against Booking.com;
-- job: check whether an apartment is free and fits, see it's safe and keeps working, then book or message.
+- job: check whether a room is free and fits, see it's safe and keeps working, then book or message.
 
-**Action:** dates and guests, then "Show free apartments". Until Phase 2 it's WhatsApp, call or email from the contact bar.
+**Action:** dates and guests in the availability bar, then "Check availability" (the Book page lists the rooms that fit and takes the request). WhatsApp, call or email from the footer, the phone menu and the dock.
 
 **Proof:**
 
-- the client's own amenities (brand guide): spacious apartments; fast always-on Wi-Fi; microwave, fridge, iron and board; 3 L drinking water; coffee, tea and cookies; backup gas geysers; 2 JoJo tanks; electric fence; security cameras; an enclosed area; parking; walking distance to the CBD;
-- real photos once supplied, labelled stand-ins until then.
+- the client's own amenities (brand guide): rooms with kitchenettes; fast always-on Wi-Fi; microwave, fridge, iron and board; 3 L drinking water; coffee, tea and cookies; backup gas geysers; 2 JoJo tanks; electric fence; security cameras; an enclosed property; parking; walking distance to the CBD;
+- real photos once supplied, quietly labelled stand-ins until then; listing facts marked "To confirm".
 
 **Constraints:**
 
-- The brand guide is pinned: palette, Josefin Sans / Sacramento / Arimo, gold frame bars, thin gold photo frames, cream and marble fields, a navy contact bar at the bottom, a palm-leaf watermark used sparingly.
-- Logo files are pending: use a placeholder slot, and never retype the wordmark.
-- Mobile LCP of 2.5 s or less; CSS of 30 KB gzipped or less; WCAG 2.2 AA; no motion before interaction or under reduced motion.
+- Brand colours and faces from the client's guide: Midnight Navy, Romaic Gold, Cream, Josefin Sans and Arimo.
+- Logo files are pending: the header names the business as plain text, never an imitation of the logo; the dashed placeholder stays out of the public header.
+- Every word from site content; no claims the content doesn't support; rooms, never apartments.
+- Mobile LCP of 2.5 s or less; CSS of 30 KB gzipped or less; WCAG 2.2 AA; motion only by transform and opacity, and none under reduced motion.
 
 **Must not feel like:** a generic hotel chain, safari-lodge clichés, or over-luxurious.
 
-**References (craft bar only):** The Menhaden (persistent booking dock), Relais Rossar (warm, framed restraint), Grano Hotels (dates picker as the hero's working action). See `docs/planning/design-references.md`.
+**Approved mock-up:** `docs/planning/proposals/premium/index.html` (Weberu, 2026-11-13).
 
-**Unresolved:** logo PNGs; original photos; solar backup (unconfirmed, never shown); whether to name the owner.
+**Unresolved:** logo PNGs; original photos; solar backup (unconfirmed, never shown); whether to name the owner; the dashboard's home editor doesn't show the house photo or the evening band yet.
 
 ## Direction contract
 
-THESIS: The classic accommodation page, done with total conviction in Romaic's own brand. A warm framed photo, the name, a working dates-and-guests search, then the apartments and what keeps working. It refuses the hotel-chain template's grey neutrality and full-bleed stock gloss. Every surface is Cream, gold-framed and navy-anchored, exactly as the client's poster does it.
+THESIS: A gold-town guesthouse after dark. Midnight navy and Romaic gold, large photographs framed with a gold hairline set off their edge, Josefin Sans light and large. Space comes from the photographs, never from stretched sections. It replaces the classic Cream poster recipe (gold frame bars, tracked capitals, thick gold photo borders) on the public site.
 
 OWN-WORLD:
-- Cream `#ECE8DD` fields (about 50%) and Marble White panels behind text.
-- Romaic Gold frame bars with the 100° gold gradient carrying headlines, and thin 3–4 px gold frames around every photo.
-- Midnight Navy `#111D29` for the contact bar, dark panels and the mobile booking dock. Ink `#151316` for text. Deep Gold `#AA823A` for gold-coloured text on light.
-- Josefin Sans 500/600 caps, tracked, for headings. Sacramento in gold, large and rare, as the only script accent. Arimo for body, amenities and labels.
-- Corner marks and the wordmark appear only as the client's own files.
-- Square-cornered controls with 2 px radius; gold rules as dividers; line icons in gold.
+- Paper `#FAF8F3` and Cream `#ECE8DD` grounds; Midnight Navy `#111D29` for the header, the evening band, the footer and the phone dock; navy ink and cool greys (`#4A4F57`) for text.
+- Romaic Gold `#CBA959` as hairlines, 2 px rules over info blocks, the offset frame on the large photos, labels on navy, and the booking button on navy; Gold Text `#74561C` for gold type on light.
+- Josefin Sans 300 for display headings in sentence case, tracked no wider than 0.04em; Josefin 400-600 for titles, labels, buttons and the nav; Arimo at 17 px for reading.
+- Square corners; flat surfaces; one soft shadow under the availability bar.
 
-STORY: The visitor sees it's a real, warm guesthouse at 286 Stateway in Bedelia, Welkom, a walk from the CBD. They believe it's spacious, homely and secure: backup water and hot water, always-on Wi-Fi, a fenced and camera-watched property with parking. They pick dates and guests, or WhatsApp, call or email straight away.
+STORY: The visitor sees a warm room after dark and the address, 286 Stateway in Bedelia, Welkom. They believe the house keeps working (backup water and hot water, Wi-Fi that stays on, a fenced, camera-watched, enclosed property with parking), see every room with its price or "Price on request", know when to arrive and leave, and can find their way. They check availability, or WhatsApp, call or email.
 
-FIRST VIEWPORT: Phone, 390 px:
-- the logo slot centred at the top on Cream, at least 240 px wide;
-- the address line, letter-spaced, below it;
-- a gold-framed warm photo, inset with Cream margins (about 4:3);
-- a gold frame bar headline, "SPACIOUS APARTMENTS";
-- the dates-and-guests search as a white panel with large date numerals and a navy "Show free apartments" button;
-- pinned to the bottom: the navy booking dock ("Apartments" | "WhatsApp"), with the contact bar closing the page.
+FIRST VIEWPORT: Phone, 390 px: the navy header (the name, "Menu"); the photograph full width under navy gradients with the gold address line, the headline and the introduction; the availability bar's arrive and leave cells starting at the photograph's foot. Desktop: the header transparent over the photograph with the six pages and the gold "Check availability"; the words at the bottom left; the bar across the photograph's foot.
 
-On desktop: the photo on the right at 7/12, and the name, headline bar and search on the left. Primary action: the search button.
+Signature: the offset gold hairline around the large photos, and the address set huge as the heading of "Getting here". Motion: the hero's photo settles and its words rise once on load (CSS only); none under reduced motion.
 
-Signature interaction: the dates in the search set as large numerals. Choosing guests updates "Sleeps up to N" filtering in place, with no page jump. Motion: a single gold-bar sweep on the headline after first interaction only; none under reduced motion.
+FORM: The premium direction, approved by Weberu on 2026-11-13, replacing the classic layout chosen on 2026-11-12.
 
-FORM: The category standard, played straight (canon), fifth on the ordered list. The client picked it on the choice page and you confirmed it on 2026-11-12. seed:cc90a5c466c1d34c
-
-FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
+FINISH: unreviewed and undocumented is unfinished; DESIGN.md records the shipped system.
