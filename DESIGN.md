@@ -383,6 +383,14 @@ Results are ruled rows; free shows the success tag "Free for your dates", unknow
 ### Status views
 `src/components/site/status-views.tsx`. The 404 and error screens: a short gold hairline, the heading at Page size, the plain-words explanation, then the home or retry button and WhatsApp and the phone. `StandaloneErrorPage` (root `error.tsx` and `global-error.tsx`) wraps them in `.theme-site` with the navy header (the name only) and the navy footer, with the brand guide's details, since it renders without the database.
 
+### Link preview image
+`src/app/opengraph-image.tsx`: the picture a shared link shows (1200 × 630, made at build time from the brand guide's facts). A navy field holds:
+- the name in Josefin 400 at the top left, as the header sets it;
+- a short gold rule over the headline, "A secure guesthouse / in Welkom", in Josefin light, set as two lines because the renderer can't balance;
+- under a gold hairline at 35%, the address in Arimo (On Navy 2) on the left, and on the right "WhatsApp or call to book" as a gold label over the phone number.
+
+It shows no photo until the guesthouse's own arrive, and no logo until its files do. The renderer can't read WOFF2, so it uses Latin TTFs of Josefin Sans (300, 400 and 600) and Arimo (400) from `assets/fonts/`, which also holds their licences.
+
 ### Navigation (dashboard)
 - **Dashboard sidebar** (`src/components/admin/admin-nav.tsx`, `src/components/admin/admin-shell.tsx`): the corner-mark logo slot over "Dashboard"; 44 px rows in Arimo 500, `fg-2`, with a Chalk hover; the current page has a Cream tint, a semibold navy label and a Gold Text icon, with no side stripe; footer rows: View website, Get help from Weberu, Account, Sign out.
 - **Phone tab bar** (`src/components/admin/admin-nav.tsx`): white, a 24 px icon over each label; the current tab has a navy label and a 3 px Romaic Gold bar along its top edge. "More" opens a bottom sheet.
