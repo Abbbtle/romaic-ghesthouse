@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import type { FieldCipher } from "@/lib/kernel/ports";
-import { countingLimiter, plainCipher } from "./testing/fakes";
+import { anySignedInRole, dashboardAccess, stepUpWindowMs } from "./access";
+import { countingLimiter, keyedRecoveryCodes, plainCipher, plainTokens } from "./testing/fakes";
 import { accountHarness } from "./testing/harness";
 
 const device = "Safari on iPhone";
@@ -145,6 +146,44 @@ describe("authenticators", () => {
     assert.equal(await h.accounts.recoveryCodesLeft({ id: owner.id, role: "owner", name: owner.name }), 9);
   });
 
+  it("stores recovery codes under the keyed recovery-code hash for the account, not the token hash", async () => {
+    const h = accountHarness();
+    const owner = await h.addAccount("owner");
+    const { recoveryCodes } = await h.enrol(await h.signInFully(owner), owner.id);
+    const normalized = recoveryCodes[0]!.replace("-", "");
+    assert.equal(await h.stores.mfa.useRecoveryCode(owner.id, plainTokens.hash(normalized), h.clock.now()), false);
+    assert.equal(await h.stores.mfa.useRecoveryCode(owner.id, h.recoveryCodes.hash(owner.id, normalized), h.clock.now()), true);
+  });
+
+  it("makes new recovery codes that work for signing in and step-up, and stops the old ones", async () => {
+    const h = accountHarness();
+    const owner = await h.addAccount("owner");
+    const actor = { id: owner.id, role: owner.role, name: owner.name };
+    const { token, recoveryCodes: old } = await h.enrol(await h.signInFully(owner), owner.id);
+    const made = await h.accounts.regenerateRecoveryCodes(actor);
+    assert.ok(made.ok);
+    assert.equal(made.recoveryCodes.length, 10);
+    const signIn = async (code: string) => {
+      const started = (await h.accounts.signIn({ email: owner.email, password: "a long passphrase" }, { visitorKey: "visitor", device })) as { ok: true; session: { token: string } };
+      return h.accounts.verifyMfa(started.session.token, code, { device });
+    };
+    assert.equal((await signIn(old[0]!)).ok, false);
+    assert.equal((await signIn(made.recoveryCodes[0]!)).ok, true);
+    assert.equal((await h.accounts.stepUp(token, { password: "a long passphrase", code: made.recoveryCodes[1]! })).ok, true);
+    assert.equal(await h.accounts.recoveryCodesLeft(actor), 8);
+  });
+
+  it("still accepts a recovery code made under a data key that's no longer the newest", async () => {
+    const h = accountHarness({ recoveryCodes: keyedRecoveryCodes(["k2", "k1"]) });
+    const owner = await h.addAccount("owner");
+    await h.enrol(await h.signInFully(owner), owner.id);
+    await h.stores.mfa.replaceRecoveryCodes(owner.id, [keyedRecoveryCodes(["k1"]).hash(owner.id, "older00001")], h.clock.now());
+    const started = (await h.accounts.signIn({ email: owner.email, password: "a long passphrase" }, { visitorKey: "visitor", device })) as { ok: true; session: { token: string } };
+    const used = await h.accounts.verifyMfa(started.session.token, "older-00001", { device });
+    assert.ok(used.ok);
+    assert.equal(used.usedRecoveryCode, true);
+  });
+
   it("limits code attempts per account", async () => {
     const h = accountHarness({ mfaLimiter: countingLimiter(1) });
     const owner = await h.addAccount("owner");
@@ -162,6 +201,90 @@ describe("authenticators", () => {
     const staff = await h.addAccount("staff");
     assert.equal((await h.accounts.disableMfa({ id: sales.id, role: "sales", name: sales.name })).ok, false);
     assert.equal((await h.accounts.disableMfa({ id: staff.id, role: "staff", name: staff.name })).ok, true);
+  });
+});
+
+describe("adding an authenticator from the account page", () => {
+  it("asks for the password again before starting, once the step-up has lapsed", async () => {
+    const h = accountHarness();
+    const staff = await h.addAccount("staff");
+    const token = await h.signInFully(staff);
+    h.clock.advance(stepUpWindowMs);
+    const stale = await h.accounts.beginMfaEnrolment(token);
+    assert.equal(stale.ok, false);
+    assert.match(JSON.stringify(stale), /Confirm it's you/);
+    assert.equal(await h.stores.mfa.find(staff.id), null, "no secret is kept");
+    assert.ok((await h.accounts.stepUp(token, { password: "a long passphrase", code: "" })).ok);
+    assert.ok((await h.accounts.beginMfaEnrolment(token)).ok);
+  });
+
+  it("asks for the password again before confirming, once the step-up has lapsed, leaving the authenticator off", async () => {
+    const h = accountHarness();
+    const staff = await h.addAccount("staff");
+    const token = await h.signInFully(staff);
+    const started = await h.accounts.beginMfaEnrolment(token);
+    assert.ok(started.ok);
+    h.clock.advance(stepUpWindowMs);
+    const stale = await h.accounts.confirmMfaEnrolment(token, h.totp.codeAt(started.secret, h.clock.now()), { device });
+    assert.equal(stale.ok, false);
+    assert.match(JSON.stringify(stale), /Confirm it's you/);
+    assert.equal((await h.stores.mfa.find(staff.id))?.confirmedAt, null);
+    assert.equal((await h.accounts.authenticate(token))?.mfaEnabled, false, "the session carries on, without an authenticator");
+    assert.ok((await h.accounts.stepUp(token, { password: "a long passphrase", code: "" })).ok);
+    assert.ok((await h.accounts.confirmMfaEnrolment(token, h.totp.codeAt(started.secret, h.clock.now()), { device })).ok);
+  });
+
+  it("keeps the old session's step-up rather than handing out a fresh one", async () => {
+    const h = accountHarness();
+    const staff = await h.addAccount("staff");
+    const token = await h.signInFully(staff);
+    const signedInAt = h.clock.now();
+    h.clock.advance(10 * 60_000);
+    const { token: enrolled } = await h.enrol(token, staff.id);
+    assert.equal((await h.accounts.authenticate(enrolled))?.stepUpAt?.getTime(), signedInAt.getTime());
+    h.clock.advance(5 * 60_000);
+    assert.equal(dashboardAccess(await h.accounts.authenticate(enrolled), { ...anySignedInRole, stepUp: true }, h.clock.now()).status, "step-up-due");
+  });
+
+  it("leaves the set-up step of signing in as it was, a fresh step-up included", async () => {
+    const h = accountHarness();
+    const owner = await h.addAccount("owner");
+    const first = (await h.accounts.signIn({ email: owner.email, password: "a long passphrase" }, { visitorKey: "visitor", device })) as { ok: true; session: { token: string } };
+    h.clock.advance(stepUpWindowMs + 60_000);
+    const { token } = await h.enrol(first.session.token, owner.id);
+    assert.equal((await h.accounts.authenticate(token))?.stepUpAt?.getTime(), h.clock.now().getTime());
+  });
+
+  it("leaves the change-password step as it was: a pending authenticator still confirms", async () => {
+    const h = accountHarness();
+    const staff = await h.addAccount("staff");
+    const started = await h.accounts.beginMfaEnrolment(await h.signInFully(staff));
+    assert.ok(started.ok);
+    await h.stores.accounts.setPassword(staff.id, { passwordHash: "plain:temporary-one", temporary: { expiresAt: new Date(h.clock.now().getTime() + 3600_000) }, at: h.clock.now(), keepSessionHash: null });
+    const signIn = await h.accounts.signIn({ email: staff.email, password: "temporary-one" }, { visitorKey: "visitor", device });
+    assert.ok(signIn.ok);
+    assert.equal(signIn.next, "change-password");
+    h.clock.advance(stepUpWindowMs);
+    assert.match(JSON.stringify(await h.accounts.beginMfaEnrolment(signIn.session.token)), /Choose your own password first/);
+    const confirmed = await h.accounts.confirmMfaEnrolment(signIn.session.token, h.totp.codeAt(started.secret, h.clock.now()), { device });
+    assert.ok(confirmed.ok);
+    assert.equal(confirmed.recoveryCodes.length, 10);
+    const state = await h.accounts.authenticate(confirmed.session.token);
+    assert.equal(state?.mfaEnabled, true);
+    assert.equal(state?.mustChangePassword, true);
+    assert.equal(state?.stepUpAt?.getTime(), h.clock.now().getTime());
+  });
+
+  it("answers a session with an authenticator already on as before, however old its step-up", async () => {
+    const limiter = countingLimiter(10);
+    const h = accountHarness({ mfaLimiter: limiter });
+    const owner = await h.addAccount("owner");
+    await h.enrol(await h.signInFully(owner), owner.id);
+    const token = await h.signInFully(owner);
+    h.clock.advance(stepUpWindowMs);
+    assert.match(JSON.stringify(await h.accounts.beginMfaEnrolment(token)), /already set up/);
+    assert.match(JSON.stringify(await h.accounts.confirmMfaEnrolment(token, "000000", { device })), /Start setting up your authenticator again/);
+    assert.equal(limiter.attempts.get(`mfa:${owner.id}`), 1, "the attempt still counts");
   });
 });
 
