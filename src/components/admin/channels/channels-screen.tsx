@@ -65,7 +65,10 @@ type ChannelsScreenProps = {
   attention: readonly AttentionRow[];
   units: readonly UnitChannelsRow[];
   channels: readonly ChannelRow[];
+  /** May change calendar links and see feed links now: the owner or admin, with a recent step-up. */
   canConfigure: boolean;
+  /** For the owner or admin without a recent step-up: where to confirm their password and code first. */
+  confirmHref: string | null;
   calendarCount: number;
   actions: {
     syncCalendar: (calendarId: string) => Promise<ConfirmedActionResult>;
@@ -370,7 +373,7 @@ function ChannelItem({ channel, update }: { channel: ChannelRow; update: FormAct
  * channels themselves. iCal carries dates only, and neither side is live,
  * so the page says how it works in plain words.
  */
-export function ChannelsScreen({ attention, units, channels, canConfigure, calendarCount, actions }: ChannelsScreenProps) {
+export function ChannelsScreen({ attention, units, channels, canConfigure, confirmHref, calendarCount, actions }: ChannelsScreenProps) {
   const anyActive = channels.some((channel) => channel.active);
 
   return (
@@ -426,7 +429,16 @@ export function ChannelsScreen({ attention, units, channels, canConfigure, calen
             Units
           </h2>
           {units.length === 0 && <EmptyState title="No units yet">Add the rooms&apos; units first, then connect their channel calendars here.</EmptyState>}
-          {!canConfigure && <p className="text-sm text-fg-3">Only the owner and Weberu can change calendar links and feed links.</p>}
+          {confirmHref ? (
+            <p className="text-sm text-fg-2">
+              To change calendar links or see feed links, confirm your password and code first.{" "}
+              <a href={confirmHref} className="inline-flex min-h-11 items-center font-bold text-link underline underline-offset-4">
+                Confirm it&apos;s you
+              </a>
+            </p>
+          ) : (
+            !canConfigure && <p className="text-sm text-fg-3">Only the owner and Weberu can change calendar links and feed links.</p>
+          )}
           <ul className="grid gap-4">
             {units.map((unit) => (
               <li key={unit.id}>

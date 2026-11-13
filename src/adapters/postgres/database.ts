@@ -188,6 +188,20 @@ function storableText(text: string): string {
   return text.includes("\u0000") ? text.replaceAll("\u0000", "�") : text;
 }
 
+/**
+ * A string exactly as a text column gives it back: unpaired surrogates and
+ * U+0000 as U+FFFD. For a value that must match what's read back later,
+ * such as an audit entry's hash.
+ */
+export function storedText(text: string): string {
+  return storableText(text.toWellFormed());
+}
+
+/** A JSON value exactly as a jsonb column gives it back (see jsonParam), for the same purpose as storedText. */
+export function storedJson(value: unknown): unknown {
+  return JSON.parse(jsonParam(value)[jsonText]);
+}
+
 function driverValue(value: SqlParam): SqlValue {
   if (typeof value === "string") return storableText(value);
   if (value instanceof Date) {

@@ -6,7 +6,8 @@ import { can } from "@/lib/accounts/access";
 import type { CalendarView } from "@/lib/channels/channel-service";
 import { businessTimeZone } from "@/lib/format/zoned-time";
 import { stayLabel } from "@/lib/inventory/stays";
-import { requireDashboardActor } from "@/server/admin-session";
+import { adminPaths } from "@/server/admin-paths";
+import { currentDashboardActor, requireDashboardActor } from "@/server/admin-session";
 import { channelService, feedUrl } from "@/server/channels";
 import { clock } from "@/server/infrastructure";
 import { addCalendar, changeCalendarUrl, removeCalendar, resetFeed, syncAll, syncCalendar, updateChannel } from "./actions";
@@ -32,13 +33,17 @@ function calendarStatus(calendar: CalendarView, now: Date): Pick<CalendarRow, "s
  * Channels and two-way iCal (/admin/channels). Owner, admin and sales see
  * the imported calendars, conflicts and "Sync now" (channels:status); only
  * the owner and admin change calendar links, switch channels and see or
- * reset the feed links (channels:configure). Never staff. A calendar link,
+ * reset the feed links (channels:configure), and only with the password and
+ * code given in the last 15 minutes: until then the page links to confirm
+ * them, and the feed links are never read. Never staff. A calendar link,
  * once saved, is never sent to the browser again: only its host.
  */
 export default async function ChannelsPage() {
   const actor = await requireDashboardActor({ permission: "channels:status" });
   const service = channelService();
-  const canConfigure = can(actor, "channels:configure");
+  const mayConfigure = can(actor, "channels:configure");
+  const canConfigure = mayConfigure && (await currentDashboardActor({ permission: "channels:configure", stepUp: true })) !== null;
+  const confirmHref = mayConfigure && !canConfigure ? `${adminPaths.stepUp}?${new URLSearchParams({ next: adminRoutes.channels })}` : null;
   const [overview, feeds] = await Promise.all([service.overview(actor), canConfigure ? service.feeds(actor) : Promise.resolve(null)]);
   const now = clock.now();
   const activeChannels = overview.channels.filter((channel) => channel.active);
@@ -89,6 +94,7 @@ export default async function ChannelsPage() {
       units={units}
       channels={channels}
       canConfigure={canConfigure}
+      confirmHref={confirmHref}
       calendarCount={overview.calendars.length}
       actions={{ syncCalendar, syncAll, addCalendar, changeCalendarUrl, removeCalendar, resetFeed, updateChannel }}
     />

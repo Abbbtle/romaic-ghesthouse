@@ -128,6 +128,27 @@ export function describeDatabaseSecurityContract(databases: TestDatabases): void
       assert.equal(check.status, "broken");
     });
 
+    it("hashes an entry's text as the database stores it, so U+0000 or a lone surrogate typed into a name doesn't break the chain", async () => {
+      const db = databases.migrated();
+      const store = audit(db);
+      await store.record({
+        actor: { id: "00000000-0000-4000-8000-0000000000aa", role: "sales", name: "Sales\u0000 person" },
+        category: "guests",
+        action: "guest.updated",
+        target: { type: "guest", id: "guest\u0000-1" },
+        summary: "Renamed a guest to Thabo\u0000 \ud800M.",
+        details: { name: "Thabo\u0000", "key\u0000": "\udc00", when: new Date("2026-11-12T08:00:00.000Z"), dropped: undefined },
+      });
+      await store.record({ actor: null, category: "content", action: "test", summary: "after it" });
+      assert.deepEqual(await store.verifyChain(), { status: "intact", entries: 2 });
+      const stored = await db.get<{ actor_name: string; summary: string; details: Record<string, unknown> }>("select actor_name, summary, details from app.audit_log order by seq limit 1");
+      assert.deepEqual(stored, {
+        actor_name: "Sales� person",
+        summary: "Renamed a guest to Thabo� �M.",
+        details: { name: "Thabo�", "key�": "�", when: "2026-11-12T08:00:00.000Z" },
+      });
+    });
+
     it("signs entries with a key the database doesn't hold, so a chain recomputed after an edit doesn't check out (threat model T15)", async () => {
       const db = databases.migrated();
       const store = audit(db);

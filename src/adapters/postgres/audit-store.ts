@@ -3,7 +3,7 @@ import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { isRole, type Role } from "@/lib/kernel/actor";
 import type { AuditCategory, AuditEntry, AuditEvent, AuditLogReader, AuditRecorder } from "@/lib/kernel/audit";
 import type { Clock, IdGenerator } from "@/lib/kernel/ports";
-import { jsonParam, type Database } from "./database";
+import { jsonParam, storedJson, storedText, type Database } from "./database";
 import { advisoryLocks } from "./locks";
 
 /**
@@ -183,19 +183,21 @@ export function createPostgresAuditStore(db: Database, deps: AuditStoreDependenc
   return {
     async record(event: AuditEvent) {
       const key = signingKey(deps.chainKeys());
+      // The hash covers the text as the database stores it (U+0000 and unpaired
+      // surrogates as U+FFFD), so an entry read back to check the chain matches.
       const fields: HashedFields = {
         id: deps.ids.newId(),
         at: deps.clock.now(),
         actor_id: event.actor?.id ?? null,
         actor_role: event.actor?.role ?? null,
-        actor_name: event.actor?.name ?? "",
+        actor_name: storedText(event.actor?.name ?? ""),
         category: event.category,
-        action: event.action,
-        target_type: event.target?.type ?? null,
-        target_id: event.target?.id ?? null,
+        action: storedText(event.action),
+        target_type: event.target ? storedText(event.target.type) : null,
+        target_id: event.target ? storedText(event.target.id) : null,
         subject_role: event.subjectRole ?? null,
-        summary: event.summary,
-        details: event.details ?? {},
+        summary: storedText(event.summary),
+        details: storedJson(event.details ?? {}) as Record<string, unknown>,
         ip_hash: event.ipHash ?? null,
       };
       await db.transaction(async (tx) => {

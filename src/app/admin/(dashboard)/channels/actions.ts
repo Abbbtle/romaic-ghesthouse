@@ -13,12 +13,14 @@ import { channelService } from "@/server/channels";
  * service checks the permission again:
  * - channels:status (owner, admin, sales): "Sync now";
  * - channels:configure (owner, admin): calendar links, channel switches and
- *   feed links. Never sales or staff.
+ *   feed links, with the password and code given in the last 15 minutes
+ *   (step-up), since a changed link can block real dates or hide a stay.
+ *   Never sales or staff.
  * A calendar link goes to the service and is never sent back.
  */
 
 const status = { permission: "channels:status" } as const;
-const configure = { permission: "channels:configure" } as const;
+const configure = { permission: "channels:configure", stepUp: true } as const;
 const reloadMessage = "Reload the page and try again.";
 
 function syncState(summaries: readonly SyncSummary[]): FormState {
