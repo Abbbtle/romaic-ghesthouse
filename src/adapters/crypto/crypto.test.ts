@@ -5,7 +5,7 @@ import { isSessionToken } from "@/lib/accounts/sessions";
 import { passwordProblem } from "@/lib/accounts/input";
 import { accountHarness } from "@/lib/accounts/testing/harness";
 import { newDataKeyEntry, parseDataKeys } from "./field-encryption";
-import { createRecoveryCodeHasher, createTokenSigner, createVisitorKeys } from "./hmac";
+import { createRecoveryCodeHasher, createTokenSigner, createVisitorKeys, derivePurposeKey } from "./hmac";
 import { scryptPasswordHasher } from "./passwords";
 import { randomIds, randomSecrets, sha256Hex, sha256TokenHasher } from "./tokens";
 
@@ -136,5 +136,17 @@ describe("recovery code hashes", () => {
     assert.equal((await signIn(first[0]!)).ok, false, "the first codes stopped working when new ones were made");
     assert.equal((await signIn(made.recoveryCodes[0]!)).ok, true);
     assert.equal(await h.accounts.recoveryCodesLeft(actor), 9);
+  });
+});
+
+describe("purpose keys", () => {
+  it("derives a stable 32-byte key per secret and purpose, never the secret itself", () => {
+    const secret = Buffer.alloc(32, 7);
+    const key = derivePurposeKey(secret, "audit-chain");
+    assert.equal(key.length, 32);
+    assert.ok(key.equals(derivePurposeKey(secret, "audit-chain")));
+    assert.ok(!key.equals(secret));
+    assert.ok(!key.equals(derivePurposeKey(secret, "something-else")), "a key for one purpose is useless for another");
+    assert.ok(!key.equals(derivePurposeKey(Buffer.alloc(32, 8), "audit-chain")));
   });
 });

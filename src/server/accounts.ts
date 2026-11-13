@@ -6,7 +6,6 @@ import { randomSecrets, sha256TokenHasher } from "@/adapters/crypto/tokens";
 import { rfc6238Authenticator } from "@/adapters/crypto/totp";
 import { createPostgresAccountStores } from "@/adapters/postgres/account-stores";
 import { createPostgresAccountTokenStore } from "@/adapters/postgres/account-token-store";
-import { createPostgresAuditStore } from "@/adapters/postgres/audit-store";
 import type { Database } from "@/adapters/postgres/database";
 import { createPostgresMfaStore } from "@/adapters/postgres/mfa-store";
 import { createAccountService, type AccountService } from "@/lib/accounts/account-service";
@@ -19,8 +18,8 @@ import { createSetupService, type SetupService } from "@/lib/accounts/setup-serv
 import { createTeamService, type TeamService } from "@/lib/accounts/team-service";
 import type { FieldCipher } from "@/lib/kernel/ports";
 import { adminPaths } from "./admin-paths";
-import { auditRecorder } from "./audit";
-import { env } from "./env";
+import { auditRecorder, scriptAuditStore } from "./audit";
+import { env, type ServerEnv } from "./env";
 import { clock, database, emailSender, fieldCipher, ids, processSingleton, rateLimiter } from "./infrastructure";
 
 /** The name authenticator apps show, and emails sign with. */
@@ -38,9 +37,11 @@ const crypto = { passwords: scryptPasswordHasher, tokens: sha256TokenHasher, sec
 let services: AccountServices | null = null;
 
 /**
- * The data-key cipher, made on first use rather than with the services: pages
- * that never touch an authenticator secret (sign-in, setup) still work while
- * DATA_ENCRYPTION_KEY is missing, and the authenticator steps fail closed.
+ * The data-key cipher, made on first use rather than with the services, so
+ * making them never reads DATA_ENCRYPTION_KEY. Production can't do without it
+ * all the same: audit entries are signed with keys derived from it
+ * (./audit.ts), so sign-in and setup, which record entries, fail closed
+ * without it, as the authenticator steps do.
  */
 const lazyCipher: FieldCipher = {
   encrypt: (plaintext, context) => fieldCipher().encrypt(plaintext, context),
@@ -134,13 +135,19 @@ export function reencryptStoredSecrets(): Promise<{ reencrypted: number; remaini
   return reencryptMfaSecrets({ mfa: createPostgresMfaStore(database()), cipher: lazyCipher });
 }
 
-/** Break-glass access resets over a database a script opened (scripts/reset-password.ts). */
-export function recoveryService(db: Database): RecoveryService {
+/**
+ * Break-glass access resets over a database a script opened
+ * (scripts/reset-password.ts). Checks DATA_ENCRYPTION_KEY against the audit
+ * log first (see scriptAuditStore), so a key that would leave the reset's
+ * entry unverifiable stops it before any account is changed.
+ */
+export async function recoveryService(db: Database, serverEnv: ServerEnv = env): Promise<RecoveryService> {
+  const audit = await scriptAuditStore(db, serverEnv);
   return createRecoveryService({
     ...createPostgresAccountStores(db),
     ...crypto,
     mfa: createPostgresMfaStore(db),
     clock,
-    audit: createPostgresAuditStore(db, { clock, ids }),
+    audit,
   });
 }

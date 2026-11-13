@@ -32,6 +32,16 @@ export function createVisitorKeys(secret: HmacSecret): VisitorKeys {
 }
 
 /**
+ * A 32-byte key for one `purpose`, such as "audit-chain", derived from
+ * `secret` (a data key, say), so the secret itself is only ever used for
+ * what it was made for and a key derived for one purpose is useless for
+ * another.
+ */
+export function derivePurposeKey(secret: HmacSecret, purpose: string): Buffer {
+  return createHmac("sha256", secret).update(`romaic-key:${purpose}`).digest();
+}
+
+/**
  * Short signed tokens: a payload and its HMAC, so the server can hand a value
  * to a browser and later trust it came back unchanged (the booking form signs
  * the time it was shown with one). The payload is readable by anyone holding
