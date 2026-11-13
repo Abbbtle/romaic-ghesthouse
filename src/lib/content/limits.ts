@@ -4,9 +4,8 @@
  * their counters, so the form and the server always agree. Text at its
  * limit still fits the fixed layouts.
  *
- * Phase 1 holds the sections the whole site shares (business details,
- * contact details, search results, the privacy notice). Phase 2 adds the
- * pages' own limits here.
+ * The sections the whole site shares (business details, contact details,
+ * search results, the privacy notice) come first, then the pages' own.
  */
 export const textLimits = {
   // Business details
@@ -35,22 +34,57 @@ export const textLimits = {
   privacyBody: 20_000,
   version: 20,
 
-  /** Link names and record ids, such as "family-room". */
+  /** Link names and record ids, such as "family-apartment". */
   slug: 48,
+
+  // Page text
+  /** The line in a gold bar: the poster's headline. */
+  goldBar: 48,
+  /** A short introduction under a page's heading. */
+  intro: 400,
+  /** The home page's lead paragraph. */
+  lead: 320,
+  /** The large script line ("Welcome home"). */
+  script: 24,
+  /** A longer passage: an apartment's description, directions. */
+  passage: 1_500,
+  /** One line of a list: an amenity, a feature, a highlight's line. */
+  listLine: 120,
+  /** A short label: a facility, a nearby place's kind, a highlight's title. */
+  label: 60,
+  /** A rule or a term, such as the cancellation terms. */
+  rule: 600,
+  /** A photo's caption in the gallery. */
+  caption: 120,
+  /** The consent checkbox's wording on the booking form. */
+  consent: 400,
 } as const;
 
 export type TextLimitName = keyof typeof textLimits;
 
 /**
  * Soft budgets from the design: longer text still saves, but the editor
- * warns that long lines may wrap on phones. None yet; Phase 2's page
- * headlines add theirs.
+ * warns that long lines may wrap on phones. A gold bar holds about 28
+ * characters a line at phone width, so two lines fit comfortably.
  */
-export const designBudgets = {} as const satisfies Partial<Record<TextLimitName, number>>;
+export const designBudgets = {
+  goldBar: 36,
+  heading: 32,
+} as const satisfies Partial<Record<TextLimitName, number>>;
 
 /** The fewest and most items each list may hold. */
 export const listLimits = {
   socialLinks: { min: 0, max: 6 },
+  highlights: { min: 1, max: 6 },
+  highlightLines: { min: 1, max: 4 },
+  apartments: { min: 1, max: 12 },
+  apartmentFeatures: { min: 0, max: 20 },
+  apartmentPhotos: { min: 0, max: 12 },
+  facilityGroups: { min: 1, max: 8 },
+  facilities: { min: 1, max: 20 },
+  nearbyPlaces: { min: 0, max: 20 },
+  rules: { min: 1, max: 16 },
+  galleryPhotos: { min: 0, max: 40 },
 } as const;
 
 export type ListLimitName = keyof typeof listLimits;

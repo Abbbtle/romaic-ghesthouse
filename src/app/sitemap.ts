@@ -1,12 +1,17 @@
 import type { MetadataRoute } from "next";
-import { sitePagePaths, type SitePage } from "@/lib/content/pages";
+import { apartmentPath, sitePagePaths, sitePages } from "@/lib/content/pages";
 import { env } from "@/server/env";
+import { getSiteContent } from "@/server/site-content";
 
-/** The public pages built so far (Phase 1 has only the holding page; Phase 2 adds the rest). */
-const builtPages: readonly SitePage[] = ["home"];
-
-/** Every public page that exists, at the site's public address. */
-export default function sitemap(): MetadataRoute.Sitemap {
+/**
+ * Every public page, and every apartment shown on the site, at the site's
+ * public address. Read per request, so an apartment added or hidden in the
+ * dashboard appears or goes at once. The booking confirmation isn't listed.
+ */
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = env.siteUrl();
-  return builtPages.map((page) => ({ url: new URL(sitePagePaths[page], base).toString() }));
+  const { apartments } = await getSiteContent();
+  const pages = sitePages.map((page) => sitePagePaths[page]);
+  const apartmentPages = apartments.items.filter((item) => item.published).map((item) => apartmentPath(item.slug));
+  return [...pages, ...apartmentPages].map((path) => ({ url: new URL(path, base).toString() }));
 }

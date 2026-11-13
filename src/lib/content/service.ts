@@ -279,6 +279,15 @@ function eachSection(section: <K extends SectionKey>(key: K) => SectionData<K>):
   return {
     site: section("site"),
     contact: section("contact"),
+    bookingTerms: section("bookingTerms"),
+    home: section("home"),
+    apartments: section("apartments"),
+    gallery: section("gallery"),
+    facilities: section("facilities"),
+    location: section("location"),
+    policies: section("policies"),
+    contactPage: section("contactPage"),
+    book: section("book"),
     seo: section("seo"),
     privacy: section("privacy"),
   };

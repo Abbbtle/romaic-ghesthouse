@@ -1,4 +1,10 @@
-import type { SiteContent } from "../schema";
+import type { ImageRef, SiteContent } from "../schema";
+
+const samplePhoto: ImageRef = { src: "/images/sample.jpg", alt: "A sample photo", width: 1600, height: 1067, focus: { x: 50, y: 50 } };
+
+function seoFor(name: string) {
+  return { title: `${name} – Sample Guesthouse`, description: `The ${name.toLowerCase()} page of Sample Guesthouse.` };
+}
 
 /**
  * A complete, valid set of content for tests: invented sample values, not
@@ -27,9 +33,86 @@ export function sampleContent(): SiteContent {
       email: "hello@example.com",
       whatsappMessage: "Hi, I'd like to ask about a stay.",
     },
+    bookingTerms: { deposit: "", balance: "", cancellation: "Free cancellation up to 7 days before arrival.", payment: "" },
+    home: {
+      hero: { headline: "Sample apartments", lead: "A sample lead about the guesthouse.", welcome: "Hello", photo: { ...samplePhoto } },
+      apartments: { heading: "Apartments", intro: "Sample apartments." },
+      highlights: { heading: "Highlights", intro: "", items: [{ icon: "wifi", title: "Wi-Fi", lines: ["Fast Wi-Fi"] }] },
+      location: { heading: "Where we are", text: "In Testville." },
+    },
+    apartments: {
+      heading: "Apartments",
+      intro: "",
+      items: [
+        {
+          slug: "sample-double",
+          name: "Sample double",
+          summary: "A sample apartment.",
+          description: "",
+          sleeps: 2,
+          beds: "1 double",
+          bathroom: "Private, with a shower",
+          view: "",
+          features: ["Kitchenette"],
+          accessibility: "",
+          photos: [{ ...samplePhoto }],
+          confirmed: true,
+          published: true,
+        },
+        {
+          slug: "sample-family",
+          name: "Sample family",
+          summary: "A larger sample apartment.",
+          description: "",
+          sleeps: 4,
+          beds: "4 single",
+          bathroom: "Private bathroom",
+          view: "",
+          features: [],
+          accessibility: "",
+          photos: [],
+          confirmed: false,
+          published: true,
+        },
+      ],
+    },
+    gallery: { heading: "Gallery", intro: "", photos: [{ photo: { ...samplePhoto }, caption: "" }] },
+    facilities: {
+      heading: "Facilities",
+      intro: "",
+      groups: [{ title: "Comfort", items: [{ icon: "wifi", label: "Wi-Fi", note: "", confirmed: true }] }],
+    },
+    location: {
+      heading: "Location",
+      intro: "",
+      directions: "",
+      nearby: { heading: "Nearby", note: "", places: [{ name: "Sample Café", kind: "Restaurant", distance: "About 200 m", confirmed: false }] },
+    },
+    policies: {
+      heading: "House rules",
+      intro: "",
+      checkIn: { from: "14:00", until: "20:00", confirmed: true },
+      checkOut: { from: "06:00", until: "10:00", confirmed: true },
+      rules: [{ title: "Pets", text: "No pets.", confirmed: true }],
+    },
+    contactPage: { heading: "Contact", intro: "Get in touch.", responseNote: "" },
+    book: {
+      heading: "Book",
+      intro: "",
+      requestNote: "A request, not a booking.",
+      consent: { label: "I agree to the sample terms.", version: "1.0", updatedOn: "2026-11-01" },
+      confirmation: { heading: "Sent", text: "We'll reply." },
+    },
     seo: {
       pages: {
         home: { title: "Sample Guesthouse – Sampleton", description: "Sample apartments in Sampleton." },
+        apartments: seoFor("Apartments"),
+        gallery: seoFor("Gallery"),
+        facilities: seoFor("Facilities"),
+        location: seoFor("Location"),
+        policies: seoFor("Policies"),
+        contact: seoFor("Contact"),
+        book: seoFor("Book"),
         privacy: { title: "Privacy notice – Sample Guesthouse", description: "How Sample Guesthouse uses your details." },
       },
     },

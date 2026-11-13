@@ -68,6 +68,45 @@ describe("Romaic's seed content", () => {
   });
 });
 
+describe("Phase 2 page content", () => {
+  it("marks every apartment's details unconfirmed: they come from the Booking.com listing", () => {
+    assert.equal(contentDefaults.apartments.items.length, 7);
+    for (const apartment of contentDefaults.apartments.items) assert.equal(apartment.confirmed, false, apartment.slug);
+  });
+
+  it("never states a size, a price or the listing's identical 108 ft²", () => {
+    const copy = JSON.stringify(contentDefaults);
+    assert.doesNotMatch(copy, /\bft²|m²|square (?:feet|metres)|\bR\s?\d/);
+  });
+
+  it("confirms only the client's own facilities, and marks the listing's", () => {
+    const [comfort, connectivity, security, convenience, listing] = contentDefaults.facilities.groups;
+    for (const group of [comfort, connectivity, security, convenience]) for (const item of group!.items) assert.equal(item.confirmed, true, item.label);
+    for (const item of listing!.items) assert.equal(item.confirmed, false, item.label);
+  });
+
+  it("marks the listing's house rules, times and distances unconfirmed, and leaves the booking terms to the owner", () => {
+    assert.equal(contentDefaults.policies.checkIn.confirmed, false);
+    assert.equal(contentDefaults.policies.checkOut.confirmed, false);
+    for (const rule of contentDefaults.policies.rules) assert.equal(rule.confirmed, false, rule.title);
+    for (const place of contentDefaults.location.nearby.places.filter((place) => place.kind !== "City centre")) assert.equal(place.confirmed, false, place.name);
+    assert.deepEqual(Object.values(contentDefaults.bookingTerms), ["", "", "", ""]);
+  });
+
+  it("uses only labelled stand-in photos, and never describes one as Romaic", () => {
+    const photos = [
+      contentDefaults.home.hero.photo,
+      ...contentDefaults.apartments.items.flatMap((item) => item.photos),
+      ...contentDefaults.gallery.photos.map((item) => item.photo),
+    ];
+    for (const photo of photos) {
+      assert.match(photo.src, /^\/stand-ins\/pexels-\d+\.jpg$/);
+      assert.doesNotMatch(photo.alt, /romaic/i);
+    }
+    for (const item of contentDefaults.gallery.photos) assert.equal(item.caption, "");
+  });
+});
+
 describe("privacy notice draft", () => {
   const body = contentDefaults.privacy.body;
 

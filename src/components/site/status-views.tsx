@@ -6,6 +6,7 @@ import { LogoSlot } from "@/components/ui/logo-slot";
 import { WhatsAppGlyph } from "@/components/ui/whatsapp-glyph";
 import { ContactBar } from "./contact-bar";
 import { romaicFacts } from "./romaic-facts";
+import type { SiteFacts } from "./site-facts";
 
 /**
  * The 404 and error screens. Each says what happened in plain words, offers
@@ -26,22 +27,23 @@ function StatusBody({ title, children, actions, level = 1 }: { title: string; ch
   );
 }
 
-function BookingLinks() {
+function BookingLinks({ facts }: { facts: SiteFacts }) {
   return (
     <>
-      <a href={romaicFacts.whatsapp} target="_blank" rel="noopener noreferrer" className={buttonClasses({ variant: "secondary" })}>
+      <a href={facts.whatsapp} target="_blank" rel="noopener noreferrer" className={buttonClasses({ variant: "secondary" })}>
         <WhatsAppGlyph className="size-5" />
         WhatsApp us
       </a>
-      <a href={romaicFacts.phone.tel} className={buttonClasses({ variant: "ghost" })}>
+      <a href={facts.phone.tel} className={buttonClasses({ variant: "ghost" })}>
         <Phone aria-hidden="true" strokeWidth={1.5} className="size-5" />
-        <span data-numeric>{romaicFacts.phone.display}</span>
+        <span data-numeric>{facts.phone.display}</span>
       </a>
     </>
   );
 }
 
-export function NotFoundView({ headingLevel = 1 }: { headingLevel?: HeadingLevel }) {
+/** `facts` from content where the page can read it; the brand guide's otherwise. */
+export function NotFoundView({ headingLevel = 1, facts = romaicFacts }: { headingLevel?: HeadingLevel; facts?: SiteFacts }) {
   return (
     <StatusBody
       level={headingLevel}
@@ -51,7 +53,7 @@ export function NotFoundView({ headingLevel = 1 }: { headingLevel?: HeadingLevel
           <Link href="/" className={buttonClasses({ variant: "primary" })}>
             Go to the home page
           </Link>
-          <BookingLinks />
+          <BookingLinks facts={facts} />
         </>
       }
     >
@@ -61,7 +63,7 @@ export function NotFoundView({ headingLevel = 1 }: { headingLevel?: HeadingLevel
   );
 }
 
-export function ServerErrorMessage({ retry, headingLevel = 1 }: { retry?: () => void; headingLevel?: HeadingLevel }) {
+export function ServerErrorMessage({ retry, headingLevel = 1, facts = romaicFacts }: { retry?: () => void; headingLevel?: HeadingLevel; facts?: SiteFacts }) {
   return (
     <StatusBody
       level={headingLevel}
@@ -73,7 +75,7 @@ export function ServerErrorMessage({ retry, headingLevel = 1 }: { retry?: () => 
               Try again
             </button>
           )}
-          <BookingLinks />
+          <BookingLinks facts={facts} />
         </>
       }
     >
@@ -93,7 +95,7 @@ export function StandaloneErrorPage({ children }: { children: ReactNode }) {
       <main id="main" className="flex flex-1 items-center bg-canvas">
         {children}
       </main>
-      <ContactBar />
+      <ContactBar facts={romaicFacts} />
     </>
   );
 }

@@ -1,3 +1,4 @@
+import { sitePageNames, sitePages } from "@/lib/content/pages";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { sectionKeys } from "@/lib/content/schema";
@@ -34,7 +35,7 @@ describe("an earlier version as a list of fields", () => {
   it("names each page's search title and description", () => {
     assert.deepEqual(
       revisionFields("seo", sampleContent().seo).map((field) => field.label),
-      ["Home: title", "Home: description", "Privacy notice: title", "Privacy notice: description"],
+      sitePages.flatMap((page) => [`${sitePageNames[page]}: title`, `${sitePageNames[page]}: description`]),
     );
   });
 });

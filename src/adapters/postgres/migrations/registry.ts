@@ -6,6 +6,8 @@ import { accountTokensMigration } from "./030-account-tokens";
 import { auditLogMigration } from "./040-audit-log";
 import { mediaMigration } from "./050-media";
 import { contentMigration } from "./060-content";
+import { inventoryMigration } from "./110-inventory";
+import { bookingRequestsMigration } from "./120-booking-requests";
 
 export type { Migration } from "../migrate";
 
@@ -70,4 +72,6 @@ export const migrations: readonly Migration[] = [
   auditLogMigration,
   mediaMigration,
   contentMigration,
+  inventoryMigration,
+  bookingRequestsMigration,
 ];

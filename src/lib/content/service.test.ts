@@ -128,12 +128,12 @@ describe("content service: who may edit what", () => {
     const { service } = setUp(store);
     assert.deepEqual(
       (await service.getSummaries(owner)).map(({ key }) => key),
-      ["site", "contact", "seo", "privacy"],
+      [...sectionKeys],
     );
     assert.deepEqual(
       (await service.getSummaries(admin)).map(({ key }) => key),
-      ["site", "seo", "privacy"],
-      "contact details are the owner's alone",
+      sectionKeys.filter((key) => key !== "contact" && key !== "bookingTerms"),
+      "contact details and booking terms are the owner's alone",
     );
     assert.deepEqual(await service.getSummaries(sales), []);
     assert.deepEqual(await service.getSummaries(staff), []);

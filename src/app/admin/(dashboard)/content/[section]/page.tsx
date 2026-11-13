@@ -13,7 +13,7 @@ import { isSectionKey, sectionDescriptions, sectionNames, sectionPermissions } f
 import { requireDashboardActor } from "@/server/admin-session";
 import { businessTimeZone, contentService } from "@/server/content";
 import { clock } from "@/server/infrastructure";
-import { saveContentSection } from "../actions";
+import { saveContentSection, uploadContentImage } from "../actions";
 
 export async function generateMetadata({ params }: PageProps<"/admin/content/[section]">): Promise<Metadata> {
   const { section } = await params;
@@ -55,6 +55,7 @@ export default async function ContentSectionPage({ params, searchParams }: PageP
         revision={editable.revision}
         recovered={editable.recovered}
         save={saveContentSection}
+        upload={uploadContentImage}
         available={editableSections(actor)}
         history={
           <SectionHistory

@@ -1,38 +1,34 @@
+import type { ContentIcon } from "@/lib/content/schema";
+import type { SiteFacts } from "./site-facts";
+
 /**
- * Facts the holding page and the design preview show, each from the client's
- * own brand guide (Edition 1, November 2026) or posters, supplied on
- * 2026-11-12 (docs/planning/brand-guide-notes.md). Phase 2 moves them into
- * editable content (the "site" and "contact" sections); until then they live
- * here, in one place.
+ * The business facts as the client's brand guide (Edition 1, November 2026)
+ * and posters give them (docs/planning/brand-guide-notes.md). Public pages
+ * read the editable versions from content (siteFactsOf); these are only for
+ * the places that can't: the error screens, which must render even when the
+ * database can't be reached, and the /kit design preview.
  *
  * Solar backup power is deliberately absent: only the Booking.com listing
  * claims it, and the client's materials don't.
  */
-export const romaicFacts = {
+export const romaicFacts: SiteFacts = {
   name: "Romaic Guesthouse",
   addressLine: "286 Stateway, Bedelia, Welkom",
-  address: { street: "286 Stateway", area: "Bedelia", town: "Welkom", province: "Free State", country: "South Africa" },
+  areaLine: "Bedelia, Welkom",
   phone: { e164: "+27769579928", display: "+27 76 957 9928", tel: "tel:+27769579928" },
   whatsapp: "https://wa.me/27769579928",
+  whatsappNumber: "+27769579928",
   email: "guesthouseromaic@gmail.com",
-} as const;
+  mapLink: `https://maps.google.com/?q=${encodeURIComponent("286 Stateway, Bedelia, Welkom, Free State")}`,
+};
 
-export type AmenityIcon =
-  | "apartment"
-  | "coffee"
-  | "water"
-  | "geyser"
-  | "wifi"
-  | "fence"
-  | "camera"
-  | "enclosed"
-  | "tank"
-  | "microwave"
-  | "iron"
-  | "walk"
-  | "parking";
+/** The amenity icons are content's curated icons. */
+export type AmenityIcon = ContentIcon;
 
-export type AmenityGroup = { title: string; items: readonly { label: string; icon: AmenityIcon }[] };
+export type AmenityGroup = {
+  title: string;
+  items: readonly { label: string; icon: AmenityIcon; note?: string; confirmed?: boolean }[];
+};
 
 /** The brand guide's four groups (p9), in its order, reworded only into sentence case. */
 export const amenityGroups: readonly AmenityGroup[] = [

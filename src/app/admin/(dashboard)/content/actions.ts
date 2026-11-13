@@ -3,13 +3,16 @@
 import { redirect } from "next/navigation";
 import { refresh } from "next/cache";
 import { contentEditorHref } from "@/components/admin/content/content-sections";
+import type { UploadImageResult } from "@/components/admin/content/image-field";
 import { can, type DashboardRequirement } from "@/lib/accounts/access";
 import { isSectionKey, sectionPermissions } from "@/lib/content/schema";
 import { unknownSectionMessage } from "@/lib/content/service";
 import { failedState, formStateOf, type FormState } from "@/lib/forms/form-state";
 import type { Actor } from "@/lib/kernel/actor";
+import { refusedWith } from "@/lib/kernel/result";
 import { dashboardAction } from "@/server/admin-actions";
 import { contentService } from "@/server/content";
+import { uploadImage } from "@/server/media";
 
 /*
  * Saving and restoring the site's content from the dashboard. Every argument
@@ -23,6 +26,9 @@ const notAllowedMessage = "Your role doesn't include this part of the website. A
 
 /** Editing any part of the website; each section's own permission is checked once the section is known. */
 const editContent: DashboardRequirement = { permission: "content:edit" };
+
+/** Uploading a photo for the site; the media service checks it again. */
+const managePhotos: DashboardRequirement = { permission: "media:manage" };
 
 /** Whether `actor` may change section `key`: a known section, and their role holds its permission. */
 function mayEdit(actor: Actor, key: string): boolean {
@@ -57,3 +63,14 @@ export const restoreContentRevision = dashboardAction(
   },
   editContent,
 );
+
+/**
+ * Stores a photo an editor prepared (the "image" field of `data`), for the
+ * editor to save as part of its section. Nothing on the site changes until
+ * the section is saved.
+ */
+export const uploadContentImage = dashboardAction(async (actor, data: unknown): Promise<UploadImageResult> => {
+  if (!(data instanceof FormData)) return refusedWith("Choose a photo to upload.");
+  const uploaded = await uploadImage(actor, data.get("image"));
+  return uploaded.ok ? { ok: true, src: uploaded.src, width: uploaded.width, height: uploaded.height } : uploaded;
+}, managePhotos);

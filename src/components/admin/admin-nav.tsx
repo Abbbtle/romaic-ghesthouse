@@ -2,9 +2,11 @@
 
 import {
   ArrowUpRight,
+  BedDouble,
   CircleUserRound,
   Ellipsis,
   House,
+  Inbox,
   LogOut,
   MessageCircle,
   PenLine,
@@ -22,7 +24,9 @@ import { badgeText, isCurrentAdminPath, type AdminBadges, type AdminNavItem, typ
 
 const glyphs: Record<AdminSection | "account", LucideIcon> = {
   today: House,
+  requests: Inbox,
   content: PenLine,
+  apartments: BedDouble,
   team: Users,
   audit: ScrollText,
   account: CircleUserRound,

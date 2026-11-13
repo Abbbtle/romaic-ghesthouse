@@ -6,10 +6,12 @@ import { adminRoutes } from "../admin-routes";
 
 /**
  * How the dashboard groups the site's content: the business's own details
- * first, then what's about the website. Phase 2 adds a "Pages" group.
+ * first, then each page in the order the site's menu has them, then what's
+ * about the website as a whole.
  */
 export const contentGroups: readonly { title: string; sections: readonly SectionKey[] }[] = [
-  { title: "Your business", sections: ["site", "contact"] },
+  { title: "Your business", sections: ["site", "contact", "bookingTerms"] },
+  { title: "Pages", sections: ["home", "apartments", "gallery", "facilities", "location", "policies", "contactPage", "book"] },
   { title: "Your website", sections: ["seo", "privacy"] },
 ];
 

@@ -2,12 +2,12 @@ import type { IsoDate } from "@/lib/format/zoned-time";
 import type { SectionData, SectionKey } from "./schema";
 
 /**
- * Text that people agree to carries a version: the Privacy Notice page now,
- * and from Phase 2 the booking form's privacy notice and consent wording.
- * Each booking request will record the versions it was sent under, so a
- * change to the text must never keep the old number. When a save changes
- * that text without the editor setting a new version (or a new date), the
- * save gets the next version and today's date.
+ * Text that people agree to carries a version: the Privacy Notice page and
+ * the booking form's consent wording. Each booking request records the
+ * versions it was sent under, so a change to the text must never keep the
+ * old number. When a save changes that text without the editor setting a
+ * new version (or a new date), the save gets the next version and today's
+ * date.
  */
 
 /** The next version: the last number goes up by one ("1.0" → "1.1", "3" → "4"). */
@@ -21,6 +21,17 @@ export function nextVersion(version: string): string {
 type Reviser<K extends SectionKey> = (previous: SectionData<K>, next: SectionData<K>, today: IsoDate) => SectionData<K>;
 
 const revisers: { [K in SectionKey]?: Reviser<K> } = {
+  book(previous, next, today) {
+    if (next.consent.label === previous.consent.label) return next;
+    return {
+      ...next,
+      consent: {
+        ...next.consent,
+        version: next.consent.version === previous.consent.version ? nextVersion(previous.consent.version) : next.consent.version,
+        updatedOn: next.consent.updatedOn === previous.consent.updatedOn ? today : next.consent.updatedOn,
+      },
+    };
+  },
   privacy(previous, next, today) {
     if (next.body === previous.body) return next;
     return {

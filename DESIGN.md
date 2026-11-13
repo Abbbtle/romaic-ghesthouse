@@ -140,7 +140,7 @@ components:
 
 # Design System: Romaic Guesthouse
 
-> **Record status.** Written from the shipped Phase 1 design-system build on 2026-11-12, after the finish review, merging the interim record of the same date. Tokens above are normative.
+> **Record status.** Written from the shipped Phase 1 design-system build on 2026-11-12, after the finish review, merging the interim record of the same date. Updated the same day for the Phase 2 public site (pages, Book flow, "To confirm" marks), after its finish review and UX audit. Tokens above are normative.
 >
 > **Sources:**
 > - tokens and recipes: `src/app/globals.css`;
@@ -254,11 +254,12 @@ Recipes live in `src/components/ui/typography.ts` (`textStyles`); sizes in `src/
   - `--container-prose` (42rem) for legal text.
 - **Gutters:** side padding is `max(1rem, env(safe-area-inset-left))` on public pages.
 - **Vertical rhythm:** `--spacing-section` and `--spacing-section-sm` separate bands.
-- **Holding page** (`src/app/(site)/page.tsx`):
-  - **Phones:** the gold-framed stand-in photo comes first as a 4:3 inset with Cream margins, then the centred text column. That column holds the gold-bar headline, the tracked address line, the lead, "Welcome home", then the booking block between two gold rules.
-  - **From 1024 px:** a 12-column grid, with the photo on the right at 7/12 and the text left-aligned at 5/12.
-  - **Amenity panel:** its own full-width row below the hero. One column on phones, divided by gold rules; three columns from 1024 px, divided by vertical gold rules.
-  - **Below the panel:** a gold rule, then "Where to find us" on Canvas.
+- **Home page** (`src/app/(site)/page.tsx`):
+  - **Phones:** the gold-framed photo first as a 4:3 inset with Cream margins, then the centred column: the gold-bar headline, the tracked address line, the dates-and-guests search (inside the first 844 px screen), then the lead and "Welcome home".
+  - **From 1024 px:** a 12-column grid, with the photo on the right at 7/12 and the text, in source order (headline, address, lead, welcome, search), left-aligned at 5/12. The photo stretches to the text column's height (at least 28rem), so no Cream gap opens under it.
+  - **Then:** three featured apartment cards (link to all of them), "What keeps working" (the marble poster rows from content, one column on phones, side by side from 1024 px, divided by gold rules), and "Where to find us".
+- **Inner pages** (`src/components/site/page-heading.tsx`): a Cream band with the page's line in the gold bar as its h1 and a short intro (`PageHeading`), then the body on Canvas (`PageBand`, `py-section-sm`). The apartment page puts its photos on the right at 7/12 and the facts on the left; on phones its dates panel comes straight after the price line.
+- **Book flow** (`src/app/(site)/book/*`): the search lives in the address (`arrive`, `leave`, `guests`, `apartment`), so it works without scripts. Results are full-width cards (14rem photo, then name, sleeps, beds, summary, availability, actions). The request step puts what's being requested first on phones (a compact row: 6rem framed thumbnail beside the name, stay and "Price on request"), then the form; from 1024 px the summary sits on the right at 5/12.
 - **Chrome heights** (`:root` in `src/app/globals.css`): `--site-header-height` (4.25rem, 5rem from 64rem) and `--dock-height` / `--admin-tab-bar-height` (4rem). Pages that show the dock pad their foot by the dock height plus the home-indicator inset (`src/components/site/site-footer.tsx`).
 - **Contact bar** (`src/components/site/contact-bar.tsx`):
   - **Phones:** stacked.
@@ -330,7 +331,19 @@ The system is a hybrid: mostly flat tonal layering (Canvas, Cream, Chalk, White,
 `src/components/site/contact-bar.tsx`. A Midnight Navy band with a 2 px gold top edge that closes every public page (brand guide p8). It carries a tracked Josefin label in Romaic Gold, the address in Cream with a gold pin, and white bold links with gold line icons, each at least 44 px tall. The layout is described under Layout.
 
 ### Phone booking dock
-`src/components/site/booking-dock.tsx`, `src/components/site/dock-reveal.tsx`. Two equal actions (Call outline, WhatsApp in Cream) on navy, with a 2 px gold top edge and shadow-sheet, and it is hidden from 1024 px. It appears only once the hero's booking buttons (`#book-now`) have scrolled out of view, read from their position on scroll. While hidden it is moved below the edge, `invisible`, `inert` and `aria-hidden`. It slides up over 200 ms, and simply appears under reduced motion. Before scripts run it stays hidden.
+`src/components/site/booking-dock.tsx`, `src/components/site/dock-reveal.tsx`, `src/components/site/site-dock.tsx` (in the site layout, so on every public page). Two equal actions on navy, with a 2 px gold top edge and shadow-sheet, hidden from 1024 px: "Check dates" (outline) and WhatsApp (Cream); on the Book pages, Call and WhatsApp; none on the confirmation page, whose own buttons are the same. It appears once the page's own booking action (the element with id `dock-after`: the home search, the apartment page's dates panel, the request section) has scrolled out of view, read from its position on scroll; a page without one shows it at once. While hidden it is moved below the edge, `invisible`, `inert` and `aria-hidden`. It slides up over 200 ms, and simply appears under reduced motion. A navy spacer at the foot of the page keeps it from covering the contact bar.
+
+### "To confirm" and unknown values
+`src/components/site/to-confirm.tsx`. A fact from the Booking.com listing that the owner hasn't confirmed carries `ToConfirm`: a small dashed Gold Text tag reading "To confirm", marked `data-placeholder="unconfirmed"`. One wording only. Where every fact in a group is unconfirmed (the house rules, the check-in and check-out pair, a facilities group, the nearby places), one tag sits beside the group's heading; per-item tags appear only in groups that mix confirmed and unconfirmed facts. A value nobody has given (the booking terms) shows `NotYetKnown`: "Still to be confirmed by the owner." in italic `fg-3`, marked `data-placeholder="unknown"`. The owner clears them by ticking "Confirmed" in the dashboard.
+
+### Availability calendar
+`src/components/site/availability-calendar.tsx`, on each apartment's page (`#free-nights`). Two months as tables, weeks from Monday. Free nights are plain bold numerals (nothing that looks pressable: the calendar is for reading); booked nights are struck through on a `neutral-100` chip; each night's state is also in words for screen readers. A night is booked only when every unit of the apartment is taken. Apartments with no units set up show a sentence and a WhatsApp link instead.
+
+### Book results and request
+- **Availability, never by colour alone:** free shows the success tag "Free for your dates" with a calendar-check icon; unknown (no units) is a plain sentence, "We'll check it's free and confirm when we reply"; booked dims the card's photo and title and reads "Booked for these dates · See its free nights" (a link to the calendar).
+- **One primary per view:** only the first apartment that can be requested has the navy "Request this apartment"; the rest are secondary.
+- **Request form** (`src/components/site/request-form.tsx`): comfortable density, fieldsets "Who's coming" and "Your details", the consent checkbox with the privacy notice linked in its hint, a full-width navy "Send request" and the line "Sending this doesn't book or charge anything."
+- **Dates search** (`src/components/site/dates-search.tsx`): a GET form to the Book page. While a date tile has focus, the device's own date field shows in place of the large numerals, so a typed date is visible; an incomplete date is flagged when the tile loses focus. The guest stepper's limits use `aria-disabled`.
 
 ### Navigation
 - **Public header** (`src/components/site/site-header.tsx`): Cream with a hairline foot, and the logo slot centred on phones. Nav links are tracked Josefin capitals in ink, with Gold Text and an underline on hover. A navy primary "book" button appears from 1024 px.
@@ -394,8 +407,10 @@ The system is a hybrid: mostly flat tonal layering (Canvas, Cream, Chalk, White,
 7. **Photos.** Labelled stand-ins are allowed on the holding page, as the brief requires, until the client's photos arrive, and in `/kit`. Each uses `StandInPhoto`, with a visible "Stand-in photo" label and source and `data-placeholder="photo"`. The holding page shows one: a warm, gold-framed bedroom photo (Pexels 279746). It sits as an inset on phones and at the right 7/12 on desktop, and its alt text never says it is Romaic. Sources are in `public/stand-ins/SOURCES.md`. *(Changed: the interim record kept stand-ins off the public page.)*
 8. **Marble and palm leaf.** `.marble` is flat Marble White, with no imitation veins, until the client's Carrara texture file arrives (brand guide p8). The palm-leaf watermark isn't used yet: it needs the client's asset, and the brand wants it sparingly. *(Changed: the interim record approximated marble in CSS.)*
 9. **Solar backup power.** Never shown: only the Booking.com listing claims it, and the client's own materials don't.
-10. **Phone dock actions.** The direction contract named "Apartments | WhatsApp". Phase 1 has no apartments page, so the dock offers Call | WhatsApp. It appears only once the hero's own booking buttons have scrolled away, so the first phone screen never offers the same two actions twice.
-11. **Dates search on the holding page.** The contract's first viewport leads with the dates-and-guests search. Booking arrives in Phase 2, so the holding page books by WhatsApp, call or email. `DatesSearch` (`src/components/site/dates-search.tsx`) exists and is shown in `/kit` only.
+10. **Phone dock actions.** The direction contract named "Apartments | WhatsApp". The dock offers "Check dates | WhatsApp" instead, because checking dates is the primary action and the apartments are one tap away in the menu and on the home page. On the Book pages it's Call | WhatsApp, and it's absent on the confirmation page. It appears only once the page's own booking action has scrolled away, so a screen never offers the same actions twice. *(Changed in Phase 2: it was Call | WhatsApp on the holding page.)*
+11. **Dates search on the home page.** The search is in the home hero, as the contract's first viewport asks: on phones it comes straight after the address, inside the first screen, with the lead and "Welcome home" after it. It submits to the Book page rather than filtering "Sleeps up to N" in place, because availability is checked on the server; the Book page then lists the apartments that sleep the group. *(Changed in Phase 2: it was in /kit only.)*
+12. **"To confirm" over leaving facts out.** The brief allows unverified facts only as marked placeholders. The listing's apartment details, house rules, times and distances are useful to guests, so they're shown with the "To confirm" tag (one per group where the whole group is unconfirmed) rather than hidden, and the owner clears each in the dashboard.
+13. **No embedded map and no inner-page hero photos.** Location offers links to the guest's own map apps (no third party loads on the page). Inner-page heading bands carry no photo: the only photos are stand-ins, and adding more would multiply what must be replaced. Revisit once the client's photos arrive.
 
 ## Placeholders waiting on the client
 
@@ -404,6 +419,9 @@ Each of these is a stand-in, clearly marked, and is to be replaced as soon as th
 - **Original photos:** high-resolution photos of the real rooms and property. Shown meanwhile as labelled stand-ins (`data-placeholder="photo"`).
 - **Marble texture:** the Carrara file. Shown meanwhile as flat Marble White.
 - **Palm-leaf asset:** not shown at all until it arrives.
+- **Facts to confirm:** apartment details, house rules, check-in and check-out times, nearby distances and the listing's extra facilities, each tagged "To confirm" until the owner ticks it off.
+- **Booking terms:** deposit, balance, cancellation and payment, shown as "Still to be confirmed by the owner" until set.
+- **Prices:** "Price on request" until rates exist (Phase 3).
 
 ## To apply in the dashboard
 

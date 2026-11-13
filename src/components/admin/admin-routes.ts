@@ -4,6 +4,8 @@ import type { Role } from "@/lib/kernel/actor";
 /** The dashboard's pages. */
 export const adminRoutes = {
   today: "/admin",
+  requests: "/admin/requests",
+  apartments: "/admin/apartments",
   content: "/admin/content",
   team: "/admin/team",
   audit: "/admin/audit",
@@ -12,7 +14,7 @@ export const adminRoutes = {
 } as const;
 
 /** The dashboard's sections, in navigation order. Later phases add bookings, guests, tasks, books and tax. */
-export const adminSections = ["today", "content", "team", "audit"] as const;
+export const adminSections = ["today", "requests", "content", "apartments", "team", "audit"] as const;
 
 export type AdminSection = (typeof adminSections)[number];
 
@@ -42,7 +44,9 @@ export type AdminNavItem = {
  */
 export const adminNavigation: readonly AdminNavItem[] = [
   { section: "today", href: adminRoutes.today, label: "Today", group: "primary", permission: "today:view" },
+  { section: "requests", href: adminRoutes.requests, label: "Requests", group: "primary", permission: "bookings:view", badgeLabel: "waiting" },
   { section: "content", href: adminRoutes.content, label: "Website", group: "primary", permission: "content:edit" },
+  { section: "apartments", href: adminRoutes.apartments, label: "Apartments", group: "secondary", permission: "availability:view" },
   { section: "team", href: adminRoutes.team, label: "Team", group: "secondary", permission: "team:view" },
   { section: "audit", href: adminRoutes.audit, label: "Activity", group: "secondary", permission: "audit:view" },
 ];

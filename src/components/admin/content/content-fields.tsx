@@ -24,6 +24,8 @@ type ContentTextProps = {
    * budget's counter, which warns that long lines may wrap on phones.
    */
   limit: TextLimitName;
+  /** A tighter or looser maximum than the named limit, where a schema sets its own (an apartment's summary). */
+  max?: number;
   defaultValue: string;
   optional?: boolean;
   hint?: ReactNode;
@@ -49,6 +51,7 @@ export function ContentText({
   name,
   label,
   limit,
+  max: maxOverride,
   defaultValue,
   optional,
   hint,
@@ -62,7 +65,7 @@ export function ContentText({
   className,
   onValueChange,
 }: ContentTextProps) {
-  const max = textLimits[limit];
+  const max = maxOverride ?? textLimits[limit];
   const budget: number | undefined = (designBudgets as Partial<Record<TextLimitName, number>>)[limit];
   const [length, setLength] = useState(defaultValue.length);
   const box = useRef<HTMLDivElement>(null);

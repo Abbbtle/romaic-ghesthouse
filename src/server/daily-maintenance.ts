@@ -1,6 +1,7 @@
 import "server-only";
 import { accountServices, reencryptStoredSecrets } from "./accounts";
 import { pruneRateLimits, reportError } from "./infrastructure";
+import { bookingService } from "./stays";
 
 /**
  * The daily job (/api/cron/daily) and how its tasks run: each in turn, so
@@ -41,8 +42,11 @@ export async function runMaintenanceTasks(tasks: MaintenanceTasks, report: (desc
  * - expiredLinks: deletes password-reset and email-verification links that expired;
  * - rateLimitWindows: forgets rate-limit windows that have ended;
  * - storedSecrets: moves authenticator secrets onto DATA_ENCRYPTION_KEY's
- *   newest key after a rotation ("remaining" counts any still on an older one).
- * Later phases add their own (channel sync, retention, request housekeeping).
+ *   newest key after a rotation ("remaining" counts any still on an older one);
+ * - bookingRequests: expires requests still waiting on their arrival day,
+ *   deletes handled ones past their retention period, and forgets visitor
+ *   keys after 24 hours (src/lib/booking/retention.ts).
+ * Later phases add their own (channel sync, guest-record retention).
  */
 export function runDailyMaintenance(): Promise<MaintenanceSummary> {
   const services = accountServices();
@@ -52,6 +56,7 @@ export function runDailyMaintenance(): Promise<MaintenanceSummary> {
       expiredLinks: () => services.emailLinks.pruneExpiredLinks(),
       rateLimitWindows: () => pruneRateLimits(),
       storedSecrets: () => reencryptStoredSecrets(),
+      bookingRequests: () => bookingService().maintenance.housekeeping(),
     },
     reportError,
   );
