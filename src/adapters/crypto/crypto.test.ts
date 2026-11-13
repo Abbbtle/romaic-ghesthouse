@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
+import { randomBytes } from "node:crypto";
 import { describe, it } from "node:test";
 import { isSessionToken } from "@/lib/accounts/sessions";
 import { passwordProblem } from "@/lib/accounts/input";
-import { createTokenSigner, createVisitorKeys } from "./hmac";
+import { accountHarness } from "@/lib/accounts/testing/harness";
+import { newDataKeyEntry, parseDataKeys } from "./field-encryption";
+import { createRecoveryCodeHasher, createTokenSigner, createVisitorKeys, derivePurposeKey } from "./hmac";
 import { scryptPasswordHasher } from "./passwords";
 import { randomIds, randomSecrets, sha256Hex, sha256TokenHasher } from "./tokens";
 
@@ -83,5 +86,67 @@ describe("signed tokens", () => {
   it("carries any text, dots included", () => {
     const signer = createTokenSigner("a shared secret", "test");
     assert.equal(signer.verify(signer.sign("a.b.c ünïcode")), "a.b.c ünïcode");
+  });
+});
+
+describe("recovery code hashes", () => {
+  const accountId = "00000000-0000-4000-8000-000000000901";
+  const code = "kd7m3xqpv9";
+
+  it("are HMACs under a key the database never holds, tied to the account, never the code's SHA-256", () => {
+    const hasher = createRecoveryCodeHasher([{ id: "k1", key: randomBytes(32) }]);
+    const hash = hasher.hash(accountId, code);
+    assert.match(hash, /^hmac-sha256\.k1\.[\w-]{43}$/);
+    assert.equal(hasher.hash(accountId, code), hash, "the same code hashes the same, so a typed code can be found");
+    assert.ok(!hash.includes(sha256Hex(code)), "not the plain SHA-256 a leaked table could be searched for");
+    assert.ok(!hasher.candidateHashes(accountId, code).includes(sha256Hex(code)), "a code stored as its plain SHA-256 never matches");
+    assert.notEqual(hasher.hash("00000000-0000-4000-8000-000000000902", code), hash, "the same code on another account hashes differently");
+    assert.notEqual(createRecoveryCodeHasher([{ id: "k1", key: randomBytes(32) }]).hash(accountId, code), hash, "without the key, the hash can't be made");
+  });
+
+  it("keeps matching codes made under an older data key once a new one is put in front", () => {
+    const [k2, k1] = parseDataKeys(`${newDataKeyEntry("k2")},${newDataKeyEntry("k1")}`);
+    const before = createRecoveryCodeHasher([k1!]);
+    const after = createRecoveryCodeHasher([k2!, k1!]);
+    assert.match(after.hash(accountId, code), /^hmac-sha256\.k2\./, "new codes use the newest key");
+    assert.deepEqual(after.candidateHashes(accountId, code), [after.hash(accountId, code), before.hash(accountId, code)]);
+    assert.throws(() => createRecoveryCodeHasher([]));
+  });
+
+  it("works for enrolment, new codes and signing in, storing none as its SHA-256", async () => {
+    const h = accountHarness({ recoveryCodes: createRecoveryCodeHasher(parseDataKeys(newDataKeyEntry("k1"))) });
+    const owner = await h.addAccount("owner");
+    const actor = { id: owner.id, role: owner.role, name: owner.name };
+    const storedAsSha256 = async (codes: string[]) => {
+      for (const recovery of codes) {
+        if (await h.stores.mfa.useRecoveryCode(owner.id, sha256Hex(recovery.replace("-", "")), h.clock.now())) return true;
+      }
+      return false;
+    };
+    const { recoveryCodes: first } = await h.enrol(await h.signInFully(owner), owner.id);
+    assert.equal(await storedAsSha256(first), false);
+    const made = await h.accounts.regenerateRecoveryCodes(actor);
+    assert.ok(made.ok);
+    assert.equal(await storedAsSha256(made.recoveryCodes), false);
+    const signIn = async (recovery: string) => {
+      const started = await h.accounts.signIn({ email: owner.email, password: "a long passphrase" }, { visitorKey: "visitor", device: "Safari on iPhone" });
+      assert.ok(started.ok);
+      return h.accounts.verifyMfa(started.session.token, recovery, { device: "Safari on iPhone" });
+    };
+    assert.equal((await signIn(first[0]!)).ok, false, "the first codes stopped working when new ones were made");
+    assert.equal((await signIn(made.recoveryCodes[0]!)).ok, true);
+    assert.equal(await h.accounts.recoveryCodesLeft(actor), 9);
+  });
+});
+
+describe("purpose keys", () => {
+  it("derives a stable 32-byte key per secret and purpose, never the secret itself", () => {
+    const secret = Buffer.alloc(32, 7);
+    const key = derivePurposeKey(secret, "audit-chain");
+    assert.equal(key.length, 32);
+    assert.ok(key.equals(derivePurposeKey(secret, "audit-chain")));
+    assert.ok(!key.equals(secret));
+    assert.ok(!key.equals(derivePurposeKey(secret, "something-else")), "a key for one purpose is useless for another");
+    assert.ok(!key.equals(derivePurposeKey(Buffer.alloc(32, 8), "audit-chain")));
   });
 });

@@ -22,9 +22,12 @@ import { emailLinkLimit } from "./rate-limits";
  *   (temporary passwords), since they may have no email.
  *
  * The request always answers the same way, whether or not a link was sent,
- * so the form doesn't reveal which addresses have accounts. Without an email
- * sender (development, or before a provider is approved), links are logged
- * by the console sender instead.
+ * so the form doesn't reveal which addresses have accounts. It answers in
+ * the same time too: past the rate limits, everything that depends on the
+ * address (the lookup, the link, the email and the audit entry) runs after
+ * the response, so a slow reply can't give an owner's address away. Without
+ * an email sender (development, or before a provider is approved), links
+ * are logged by the console sender instead.
  */
 
 export const resetLinkLifetimeMs = 30 * 60 * 1000;
@@ -40,6 +43,8 @@ export type EmailLinkServiceDependencies = {
   clock: Clock;
   limiter: RateLimiter;
   audit: AuditRecorder;
+  /** Runs work after the response has gone (Next's after()), logging a failure rather than showing it. */
+  runAfterResponse: (task: () => Promise<void>) => void;
   /** Full addresses for the dashboard's link pages. */
   links: { resetPassword(token: string): string; verifyEmail(token: string): string };
   businessName: string;
@@ -56,46 +61,49 @@ export function createEmailLinkService(deps: EmailLinkServiceDependencies) {
     return delivery.ok;
   };
 
+  /** Issues, emails and records a reset link when `email` is an active owner's verified address; does nothing otherwise. */
+  const sendResetLink = async (email: string, visitorKey: string): Promise<void> => {
+    const account = await deps.accounts.findByEmail(email);
+    if (!account || !resetsPasswordByEmail(account.role) || account.status !== "active" || !account.emailVerifiedAt) return;
+    const now = deps.clock.now();
+    const token = deps.secrets.linkToken();
+    await deps.tokens.issue({
+      tokenHash: deps.hasher.hash(token),
+      accountId: account.id,
+      purpose: "password-reset",
+      email: account.email,
+      createdAt: now,
+      expiresAt: new Date(now.getTime() + resetLinkLifetimeMs),
+    });
+    const sent = await send(
+      account.email,
+      `Reset your ${deps.businessName} dashboard password`,
+      [
+        `Hi ${account.name},`,
+        "",
+        "Someone asked to reset the password for your dashboard account. If it was you, open this link within 30 minutes:",
+        deps.links.resetPassword(token),
+        "",
+        "You'll still need the code from your authenticator app when you next sign in.",
+        "If you didn't ask for this, ignore this email: your password hasn't changed.",
+      ].join("\n"),
+    );
+    await deps.audit.record({
+      actor: null,
+      category: "security",
+      action: "password-reset.requested",
+      target: { type: "account", id: account.id },
+      summary: sent ? `Password reset link emailed to ${account.name}` : `Password reset link for ${account.name} could not be emailed`,
+      ipHash: visitorKey,
+    });
+  };
+
   return {
-    /** Sends an owner a reset link, when the address is theirs and verified. Always answers the same. */
+    /** Sends an owner a reset link, when the address is theirs and verified. Always answers the same, without waiting on any of it. */
     async requestPasswordReset(email: string, { visitorKey }: Pick<RequestContext, "visitorKey">): Promise<{ message: string }> {
       const allowed = await Promise.all([`reset-email:${email}`, `reset-visitor:${visitorKey}`].map((key) => deps.limiter.tryConsume(key)));
       if (!allowed.every(Boolean)) return { message: resetRequestedMessage };
-      const account = await deps.accounts.findByEmail(email);
-      if (!account || !resetsPasswordByEmail(account.role) || account.status !== "active" || !account.emailVerifiedAt) {
-        return { message: resetRequestedMessage };
-      }
-      const now = deps.clock.now();
-      const token = deps.secrets.linkToken();
-      await deps.tokens.issue({
-        tokenHash: deps.hasher.hash(token),
-        accountId: account.id,
-        purpose: "password-reset",
-        email: account.email,
-        createdAt: now,
-        expiresAt: new Date(now.getTime() + resetLinkLifetimeMs),
-      });
-      const sent = await send(
-        account.email,
-        `Reset your ${deps.businessName} dashboard password`,
-        [
-          `Hi ${account.name},`,
-          "",
-          "Someone asked to reset the password for your dashboard account. If it was you, open this link within 30 minutes:",
-          deps.links.resetPassword(token),
-          "",
-          "You'll still need the code from your authenticator app when you next sign in.",
-          "If you didn't ask for this, ignore this email: your password hasn't changed.",
-        ].join("\n"),
-      );
-      await deps.audit.record({
-        actor: null,
-        category: "security",
-        action: "password-reset.requested",
-        target: { type: "account", id: account.id },
-        summary: sent ? `Password reset link emailed to ${account.name}` : `Password reset link for ${account.name} could not be emailed`,
-        ipHash: visitorKey,
-      });
+      deps.runAfterResponse(() => sendResetLink(email, visitorKey));
       return { message: resetRequestedMessage };
     },
 
