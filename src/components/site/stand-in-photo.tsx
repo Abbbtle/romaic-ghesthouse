@@ -18,14 +18,16 @@ export type StandIn = {
  * any photo without a badge. One line at every size: "Stand-in" on a tiny
  * thumbnail, "Stand-in photo" from 8rem wide, and the source from 15rem
  * (it's always in the title). Its figure must be a size container
- * (@container). `className` moves it, as the home hero does.
+ * (@container). With `placement="custom"` it drops its shadowed strip and
+ * the caller places it, as the home hero does over its own dark gradient.
  */
-export function StandInCaption({ source, className }: { source: string; className?: string }) {
+export function StandInCaption({ source, placement = "foot", className }: { source: string; placement?: "foot" | "custom"; className?: string }) {
   return (
     <figcaption
       title={`Stand-in photo · ${source}`}
       className={cx(
-        "pointer-events-none absolute inset-x-0 bottom-0 bg-[linear-gradient(to_top,rgb(10_17_25/0.62),rgb(10_17_25/0))] px-3 pt-7 pb-2.5 font-sans text-[0.75rem] leading-none font-normal tracking-[0.02em] whitespace-nowrap text-on-navy",
+        "pointer-events-none font-sans text-[0.75rem] leading-none font-normal tracking-[0.02em] whitespace-nowrap text-on-navy",
+        placement === "foot" && "absolute inset-x-0 bottom-0 bg-[linear-gradient(to_top,rgb(10_17_25/0.62),rgb(10_17_25/0))] px-3 pt-7 pb-2.5",
         className,
       )}
     >

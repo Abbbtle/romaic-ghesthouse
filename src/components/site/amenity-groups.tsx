@@ -8,8 +8,8 @@ import { ToConfirm } from "./to-confirm";
  * Convenience, plus any the site's content adds), each item with its gold
  * line icon, a short note where there is one ("At an extra charge"), and a
  * "To confirm" mark on anything the owner hasn't confirmed. The groups sit
- * in a list of lists, not cards: a gold rule above each group name carries
- * the structure.
+ * in a list of lists, not cards: a 2 px gold rule above each group's name
+ * carries the structure, as the approved design heads its info blocks.
  */
 export function AmenityGroups({
   groups = amenityGroups,
@@ -22,7 +22,7 @@ export function AmenityGroups({
 }) {
   const Heading = `h${headingLevel}` as const;
   return (
-    <div className={cx("grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-4", className)}>
+    <div className={cx("grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-4", className)}>
       {groups.map((group, index) => {
         const id = `amenities-${index}`;
         // A long group takes the whole row and lists its items in columns, so it never towers over the others.
@@ -30,20 +30,17 @@ export function AmenityGroups({
         // One tag by the heading when nothing in the group is confirmed; one per item only in a mixed group.
         const allUnconfirmed = group.items.every((item) => item.confirmed === false);
         return (
-          <section key={`${group.title}-${index}`} aria-labelledby={id} className={cx("grid content-start gap-4", wide && "sm:col-span-full")}>
-            <div className="grid gap-3">
-              <hr className="gold-rule w-12" />
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                <Heading id={id} className="font-display text-base font-semibold tracking-[0.16em] text-ink uppercase">
-                  {group.title}
-                </Heading>
-                {allUnconfirmed && <ToConfirm />}
-              </div>
+          <section key={`${group.title}-${index}`} aria-labelledby={id} className={cx("grid content-start gap-5 border-t-2 border-romaic-gold pt-5", wide && "sm:col-span-full")}>
+            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <Heading id={id} className="font-display text-title font-normal text-ink">
+                {group.title}
+              </Heading>
+              {allUnconfirmed && <ToConfirm />}
             </div>
             <ul className={cx("grid gap-3", wide && "gap-x-10 sm:grid-cols-2 lg:grid-cols-3")}>
               {group.items.map((item) => (
-                <li key={item.label} className="flex items-start gap-3 text-base leading-normal">
-                  <AmenityIconGlyph icon={item.icon} className="mt-px size-5 shrink-0 text-gold-text" />
+                <li key={item.label} className="flex items-start gap-3 leading-normal">
+                  <AmenityIconGlyph icon={item.icon} className="mt-0.5 size-5 shrink-0 text-gold-text" />
                   <span className="grid gap-1">
                     <span>
                       {item.label}

@@ -77,6 +77,8 @@ export const listLimits = {
   socialLinks: { min: 0, max: 6 },
   highlights: { min: 1, max: 6 },
   highlightLines: { min: 1, max: 4 },
+  /** The home page's evening band: a large photo and a smaller one beside it. */
+  eveningPhotos: { min: 0, max: 2 },
   apartments: { min: 1, max: 12 },
   apartmentFeatures: { min: 0, max: 20 },
   apartmentPhotos: { min: 0, max: 12 },

@@ -10,10 +10,12 @@ import "./globals.css";
 // labels and buttons at 400-600. Arimo: everything you read. Sacramento: rare,
 // large, gold script accents only (the design preview), so it isn't preloaded.
 // Josefin Sans and Arimo load as variable fonts, so every weight in between is
-// real; Josefin's range is spelled out so its light weight is never dropped.
+// real. Josefin's is named "variable" on purpose: its one file carries 100 to
+// 700, including the light 300 the public site's headings use. A list of
+// static weights would download a file per weight instead.
 const josefin = Josefin_Sans({
   subsets: ["latin"],
-  weight: "300 700",
+  weight: "variable",
   variable: "--font-josefin",
   display: "swap",
 });

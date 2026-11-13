@@ -40,12 +40,20 @@ export const highlightSchema = z.object({
 
 export type Highlight = z.output<typeof highlightSchema>;
 
+/**
+ * The home page. Two parts arrived with the premium design (2026-11-13) and
+ * are optional, so content saved before them still validates: the service
+ * lays stored content over the defaults (./service.ts), so a home section
+ * saved without them reads with the defaults' photo and evening band, and a
+ * save from an editor that doesn't show them yet leaves them out and gets
+ * the defaults back on the next read.
+ */
 export const homeSchema = z.object({
   hero: z.object({
-    /** The line in the gold bar. */
+    /** The headline over the photograph. */
     headline: textField({ noun: "the headline", max: textLimits.goldBar, required: "Enter the headline." }),
     lead: textField({ noun: "the introduction", max: textLimits.lead, required: "Enter a sentence or two about the guesthouse." }),
-    /** The large gold script line; "" leaves it out. */
+    /** A few words of welcome, the heading of the page's closing invitation to book; "" leaves it to the Book page's heading. */
     welcome: textField({ noun: "the welcome line", max: textLimits.script }),
     photo: imageRefSchema,
   }),
@@ -54,7 +62,17 @@ export const homeSchema = z.object({
     heading: heading(),
     intro: intro(),
     items: listField(highlightSchema, listLimits.highlights, { one: "highlight", many: "highlights" }),
+    /** The framed photo beside the highlights. Optional (see above). */
+    photo: imageRefSchema.optional(),
   }),
+  /** The navy band with the check-in and check-out times and two photos. Optional (see above). */
+  evenings: z
+    .object({
+      heading: heading(),
+      intro: intro(),
+      photos: listField(imageRefSchema, listLimits.eveningPhotos, { one: "photo", many: "photos" }),
+    })
+    .optional(),
   location: z.object({ heading: heading(), text: intro("the text") }),
 });
 
