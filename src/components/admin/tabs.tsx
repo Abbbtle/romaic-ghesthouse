@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { cx } from "@/components/ui/cx";
+import { TabsScroller } from "./tabs-scroller";
 
 export type TabLink = {
   href: string;
@@ -21,11 +21,13 @@ type TabsProps = {
  * Views of one list, such as Waiting · Accepted · Declined, as a segmented
  * bar (design-spec §11.1). Each view has its own address (?tab=…), so these
  * are links marked aria-current rather than ARIA tabs: they navigate, keep
- * their place in history and work before scripts load.
+ * their place in history and work before scripts load. A bar wider than
+ * the screen scrolls sideways in its own frame, with the current tab
+ * brought into view and a fade at the edge that has more.
  */
 export function Tabs({ label, items, current, className }: TabsProps) {
   return (
-    <nav aria-label={label} className={cx("max-w-full overflow-x-auto", className)}>
+    <TabsScroller label={label} current={current} className={className}>
       <ul className="inline-flex gap-1 rounded-sm border border-hairline bg-neutral-100 p-1">
         {items.map((item) => (
           <li key={item.href}>
@@ -41,6 +43,6 @@ export function Tabs({ label, items, current, className }: TabsProps) {
           </li>
         ))}
       </ul>
-    </nav>
+    </TabsScroller>
   );
 }

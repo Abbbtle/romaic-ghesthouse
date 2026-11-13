@@ -11,6 +11,7 @@ import { createInventoryService, type ApartmentType, type InventoryService } fro
 import { createReservationService, type ReservationService } from "@/lib/reservations/reservation-service";
 import { createPostgresReservationStore } from "@/adapters/postgres/reservation-store";
 import { publicQuote, quoteStay } from "./rates";
+import { syncBookingLedger } from "./ledger";
 import { afterCheckOut } from "./tasks";
 import { dashboardOrigin } from "./accounts";
 import { auditRecorder } from "./audit";
@@ -96,7 +97,11 @@ export function reservationService(): ReservationService {
     requests: createPostgresBookingStore(database()),
     quote: quoteStay,
     apartmentNames,
-    onCheckedOut: afterCheckOut,
+    // The clean for the unit and the stay's income in the books: each runs whatever happens to the other.
+    onCheckedOut: async (booking) => {
+      const [cleaning] = await Promise.allSettled([afterCheckOut(booking), syncBookingLedger(booking.id)]);
+      if (cleaning.status === "rejected") throw cleaning.reason;
+    },
     reportProblem: (message) => reportError(message, new Error(message)),
     random: cryptoRandom,
     clock,

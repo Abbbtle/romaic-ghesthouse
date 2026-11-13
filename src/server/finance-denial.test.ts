@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { join } from "node:path";
 import { describe, it } from "node:test";
 import { memoryAuditRecorder, type AuditCategory } from "@/lib/kernel/audit";
 import { roles, type Actor, type Role } from "@/lib/kernel/actor";
@@ -237,3 +239,47 @@ describe("booking money (payments, receipts, invoices, refunds)", () => {
   });
 });
 
+
+describe("the Books and Tax pages, actions and downloads (Phase 4)", () => {
+  // Read from the source: every entry point under these routes must name a finance permission, so admin (Weberu) is kept out by the guards above.
+  const roots = ["src/app/admin/(dashboard)/books", "src/app/admin/(dashboard)/tax"];
+  const files = roots.flatMap((root) => readdirSync(root, { recursive: true }).map((entry) => join(root, String(entry)))).filter((path) => statSync(path).isFile());
+  const finance = (permission: string) => isFinancePermission(permission as (typeof permissions)[number]);
+
+  it("guards every page with a finance permission", () => {
+    const pages = files.filter((path) => path.endsWith("page.tsx"));
+    assert.ok(pages.length >= 15, `found ${pages.length} pages`);
+    for (const path of pages) {
+      const named = [...readFileSync(path, "utf8").matchAll(/requireDashboardActor\(\{ permission: "([a-z:-]+)"/g)].map((match) => match[1]!);
+      assert.ok(named.length > 0, `${path} has no requireDashboardActor permission`);
+      for (const permission of named) assert.ok(finance(permission), `${path}: ${permission} isn't a finance permission`);
+    }
+  });
+
+  it("guards every server action with a finance permission", () => {
+    for (const path of files.filter((file) => file.endsWith("actions.ts"))) {
+      const source = readFileSync(path, "utf8");
+      const guards = new Map([...source.matchAll(/const (\w+) = \{ permission: "([a-z:-]+)"[^}]*\}/g)].map((match) => [match[1]!, match[2]!]));
+      for (const permission of guards.values()) assert.ok(finance(permission), `${path}: ${permission}`);
+      const actions = [...source.matchAll(/export const \w+ = dashboard(?:Form)?Action\(/g)].length;
+      const guarded = [...source.matchAll(/^\}, (\w+)\);$/gm)].filter((match) => guards.has(match[1]!)).length;
+      assert.ok(actions > 0, `${path} exports no actions`);
+      assert.equal(guarded, actions, `${path}: every action ends with a finance guard`);
+    }
+  });
+
+  it("asks for a recent step-up on every finance change and download (roles.md)", () => {
+    for (const path of files.filter((file) => file.endsWith("actions.ts"))) {
+      for (const match of readFileSync(path, "utf8").matchAll(/const \w+ = \{ permission: "[a-z:-]+"([^}]*)\}/g)) assert.match(match[1]!, /stepUp: true/, path);
+    }
+    for (const path of files.filter((file) => file.endsWith("route.ts") || file.endsWith("print/page.tsx"))) {
+      assert.match(readFileSync(path, "utf8"), /permission: "finance:export", stepUp: true/, path);
+    }
+  });
+
+  it("checks finance:export in every download", () => {
+    const routes = files.filter((path) => path.endsWith("route.ts"));
+    assert.ok(routes.length >= 2);
+    for (const path of routes) assert.match(readFileSync(path, "utf8"), /can\(actor, "finance:export"\)/, path);
+  });
+});

@@ -3,6 +3,7 @@ import { accountServices, reencryptStoredSecrets } from "./accounts";
 import { pruneRateLimits, reportError } from "./infrastructure";
 import { syncAllCalendars } from "./channels";
 import { bookingService } from "./stays";
+import { catchUpLedger } from "./ledger";
 import { generateHousekeeping } from "./tasks";
 
 /**
@@ -49,7 +50,9 @@ export async function runMaintenanceTasks(tasks: MaintenanceTasks, report: (desc
  *   deletes handled ones past their retention period, and forgets visitor
  *   keys after 24 hours (src/lib/booking/retention.ts).
  * - channelCalendars: imports every channel's calendar (src/server/channels.ts);
- * - housekeepingTasks: adds the clean for today's departures (src/server/tasks.ts).
+ * - housekeepingTasks: adds the clean for today's departures (src/server/tasks.ts);
+ * - ledgerCatchUp: posts any booking whose money or check-out changed in the
+ *   last week and isn't in the books yet (src/server/ledger.ts).
  * Later phases add their own (guest-record retention).
  */
 export function runDailyMaintenance(): Promise<MaintenanceSummary> {
@@ -63,6 +66,7 @@ export function runDailyMaintenance(): Promise<MaintenanceSummary> {
       bookingRequests: () => bookingService().maintenance.housekeeping(),
       channelCalendars: () => syncAllCalendars(),
       housekeepingTasks: () => generateHousekeeping(),
+      ledgerCatchUp: () => catchUpLedger(),
     },
     reportError,
   );

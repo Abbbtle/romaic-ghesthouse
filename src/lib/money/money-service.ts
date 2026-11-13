@@ -24,6 +24,12 @@ export type MoneyServiceDependencies = {
   audit: AuditRecorder;
   access: MoneyAccess;
   timeZone: string;
+  /**
+   * Told after a booking's money changes (a payment, a void, an online
+   * payment settling, an invoice), so the books can post it. It must not
+   * throw: the money is already saved, whatever happens to the posting.
+   */
+  onMoneyChanged?: (bookingId: string) => Promise<void>;
 };
 
 /** A booking's money, as its money page shows it. */
@@ -130,6 +136,7 @@ export function createMoneyService(deps: MoneyServiceDependencies) {
         `${paymentKindNames[draft.kind]} of ${formatCents(draft.amount)} by ${paymentMethodNames[draft.method]} for booking ${booking.ref}${outcome.receiptNumber ? ` (receipt ${outcome.receiptNumber})` : ""}`,
         { type: "payment", id: payment.id },
       );
+      await deps.onMoneyChanged?.(bookingId);
       return done({ receiptNumber: outcome.receiptNumber });
     },
 
@@ -146,6 +153,7 @@ export function createMoneyService(deps: MoneyServiceDependencies) {
         type: "payment",
         id: paymentId,
       });
+      await deps.onMoneyChanged?.(bookingId);
       return done();
     },
 
@@ -185,6 +193,7 @@ export function createMoneyService(deps: MoneyServiceDependencies) {
       };
       const { number } = await store.issueInvoice(invoice);
       await record(actor, "invoice.issued", `Issued invoice ${number} for ${formatCents(invoice.totalCents)} on booking ${booking.ref}`, { type: "invoice", id: invoice.id });
+      await deps.onMoneyChanged?.(bookingId);
       return done({ id: invoice.id, number });
     },
 
@@ -196,6 +205,7 @@ export function createMoneyService(deps: MoneyServiceDependencies) {
       if (!invoice || invoice.bookingId !== bookingId || invoice.status === "void") return refusedWith("This invoice was already voided, or isn't on this booking. Reload the page.");
       if (!(await store.voidInvoice(invoiceId, clock.now(), parsed.value.reason))) return refusedWith("This invoice was already voided. Reload the page.");
       await record(actor, "invoice.voided", `Voided invoice ${invoice.number}: ${parsed.value.reason}`, { type: "invoice", id: invoiceId });
+      await deps.onMoneyChanged?.(bookingId);
       return done();
     },
 
@@ -278,6 +288,7 @@ export function createMoneyService(deps: MoneyServiceDependencies) {
         type: "payment",
         id: payment.id,
       });
+      await deps.onMoneyChanged?.(payment.bookingId);
       return { status: "settled" };
     },
   };

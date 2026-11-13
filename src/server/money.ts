@@ -16,6 +16,7 @@ import { auditRecorder } from "./audit";
 import { contentService } from "./content";
 import { env } from "./env";
 import { clock, database, ids, processSingleton } from "./infrastructure";
+import { syncBookingLedger } from "./ledger";
 
 /**
  * Booking money as the dashboard and the webhook route use it: payments,
@@ -104,6 +105,7 @@ export function moneyService(): MoneyService {
     audit: auditRecorder(),
     access: { can, assertCan },
     timeZone: businessTimeZone,
+    onMoneyChanged: syncBookingLedger,
   });
   return money;
 }
