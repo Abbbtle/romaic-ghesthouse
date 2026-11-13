@@ -1,0 +1,741 @@
+@import "tailwindcss";
+
+/*
+ * Romaic Guesthouse design tokens. Colours, faces and elements come from
+ * the client's brand guide (Edition 1, November 2026; see PRODUCT.md and
+ * DESIGN.md). The layout is the classic accommodation page, done properly.
+ *
+ * Tailwind's own colours, type sizes, weights, radii and shadows are cleared,
+ * so only the brand's exist as utilities. `static` keeps every variable in
+ * the stylesheet, because recipes below (and inline styles) read them with
+ * var() as well as through utilities.
+ *
+ * Contrast (WCAG 2.2, checked 2026-11-12): Ink on Cream 15.1:1; secondary
+ * text #5C5649 on Cream 5.95:1; gold text #74561C on Cream 5.55:1; control
+ * edges #77705F on Cream 4.0:1; white on Midnight Navy 17.1:1; Romaic Gold
+ * on Navy 7.6:1; Ink on Romaic Gold 8.2:1. Romaic Gold and Deep Gold are
+ * never text colours on light grounds (1.8:1 and 2.9:1 on Cream).
+ */
+@theme static {
+  --color-*: initial;
+  --text-*: initial;
+  --font-weight-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  /* Brand primaries (brand guide p5) */
+  --color-romaic-gold: #cba959;
+  --color-midnight-navy: #111d29;
+  --color-ink-black: #151316;
+  --color-cream: #ece8dd;
+
+  /* Brand supporting colours */
+  --color-deep-gold: #aa823a; /* gold shadow; decoration and large shapes only on light grounds */
+  --color-champagne: #e3ce74; /* gold highlight */
+  --color-marble: #eef1f7; /* marble panels behind text */
+  --color-crimson: #be042a; /* sparing accent; also the error colour */
+  /* Corner marks only: never UI colours */
+  --color-royal-purple: #3d2175;
+  --color-coral: #e04922;
+  --color-teal: #119aa0;
+
+  /* Gold, for text and edges that must read on light grounds (derived from Deep Gold). */
+  --color-gold-text: #74561c;
+  --color-gold-300: #e3ce74;
+  --color-gold-400: #cba959;
+  --color-gold-600: #aa823a;
+  --color-gold-800: #74561c;
+
+  /* Warm neutrals, from Cream to Ink: a whisper of gold in every grey. */
+  --color-neutral-25: #faf8f3;
+  --color-neutral-50: #f3f0e8;
+  --color-neutral-100: #ece8dd;
+  --color-neutral-200: #ded8ca;
+  --color-neutral-300: #c9c1ae;
+  --color-neutral-400: #a39b88;
+  --color-neutral-500: #77705f;
+  --color-neutral-600: #5c5649;
+  --color-neutral-700: #4a453b;
+  --color-neutral-800: #2f2c26;
+  --color-neutral-900: #1e1c19;
+  --color-neutral-950: #151316;
+
+  /*
+   * Navy scale. The dashboard components still name the template's "forest"
+   * scale (bg-forest-50, text-forest-900…); it resolves to Midnight Navy here
+   * so they take the brand without edits (DESIGN.md, "To apply in the dashboard").
+   */
+  --color-navy-50: #eef1f5;
+  --color-navy-100: #dce3eb;
+  --color-navy-200: #b9c6d4;
+  --color-navy-300: #8fa2b6;
+  --color-navy-600: #2a3f55;
+  --color-navy-700: #1e2f40;
+  --color-navy-800: #172534;
+  --color-navy-900: #111d29;
+  --color-navy-950: #0b131b;
+  --color-forest-50: var(--color-navy-50);
+  --color-forest-100: var(--color-navy-100);
+  --color-forest-200: var(--color-navy-200);
+  --color-forest-300: var(--color-navy-300);
+  --color-forest-600: var(--color-navy-600);
+  --color-forest-700: var(--color-navy-700);
+  --color-forest-800: var(--color-navy-800);
+  --color-forest-900: var(--color-navy-900);
+  --color-forest-950: var(--color-navy-950);
+
+  /* Semantic states. Danger leans on the brand's Crimson; success is a deep, quiet green. */
+  --color-danger-50: #fcf0f2;
+  --color-danger-100: #f8d9de;
+  --color-danger-600: #be042a;
+  --color-danger-700: #9a0322;
+  --color-danger-800: #7a021b;
+  --color-warning-50: #fbf4e2;
+  --color-warning-100: #f5e6c0;
+  --color-warning-500: #c99a2e;
+  --color-warning-600: #a87a1e;
+  --color-warning-700: #85601a;
+  --color-warning-800: #664a16;
+  --color-info-50: #eef3f9;
+  --color-info-100: #d8e4f1;
+  --color-info-600: #2d5f8f;
+  --color-info-700: #244d75;
+  --color-info-800: #1c3c5c;
+  --color-success-50: #edf5f2;
+  --color-success-100: #d3e8e0;
+  --color-success-600: #1f6b57;
+  --color-success-700: #185645;
+  --color-success-800: #134537;
+
+  /* The WhatsApp glyph only: never text or fills. */
+  --color-whatsapp: #25d366;
+
+  /* Faces (brand guide p6): closest free matches, self-hosted by next/font. */
+  --font-display: var(--font-josefin), "Josefin Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-arimo), Arimo, Arial, ui-sans-serif, system-ui, sans-serif;
+  --font-script: var(--font-sacramento), "Sacramento", cursive;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Type scale: a 1.2 ratio on a 16 px base; display sizes fluid. Tracking lives in the
+     Josefin recipes (src/components/ui/typography.ts), not here, so the dashboard's Arimo
+     titles at these sizes keep normal spacing. */
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.45;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.5;
+  --text-base: 1rem;
+  --text-base--line-height: 1.6;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.55;
+  --text-lead: clamp(1.0625rem, 1.02rem + 0.2vw, 1.1875rem);
+  --text-lead--line-height: 1.6;
+  --text-h4: clamp(1.0625rem, 1.03rem + 0.15vw, 1.125rem);
+  --text-h4--line-height: 1.25;
+  --text-h3: clamp(1.25rem, 1.17rem + 0.35vw, 1.4375rem);
+  --text-h3--line-height: 1.25;
+  --text-h2: clamp(1.5rem, 1.3rem + 0.9vw, 2.0625rem);
+  --text-h2--line-height: 1.15;
+  --text-h1: clamp(1.75rem, 1.4rem + 1.6vw, 2.75rem);
+  --text-h1--line-height: 1.1;
+  --text-hero: clamp(2rem, 1.45rem + 2.6vw, 3.5rem);
+  --text-hero--line-height: 1.1;
+  /* Sacramento accents: large only (brand: never under 18 pt). */
+  --text-script: clamp(2.25rem, 1.8rem + 2vw, 3.5rem);
+  --text-script--line-height: 1.1;
+  --text-price: clamp(1.75rem, 1.6rem + 0.7vw, 2.25rem);
+  --text-price--line-height: 1.1;
+  --text-stat: clamp(2rem, 1.8rem + 0.9vw, 2.6rem);
+  --text-stat--line-height: 1.1;
+  /* The large date numerals in the dates-and-guests search. */
+  --text-date: clamp(2rem, 1.8rem + 1vw, 2.75rem);
+  --text-date--line-height: 1;
+
+  --spacing-section: clamp(3.5rem, 2.5rem + 4.5vw, 6.5rem);
+  --spacing-section-sm: clamp(2.5rem, 2rem + 2.5vw, 4rem);
+  --container-page: 72rem;
+  --container-form: 40rem;
+  --container-admin: 70rem;
+  --container-prose: 42rem;
+
+  /* Square-shouldered, like the gold frames: small radii only. */
+  --radius-xs: 2px;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --radius-pill: 999px;
+  --radius-field: 2px;
+
+  /* Soft, offset, warm shadows, always under 8% opacity on light grounds (a 1 px edge comes first). */
+  --shadow-1: 0 1px 2px rgb(21 19 22 / 0.06), 0 1px 1px rgb(21 19 22 / 0.04);
+  --shadow-2: 0 6px 16px -4px rgb(21 19 22 / 0.07), 0 2px 4px rgb(21 19 22 / 0.04);
+  --shadow-3: 0 18px 40px -12px rgb(17 29 41 / 0.075), 0 4px 10px rgb(17 29 41 / 0.05);
+  --shadow-sheet: 0 -12px 32px rgb(17 29 41 / 0.075);
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --animate-live-pulse: live-pulse 2000ms var(--ease-out) infinite;
+  --animate-skeleton: skeleton 1500ms ease-in-out infinite alternate;
+
+  /* The brand's gold gradient for frame bars (brand guide p5): 100°. */
+  --gradient-gold: linear-gradient(100deg, #aa823a 0%, #e3ce74 38%, #cba959 62%, #aa823a 100%);
+
+  @keyframes live-pulse {
+    from {
+      transform: scale(1);
+      opacity: 0.45;
+    }
+    to {
+      transform: scale(2.4);
+      opacity: 0;
+    }
+  }
+
+  @keyframes skeleton {
+    from {
+      opacity: 0.6;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* The gold bar's one sheen: a highlight crossing the bar, by transform and opacity only. */
+  @keyframes gold-sweep {
+    from {
+      transform: translateX(-120%);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(120%);
+      opacity: 0;
+    }
+  }
+}
+
+/*
+ * Role aliases. Components use these rather than raw scale steps, so a change
+ * of mind happens here. Names are kept from the template so the dashboard's
+ * components take the brand without edits.
+ */
+@theme static {
+  --color-canvas: var(--color-neutral-25);
+  --color-chalk: var(--color-neutral-50);
+  --color-ink: var(--color-ink-black);
+  --color-fg: var(--color-ink-black);
+  --color-fg-2: var(--color-neutral-700);
+  --color-fg-3: var(--color-neutral-600);
+  /* Gold that reads as text on light grounds (5.5:1 on Cream). */
+  --color-fg-brand: var(--color-gold-text);
+  --color-link: var(--color-midnight-navy);
+  --color-link-hover: var(--color-gold-text);
+  --color-primary: var(--color-midnight-navy);
+  --color-primary-hover: var(--color-navy-700);
+  --color-primary-active: var(--color-navy-950);
+  --color-focus: var(--color-midnight-navy);
+  /* Interactive borders (4.0:1 on Cream). Hairlines are structure and decoration only. */
+  --color-control: var(--color-neutral-500);
+  --color-hairline: color-mix(in srgb, var(--color-ink-black) 12%, transparent);
+  --color-band: var(--color-midnight-navy);
+  --color-deep: var(--color-navy-950);
+  --color-on-dark: var(--color-white);
+  --color-on-dark-2: var(--color-cream);
+  --color-on-dark-3: var(--color-navy-200);
+  --color-hairline-on-dark: color-mix(in srgb, var(--color-white) 16%, transparent);
+  --color-scrim: rgb(17 29 41 / 0.55);
+
+  /* Surfaces */
+  --color-surface: var(--color-white);
+  --color-surface-2: var(--color-cream);
+  --color-raised: var(--color-white);
+  --color-grabber: var(--color-neutral-300);
+  --color-field: var(--color-white);
+  --color-media: var(--color-neutral-100);
+  --color-skeleton: var(--color-neutral-100);
+  --color-backdrop: rgb(17 29 41 / 0.55);
+
+  /* Controls */
+  --color-control-hover: var(--color-neutral-800);
+  --color-selected: var(--color-navy-50);
+  --color-selected-border: var(--color-midnight-navy);
+  --color-hairline-strong: color-mix(in srgb, var(--color-ink-black) 24%, transparent);
+
+  /* Action */
+  --color-on-primary: var(--color-white);
+  --color-accent: var(--color-midnight-navy);
+  --color-accent-hover: var(--color-navy-700);
+  --color-accent-pressed: var(--color-navy-950);
+  --color-on-accent: var(--color-white);
+
+  /* States */
+  --color-danger: var(--color-danger-600);
+  --color-danger-fg: var(--color-danger-700);
+  --color-warning-fg: var(--color-warning-800);
+  --color-notice-info-bg: var(--color-info-50);
+  --color-notice-info-fg: var(--color-info-800);
+  --color-notice-info-icon: var(--color-info-600);
+  --color-notice-success-bg: var(--color-success-50);
+  --color-notice-success-fg: var(--color-success-800);
+  --color-notice-success-icon: var(--color-success-600);
+  --color-notice-warning-bg: var(--color-warning-50);
+  --color-notice-warning-fg: var(--color-warning-800);
+  --color-notice-warning-icon: var(--color-warning-700);
+  --color-notice-danger-bg: var(--color-danger-50);
+  --color-notice-danger-fg: var(--color-danger-700);
+  --color-notice-danger-icon: var(--color-danger-600);
+
+  /* Washes and tooltips */
+  --color-wash: var(--color-neutral-50);
+  --color-wash-strong: var(--color-neutral-100);
+  --color-tooltip: var(--color-midnight-navy);
+  --color-on-tooltip: var(--color-white);
+
+  /* Inline marks and text selection: Champagne, the brand's gold highlight. */
+  --color-mark: var(--color-gold-300);
+  --color-selection: var(--color-gold-300);
+  --color-on-selection: var(--color-ink-black);
+
+  /* Button variants that are not primary */
+  --color-btn-secondary-bg: var(--color-white);
+  --color-btn-secondary-fg: var(--color-ink-black);
+  --color-btn-secondary-border: var(--color-ink-black);
+  --color-btn-secondary-hover: var(--color-neutral-25);
+  --color-btn-secondary-active: var(--color-neutral-50);
+  --color-btn-whatsapp-bg: var(--color-midnight-navy);
+  --color-btn-whatsapp-fg: var(--color-white);
+  --color-btn-whatsapp-hover: var(--color-navy-700);
+}
+
+/* For the rare shared-component class that must differ on the public site: site:rounded-pill */
+@custom-variant site (&:where(.theme-site, .theme-site *));
+
+:root {
+  /* Light only: the brand is Cream, gold and navy, and the owner works in daylight. */
+  color-scheme: light;
+
+  /* Chrome heights, for sticky offsets and anchor scrolling. */
+  --site-header-height: 4.25rem;
+  /* The public booking dock and the admin tab bar on phones, plus the home-indicator area. */
+  --dock-height: 4rem;
+  --admin-tab-bar-height: 4rem;
+  --admin-bottom-inset: calc(var(--admin-tab-bar-height) + env(safe-area-inset-bottom));
+
+  @media (width >= 64rem) {
+    --site-header-height: 5rem;
+    --admin-bottom-inset: 0px;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Utilities                                                           */
+/* ------------------------------------------------------------------ */
+
+/* A custom-drawn checkbox: control border, navy fill with a white tick. */
+@utility check-box {
+  appearance: none;
+  display: inline-grid;
+  place-content: center;
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 1.5px solid var(--color-control);
+  border-radius: var(--radius-xs);
+  background: var(--color-field);
+  transition: background-color 150ms, border-color 150ms;
+
+  &::before {
+    content: "";
+    width: 0.7rem;
+    height: 0.7rem;
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+    background: var(--color-white);
+    transform: scale(0);
+    transition: transform 120ms var(--ease-out);
+  }
+
+  &:hover {
+    border-color: var(--color-control-hover);
+  }
+
+  &:checked {
+    border-color: var(--color-primary);
+    background: var(--color-primary);
+  }
+
+  &:checked::before {
+    transform: scale(1);
+  }
+
+  @media (forced-colors: active) {
+    &:checked::before {
+      background: CanvasText;
+    }
+  }
+}
+
+/* A radio drawn as a ring that fills when chosen. */
+@utility radio-dot {
+  appearance: none;
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 1.5px solid var(--color-control);
+  border-radius: 50%;
+  background: var(--color-field);
+  transition: border-color 150ms, box-shadow 150ms;
+
+  &:checked {
+    border-color: var(--color-selected-border);
+    box-shadow: inset 0 0 0 4px var(--color-field), inset 0 0 0 10px var(--color-selected-border);
+  }
+
+  @media (forced-colors: active) {
+    &:checked {
+      background: CanvasText;
+    }
+  }
+}
+
+/* The chevron on native selects, in the secondary text colour. */
+@utility select-chevron {
+  appearance: none;
+  padding-right: 2.5rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%235c5649' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 0.85rem center;
+  background-repeat: no-repeat;
+
+  @media (forced-colors: active) {
+    background-image: none;
+  }
+}
+
+/* Hides a scrollbar while keeping the region scrollable (date strips). */
+@utility scrollbar-none {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Loaders wait 100 ms before showing, so quick answers never flash. */
+@utility appear-after-delay {
+  animation: appear 1ms linear 100ms both;
+}
+
+@keyframes appear {
+  from {
+    visibility: hidden;
+  }
+  to {
+    visibility: visible;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Brand recipes (brand guide p8)                                      */
+/* ------------------------------------------------------------------ */
+
+@layer components {
+  /*
+   * Inside a dark surface (the navy contact bar, dark panels), the role
+   * colours turn light by themselves.
+   */
+  .on-dark {
+    --color-ink: var(--color-white);
+    --color-fg: var(--color-white);
+    --color-fg-2: var(--color-cream);
+    --color-fg-3: var(--color-navy-200);
+    --color-fg-brand: var(--color-romaic-gold);
+    --color-link: var(--color-white);
+    --color-link-hover: var(--color-champagne);
+    --color-focus: var(--color-champagne);
+    --color-hairline: var(--color-hairline-on-dark);
+    color: var(--color-fg);
+  }
+
+  /*
+   * The gold frame bar: a metallic gold band that holds a headline (black
+   * bold type on gold, 8.2:1 at its lightest stop's neighbour). Never behind
+   * body text. The sweep plays once, only after the visitor interacts and
+   * never under reduced motion (see .is-animated, set by the motion gate).
+   */
+  .gold-bar {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    display: block;
+    padding: 0.7em 1.1em 0.6em;
+    background-image: var(--gradient-gold);
+    background-size: 100% 100%;
+    color: var(--color-ink-black);
+    text-align: center;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35), inset 0 -1px 0 rgb(21 19 22 / 0.12);
+  }
+
+  .gold-bar[data-sweep]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(100deg, transparent 30%, rgb(255 255 255 / 0.5) 50%, transparent 70%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .is-animated .gold-bar[data-sweep]::after {
+      animation: gold-sweep 300ms var(--ease-out) both;
+    }
+  }
+
+  /* A thin gold rule: dividers and the line under the contact bar label. */
+  .gold-rule {
+    height: 2px;
+    border: 0;
+    background-image: var(--gradient-gold);
+  }
+
+  /* The thin gold frame every photo wears (brand guide p7). */
+  .photo-frame {
+    border: 4px solid var(--color-romaic-gold);
+    background: var(--color-media);
+    box-shadow: var(--shadow-1);
+  }
+
+  /*
+   * Soft white panels behind text: the brand's Marble White, flat. The
+   * client's Carrara texture replaces it when the file arrives; it isn't
+   * imitated in CSS meanwhile.
+   */
+  /* Focus never lands under the dashboard's sticky header, save bar or tab bar (fields carry the same margins). */
+  [data-admin-shell] :is(a, button, summary, [tabindex]) {
+    scroll-margin-top: 6rem;
+    scroll-margin-bottom: 11rem;
+  }
+
+  .marble {
+    background-color: var(--color-marble);
+  }
+
+  /* The live dot: 8 px with a ring; it pulses only while live. */
+  .live-dot {
+    position: relative;
+    display: inline-block;
+    flex: none;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--color-success-600);
+  }
+
+  .live-dot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: inherit;
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .live-dot[data-state="live"]::after {
+      animation: var(--animate-live-pulse);
+    }
+  }
+
+  .live-dot[data-state="reconnecting"] {
+    background: var(--color-warning-600);
+  }
+
+  .live-dot[data-state="connecting"],
+  .live-dot[data-state="offline"] {
+    background: var(--color-neutral-400);
+  }
+
+  /* Quiet links: underlined on hover only, for footers and secondary actions. */
+  .quiet-link {
+    color: var(--color-link);
+    text-decoration-line: underline;
+    text-decoration-color: transparent;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.25em;
+    transition: text-decoration-color 150ms, color 150ms;
+  }
+
+  .quiet-link:hover {
+    color: var(--color-link-hover);
+    text-decoration-color: currentColor;
+  }
+
+  .quiet-link__label {
+    text-decoration: inherit;
+  }
+
+  /* Long-form text: the privacy notice and other legal pages. */
+  .prose {
+    max-width: var(--container-prose);
+    color: var(--color-fg);
+    font-size: var(--text-base);
+    line-height: 1.7;
+  }
+
+  .prose > * + * {
+    margin-top: 1em;
+  }
+
+  .prose a {
+    color: var(--color-link);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .prose a:hover {
+    color: var(--color-link-hover);
+  }
+
+  .prose__h2,
+  .prose h2 {
+    margin-top: 2.25em;
+    font-family: var(--font-display);
+    font-size: var(--text-h3);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1.25;
+  }
+
+  .prose__h3,
+  .prose h3 {
+    margin-top: 1.75em;
+    font-size: var(--text-h4);
+    font-weight: 700;
+    line-height: 1.35;
+  }
+
+  .prose__h4,
+  .prose h4 {
+    margin-top: 1.5em;
+    font-size: var(--text-base);
+    font-weight: 700;
+  }
+
+  .prose__list,
+  .prose ul,
+  .prose ol {
+    padding-left: 1.25em;
+  }
+
+  .prose ul {
+    list-style: disc;
+  }
+
+  .prose ol {
+    list-style: decimal;
+  }
+
+  .prose li + li {
+    margin-top: 0.35em;
+  }
+
+  .prose li::marker {
+    color: var(--color-gold-text);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Base                                                                */
+/* ------------------------------------------------------------------ */
+
+@layer base {
+  html {
+    background: var(--color-canvas);
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    scrollbar-color: var(--color-neutral-400) var(--color-neutral-50);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    caret-color: var(--color-midnight-navy);
+    font-variant-ligatures: common-ligatures;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+
+  p,
+  li,
+  dd {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: var(--color-selection);
+    color: var(--color-on-selection);
+  }
+
+  mark {
+    background: var(--color-mark);
+    color: var(--color-ink-black);
+    padding: 0 0.15em;
+  }
+
+  a {
+    text-underline-offset: 0.2em;
+    text-decoration-thickness: from-font;
+  }
+
+  /* One focus ring everywhere: 2 px, offset, the focus colour (navy, or Champagne on dark). */
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  /* Figures that line up: tables, prices, dates and codes. */
+  table,
+  time,
+  [data-numeric] {
+    font-variant-numeric: tabular-nums;
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    font: inherit;
+  }
+
+  ::placeholder {
+    color: var(--color-fg-3);
+    opacity: 1;
+  }
+
+  /* Native dialogs share the scrim. */
+  dialog::backdrop {
+    background: var(--color-backdrop, rgb(17 29 41 / 0.55));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 1ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 1ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
