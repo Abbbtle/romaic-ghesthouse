@@ -1,21 +1,20 @@
-import { Accessibility, ArrowLeft, Bath, BedDouble, Check, Eye, Users } from "lucide-react";
+import { Accessibility, ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { AvailabilityCalendar } from "@/components/site/availability-calendar";
 import { fromPriceLabel } from "@/components/site/apartment-summary";
-import { ContentPhoto } from "@/components/site/content-photo";
+import { ContentPhoto, FramedPhoto } from "@/components/site/content-photo";
 import { DatesSearch } from "@/components/site/dates-search";
-import { GoldBarHeading } from "@/components/site/gold-bar-heading";
 import { PageBand } from "@/components/site/page-heading";
 import { siteFactsOf, whatsappWith } from "@/components/site/site-facts";
 import { dockAfterId } from "@/components/site/site-dock";
+import { siteText } from "@/components/site/site-type";
 import { ToConfirm } from "@/components/site/to-confirm";
 import { buttonClasses } from "@/components/ui/button";
 import { cx } from "@/components/ui/cx";
 import { Paragraphs } from "@/components/ui/paragraphs";
-import { textStyles } from "@/components/ui/typography";
 import { VisuallyHidden, whatsappHint } from "@/components/ui/visually-hidden";
 import { apartmentPath, sitePagePaths } from "@/lib/content/pages";
 import type { Apartment } from "@/lib/content/schema";
@@ -48,24 +47,22 @@ export async function generateMetadata({ params }: PageProps<"/rooms/[slug]">): 
   };
 }
 
-function Fact({ icon, label, children }: { icon: ReactNode; label: string; children: ReactNode }) {
+/** One of the room's facts, the approved design's way: a hairline above, a gold label, then the fact. */
+function Fact({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="grid grid-cols-[1.5rem_1fr] gap-3">
-      <span className="mt-0.5 text-gold-text">{icon}</span>
-      <div>
-        <dt className="text-sm font-bold text-fg-3">{label}</dt>
-        <dd className="text-base text-ink">{children}</dd>
-      </div>
+    <div className="grid content-start gap-1 border-t border-hairline py-4">
+      <dt className={siteText.label}>{label}</dt>
+      <dd className="text-ink">{children}</dd>
     </div>
   );
 }
 
 /**
- * One room type: its photos in gold frames, who it sleeps, its beds,
- * bathroom and view, what's in it, how accessible it is in exact words,
- * which nights are free over the next two months, and a dates search that
- * asks about this room. Details the owner hasn't confirmed are marked
- * "To confirm".
+ * One room type: its photos (the first large in the gold hairline frame),
+ * who it sleeps, its beds, bathroom and view, the nightly price from the
+ * rates, what's in it, how accessible it is in exact words, which nights
+ * are free over the next two months, and a dates search that asks about
+ * this room. Details the owner hasn't confirmed are marked "To confirm".
  */
 export default async function ApartmentPage({ params }: PageProps<"/rooms/[slug]">) {
   const { slug } = await params;
@@ -79,97 +76,89 @@ export default async function ApartmentPage({ params }: PageProps<"/rooms/[slug]
   const nights = await inventory.calendar(apartment.slug, today, calendarNights);
   const setUp = nights.some((night) => night.status !== "not-set-up");
   const [lead, ...more] = apartment.photos;
-  const icon = "size-5";
 
   return (
     <main id="main" className="flex-1">
-      <PageBand tone="cream" className="grid gap-8 lg:grid-cols-12 lg:items-start lg:gap-12">
-        <div className="grid gap-3 lg:order-last lg:col-span-7">
+      <PageBand spacing="head" className="grid gap-x-16 gap-y-10 lg:grid-cols-12 lg:items-start">
+        <div className="grid gap-6 lg:order-last lg:col-span-7">
           {lead ? (
-            <ContentPhoto image={lead} preload sizes="(min-width: 1024px) 40rem, calc(100vw - 2rem)" />
+            <FramedPhoto image={lead} preload sizes="(min-width: 1024px) 44rem, calc(100vw - 3rem)" />
           ) : (
-            <div data-placeholder="photo" className="photo-frame flex aspect-4/3 items-center justify-center bg-neutral-100 text-sm text-fg-3">
+            <div data-placeholder="photo" className="flex aspect-4/3 items-center justify-center bg-navy-850 text-sm text-on-navy-2">
               Photo to come
             </div>
           )}
           {more.length > 0 && (
-            <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3">
               {more.map((photo) => (
                 <li key={photo.src}>
-                  <ContentPhoto image={photo} sizes="(min-width: 1024px) 13rem, 45vw" />
+                  <ContentPhoto image={photo} sizes="(min-width: 1024px) 14rem, 45vw" />
                 </li>
               ))}
             </ul>
           )}
         </div>
         <div className="grid content-start gap-6 lg:col-span-5">
-          <p className="text-sm">
-            <Link href={sitePagePaths.apartments} className="inline-flex min-h-11 items-center gap-1.5 font-bold text-link underline underline-offset-4 hover:text-link-hover">
-              <ArrowLeft aria-hidden="true" strokeWidth={1.75} className="size-4" />
+          <p>
+            <Link
+              href={sitePagePaths.apartments}
+              className="inline-flex min-h-11 items-center gap-2 font-display text-nav tracking-[0.04em] text-ink transition-colors hover:text-gold-text"
+            >
+              <ArrowLeft aria-hidden="true" strokeWidth={1.5} className="size-4" />
               All rooms
             </Link>
           </p>
-          <GoldBarHeading as="h1" size="hero" sweep>
-            {apartment.name}
-          </GoldBarHeading>
-          {!apartment.confirmed && <ToConfirm className="justify-self-start" />}
-          <p className={textStyles.lead}>{apartment.summary}</p>
-          {/* From 1024 px the facts follow the price and the dates button, so the button is on the first screen. */}
-          <dl className="grid gap-4 border-y border-romaic-gold/60 py-5 lg:order-last">
-            <Fact icon={<Users aria-hidden="true" strokeWidth={1.5} className={icon} />} label="Sleeps">
-              Up to {apartment.sleeps} {apartment.sleeps === 1 ? "guest" : "guests"}
-            </Fact>
-            <Fact icon={<BedDouble aria-hidden="true" strokeWidth={1.5} className={icon} />} label="Beds">
-              {apartment.beds}
-            </Fact>
-            <Fact icon={<Bath aria-hidden="true" strokeWidth={1.5} className={icon} />} label="Bathroom">
-              {apartment.bathroom}
-            </Fact>
-            {apartment.view && (
-              <Fact icon={<Eye aria-hidden="true" strokeWidth={1.5} className={icon} />} label="View">
-                {apartment.view}
-              </Fact>
-            )}
-          </dl>
+          <div className="grid justify-items-start gap-3">
+            <h1 className={siteText.section}>{apartment.name}</h1>
+            {!apartment.confirmed && <ToConfirm />}
+          </div>
+          <p className={siteText.lede}>{apartment.summary}</p>
           {fromCents === null ? (
-            <p data-placeholder="price" className="text-base text-fg-2">
-              <strong className="text-ink">Price on request.</strong> Send a request with your dates and we&rsquo;ll reply with the price.
+            <p data-placeholder="price" className="text-fg-2">
+              <strong className="font-display text-title-sm font-normal text-ink">Price on request.</strong> Send a request with your dates and we&rsquo;ll reply with
+              the price.
             </p>
           ) : (
-            <p className="text-base text-fg-2">
-              <strong className="text-price font-bold text-ink" data-numeric>
+            <p className="grid gap-1 text-fg-2">
+              <strong className="font-display text-title font-normal text-ink" data-numeric>
                 {fromPriceLabel(fromCents)}
               </strong>
-              <br />
-              Check your dates for the price of your stay: prices can change with the season.
+              <span className="text-[0.9375rem]">Check your dates for the price of your stay: prices can change with the season.</span>
             </p>
           )}
           {/* From 1024 px the dates panel sits lower, beside the details: this brings it into reach from the first screen. */}
           <a href="#ask-title" className={buttonClasses({ variant: "primary", size: "lg" }, "hidden justify-self-start lg:inline-flex")}>
             Check dates for this room
           </a>
+          <dl className="grid gap-x-8 sm:grid-cols-2">
+            <Fact label="Sleeps">
+              Up to {apartment.sleeps} {apartment.sleeps === 1 ? "guest" : "guests"}
+            </Fact>
+            <Fact label="Beds">{apartment.beds}</Fact>
+            <Fact label="Bathroom">{apartment.bathroom}</Fact>
+            {apartment.view && <Fact label="View">{apartment.view}</Fact>}
+          </dl>
         </div>
       </PageBand>
 
-      <PageBand className="grid gap-12 lg:grid-cols-12 lg:gap-12">
-        <div className="grid content-start gap-10 lg:col-span-7">
+      <PageBand className="grid gap-x-16 gap-y-14 border-t border-hairline pt-band-sm lg:grid-cols-12">
+        <div className="grid content-start gap-14 lg:col-span-7">
           {apartment.description && (
-            <section aria-labelledby="about-title" className="grid gap-4">
-              <h2 id="about-title" className={textStyles.h2}>
+            <section aria-labelledby="about-title" className="grid gap-5">
+              <h2 id="about-title" className={siteText.sub}>
                 About this room
               </h2>
-              <Paragraphs text={apartment.description} className={textStyles.body} />
+              <Paragraphs text={apartment.description} className={siteText.body} />
             </section>
           )}
           {apartment.features.length > 0 && (
-            <section aria-labelledby="features-title" className="grid gap-4">
-              <h2 id="features-title" className={textStyles.h2}>
+            <section aria-labelledby="features-title" className="grid gap-5">
+              <h2 id="features-title" className={siteText.sub}>
                 In the room
               </h2>
-              <ul className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
+              <ul className="grid gap-x-10 sm:grid-cols-2">
                 {apartment.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-3 text-base">
-                    <Check aria-hidden="true" strokeWidth={1.75} className="mt-0.5 size-5 shrink-0 text-gold-text" />
+                  <li key={feature} className="flex items-baseline gap-3 border-t border-hairline py-3 before:size-1.5 before:shrink-0 before:translate-y-[-0.15em] before:bg-romaic-gold before:content-['']">
                     {feature}
                   </li>
                 ))}
@@ -177,32 +166,27 @@ export default async function ApartmentPage({ params }: PageProps<"/rooms/[slug]
             </section>
           )}
           {apartment.accessibility && (
-            <section aria-labelledby="access-title" className="grid gap-4 border-l-4 border-romaic-gold bg-white p-5">
-              <h2 id="access-title" className="flex items-center gap-3 text-h3 font-bold text-ink">
+            <section aria-labelledby="access-title" className="grid gap-4 border-t-2 border-romaic-gold bg-white p-6">
+              <h2 id="access-title" className={cx(siteText.title, "flex items-center gap-3")}>
                 <Accessibility aria-hidden="true" strokeWidth={1.5} className="size-6 text-gold-text" />
                 Accessibility
               </h2>
-              <Paragraphs text={apartment.accessibility} className={textStyles.body} />
+              <Paragraphs text={apartment.accessibility} className={siteText.body} />
             </section>
           )}
-          <section id="free-nights" aria-labelledby="calendar-title" className="grid scroll-mt-6 gap-4">
-            <h2 id="calendar-title" className={textStyles.h2}>
+          <section id="free-nights" aria-labelledby="calendar-title" className="grid scroll-mt-6 gap-5">
+            <h2 id="calendar-title" className={siteText.sub}>
               Free nights
             </h2>
             {setUp ? (
               <>
-                <p className={textStyles.secondary}>The next two months. A booked night is taken in every room of this type.</p>
+                <p className={siteText.secondary}>The next two months. A booked night is taken in every room of this type.</p>
                 <AvailabilityCalendar nights={nights} />
               </>
             ) : (
-              <p className={textStyles.body}>
+              <p className={siteText.body}>
                 We don&rsquo;t show this room&rsquo;s calendar online yet. Send a request with your dates, or{" "}
-                <a
-                  href={whatsappWith(facts, `Hi, is the ${apartment.name} free on my dates?`)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-bold text-link underline underline-offset-4 hover:text-link-hover"
-                >
+                <a href={whatsappWith(facts, `Hi, is the ${apartment.name} free on my dates?`)} target="_blank" rel="noopener noreferrer" className={siteText.link}>
                   WhatsApp us
                   <VisuallyHidden>{whatsappHint}</VisuallyHidden>
                 </a>
@@ -212,8 +196,8 @@ export default async function ApartmentPage({ params }: PageProps<"/rooms/[slug]
           </section>
         </div>
         {/* On phones the dates come straight after the price line, before the details; from 1024 px they sit beside them. */}
-        <aside aria-labelledby="ask-title" className="order-first grid content-start gap-4 lg:sticky lg:top-6 lg:order-none lg:col-span-5">
-          <h2 id="ask-title" className={cx(textStyles.h3, "scroll-mt-6")}>
+        <aside aria-labelledby="ask-title" className="order-first grid content-start gap-5 lg:sticky lg:top-6 lg:order-none lg:col-span-5">
+          <h2 id="ask-title" className={cx(siteText.title, "scroll-mt-6")}>
             Ask about your dates
           </h2>
           <div id={dockAfterId}>

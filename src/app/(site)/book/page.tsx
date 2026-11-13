@@ -1,4 +1,4 @@
-import { BedDouble, CalendarCheck, Users } from "lucide-react";
+import { CalendarCheck } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ContentPhoto } from "@/components/site/content-photo";
@@ -12,7 +12,7 @@ import { buttonClasses } from "@/components/ui/button";
 import { cx } from "@/components/ui/cx";
 import { Notice } from "@/components/ui/notice";
 import { Paragraphs } from "@/components/ui/paragraphs";
-import { textStyles } from "@/components/ui/typography";
+import { siteText } from "@/components/site/site-type";
 import { VisuallyHidden, whatsappHint } from "@/components/ui/visually-hidden";
 import { apartmentPath, sitePagePaths } from "@/lib/content/pages";
 import type { Apartment } from "@/lib/content/schema";
@@ -101,7 +101,7 @@ function TooShort({ minNights, search }: { minNights: number; search: StaySearch
   return (
     <p className="text-base text-fg-2">
       <strong className="font-bold text-ink">Needs at least {minNights} nights</strong> for these dates ·{" "}
-      <Link href={bookHref(longer)} className="font-bold text-link underline underline-offset-4 hover:text-link-hover">
+      <Link href={bookHref(longer)} className="font-bold text-link underline decoration-romaic-gold decoration-2 underline-offset-[6px] hover:decoration-current">
         Try {formatDayShort(longer.arrive)} to {formatDayShort(longer.leave)} instead
       </Link>
     </p>
@@ -125,32 +125,25 @@ function ResultCard({
   const photo = apartment.photos[0];
   const bookable = result.status !== "full";
   return (
-    <li className="grid gap-4 border border-hairline bg-white p-4 sm:grid-cols-[14rem_1fr] sm:gap-6 sm:p-5">
+    <li className="grid gap-5 border-t border-hairline pt-6 sm:grid-cols-[16rem_1fr] sm:gap-8">
       <div className={bookable ? undefined : "opacity-70"}>
         {photo ? (
-          <ContentPhoto image={photo} sizes="(min-width: 640px) 14rem, calc(100vw - 4rem)" />
+          <ContentPhoto image={photo} sizes="(min-width: 640px) 16rem, calc(100vw - 2.5rem)" />
         ) : (
-          <div data-placeholder="photo" className="photo-frame flex aspect-4/3 items-center justify-center bg-neutral-100 text-sm text-fg-3">
+          <div data-placeholder="photo" className="flex aspect-4/3 items-center justify-center bg-navy-850 text-sm text-on-navy-2">
             Photo to come
           </div>
         )}
       </div>
       <div className="grid content-start gap-3">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-          <h3 className={cx(textStyles.h3, !bookable && "text-fg-2")}>{apartment.name}</h3>
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-2">
+          <h3 className={cx(siteText.title, !bookable && "text-fg-2")}>{apartment.name}</h3>
           {!apartment.confirmed && <ToConfirm />}
         </div>
-        <p className="flex flex-wrap gap-x-5 gap-y-1 text-base text-fg-2">
-          <span className="inline-flex items-center gap-1.5">
-            <Users aria-hidden="true" strokeWidth={1.5} className="size-4 text-gold-text" />
-            Sleeps up to {apartment.sleeps}
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <BedDouble aria-hidden="true" strokeWidth={1.5} className="size-4 text-gold-text" />
-            {apartment.beds}
-          </span>
+        <p className="text-fg-2">
+          Sleeps up to {apartment.sleeps} · {apartment.beds}
         </p>
-        <p className="text-base text-fg-2">{apartment.summary}</p>
+        <p className="text-[0.9375rem] text-fg-2">{apartment.summary}</p>
         {bookable && quote && !quote.meetsMinimum ? (
           <TooShort minNights={quote.minNights} search={search} />
         ) : (
@@ -166,7 +159,7 @@ function ResultCard({
               <VisuallyHidden>: {apartment.name}</VisuallyHidden>
             </Link>
           )}
-          <Link href={apartmentPath(apartment.slug)} className="inline-flex min-h-11 items-center font-bold text-link underline underline-offset-4 hover:text-link-hover">
+          <Link href={apartmentPath(apartment.slug)} className="inline-flex min-h-11 items-center font-bold text-link underline decoration-romaic-gold decoration-2 underline-offset-[6px] hover:decoration-current">
             See the room
             <VisuallyHidden>: {apartment.name}</VisuallyHidden>
           </Link>
@@ -216,9 +209,10 @@ export default async function BookPage({ searchParams }: PageProps<"/book">) {
   if (!search) {
     return (
       <main id="main" className="flex-1">
-        <PageBand tone="cream" className="grid gap-10 lg:grid-cols-12">
-          <div className="lg:col-span-6">
-            <PageHeading title={book.heading} intro={book.intro} />
+        <PageBand spacing="head" className="grid gap-x-16 gap-y-10 lg:grid-cols-12 lg:items-end">
+          <div className="grid gap-6 lg:col-span-6">
+            <h1 className={siteText.page}>{book.heading}</h1>
+            {book.intro && <Paragraphs text={book.intro} className={siteText.lede} />}
           </div>
           <div className="lg:col-span-6">{searchForm}</div>
         </PageBand>
@@ -242,18 +236,18 @@ export default async function BookPage({ searchParams }: PageProps<"/book">) {
 
   return (
     <main id="main" className="flex-1">
-      <PageBand tone="cream" className="grid gap-6">
+      <PageBand spacing="head" className="grid gap-6">
         <PageHeading title={book.heading}>
           {/* While requesting, the stay is summarised beside the form instead, once. */}
           {!requesting && (
-            <p className="text-lead font-bold text-ink" data-numeric>
+            <p className="font-display text-title font-normal text-ink" data-numeric>
               {summary}
             </p>
           )}
         </PageHeading>
         {!requesting && (
           <details className="group max-w-md">
-            <summary className="inline-flex min-h-11 cursor-pointer items-center font-bold text-link underline underline-offset-4 hover:text-link-hover">
+            <summary className="inline-flex min-h-11 cursor-pointer items-center font-bold text-link underline decoration-romaic-gold decoration-2 underline-offset-[6px] hover:decoration-current">
               Change dates or guests
             </summary>
             <div className="pt-4">{searchForm}</div>
@@ -262,15 +256,15 @@ export default async function BookPage({ searchParams }: PageProps<"/book">) {
       </PageBand>
 
       {chosen?.ok && chosenApartment ? (
-        <PageBand className="grid gap-10 lg:grid-cols-12">
+        <PageBand className="grid gap-x-16 gap-y-10 lg:grid-cols-12">
           {/* The dock waits until this whole section has scrolled past, so it never covers the form being filled in. */}
           <div id={dockAfterId} className="lg:col-span-7">
-          <section id="request" aria-labelledby="request-title" className="grid content-start gap-6">
-            <div className="grid gap-3">
-              <h2 id="request-title" className={textStyles.h2}>
+          <section id="request" aria-labelledby="request-title" className="grid content-start gap-8">
+            <div className="grid gap-4">
+              <h2 id="request-title" className={siteText.sub}>
                 Request the {chosenApartment.name}
               </h2>
-              {book.requestNote && <Paragraphs text={book.requestNote} className={textStyles.body} />}
+              {book.requestNote && <Paragraphs text={book.requestNote} className={siteText.body} />}
               {chosen.status === "not-set-up" && (
                 <Notice tone="info">We&rsquo;ll check this room is free for your dates and confirm when we reply.</Notice>
               )}
@@ -297,14 +291,14 @@ export default async function BookPage({ searchParams }: PageProps<"/book">) {
           </div>
           {/* What's being asked for comes first on phones, so nobody fills in a form for a room they can't see. */}
           <aside aria-label="Your stay" className="order-first grid content-start gap-4 lg:order-none lg:col-span-5">
-            <div className="grid grid-cols-[6rem_1fr] items-start gap-4 border-t-4 border-romaic-gold bg-white p-4 lg:grid-cols-1 lg:p-5">
+            <div className="grid grid-cols-[6rem_1fr] items-start gap-4 border-t-2 border-romaic-gold bg-white p-4 lg:grid-cols-1 lg:p-6">
               {chosenApartment.photos[0] ? (
                 <ContentPhoto image={chosenApartment.photos[0]} sizes="(min-width: 1024px) 24rem, 6rem" />
               ) : (
                 <span aria-hidden="true" />
               )}
               <div className="grid gap-1">
-                <p className="text-h4 font-bold text-ink">{chosenApartment.name}</p>
+                <p className={siteText.title}>{chosenApartment.name}</p>
                 <p className="text-base text-fg-2" data-numeric>
                   {summary}
                 </p>
@@ -319,14 +313,14 @@ export default async function BookPage({ searchParams }: PageProps<"/book">) {
                   </p>
                 )}
                 <p className="mt-1">
-                  <Link href={bookHref(search)} className="inline-flex min-h-11 items-center font-bold text-link underline underline-offset-4 hover:text-link-hover">
+                  <Link href={bookHref(search)} className="inline-flex min-h-11 items-center font-bold text-link underline decoration-romaic-gold decoration-2 underline-offset-[6px] hover:decoration-current">
                     Choose another room
                   </Link>
                 </p>
               </div>
             </div>
             <details className="max-w-md">
-              <summary className="inline-flex min-h-11 cursor-pointer items-center font-bold text-link underline underline-offset-4 hover:text-link-hover">
+              <summary className="inline-flex min-h-11 cursor-pointer items-center font-bold text-link underline decoration-romaic-gold decoration-2 underline-offset-[6px] hover:decoration-current">
                 Change dates or guests
               </summary>
               <div className="pt-4">{searchForm}</div>
@@ -341,11 +335,11 @@ export default async function BookPage({ searchParams }: PageProps<"/book">) {
             </Notice>
           )}
           <section aria-labelledby="results-title" className="grid gap-5">
-            <h2 id="results-title" className={textStyles.h2}>
+            <h2 id="results-title" className={siteText.sub}>
               {fitting.some((result) => result.status !== "full") ? "Rooms for your stay" : "Nothing free for these dates"}
             </h2>
             {fitting.length > 0 ? (
-              <ul className="grid gap-5">
+              <ul className="grid gap-8">
                 {fitting.map((result) => (
                   <ResultCard
                     key={result.slug}
@@ -358,10 +352,10 @@ export default async function BookPage({ searchParams }: PageProps<"/book">) {
                 ))}
               </ul>
             ) : (
-              <p className={textStyles.body}>None of our rooms sleeps {search.guests} guests on its own. WhatsApp or call us and we&rsquo;ll find a way.</p>
+              <p className={siteText.body}>None of our rooms sleeps {search.guests} guests on its own. WhatsApp or call us and we&rsquo;ll find a way.</p>
             )}
             {fitting.length > 0 && fitting.every((result) => result.status === "full") && (
-              <p className={textStyles.body}>Try other dates, or WhatsApp us: we may be able to help.</p>
+              <p className={siteText.body}>Try other dates, or WhatsApp us: we may be able to help.</p>
             )}
           </section>
           {tooSmall.length > 0 && (
@@ -374,7 +368,7 @@ export default async function BookPage({ searchParams }: PageProps<"/book">) {
                   const apartment = bySlug.get(result.slug)!;
                   return (
                     <li key={result.slug}>
-                      <Link href={apartmentPath(apartment.slug)} className="font-bold text-link underline underline-offset-4 hover:text-link-hover">
+                      <Link href={apartmentPath(apartment.slug)} className="font-bold text-link underline decoration-romaic-gold decoration-2 underline-offset-[6px] hover:decoration-current">
                         {apartment.name}
                       </Link>{" "}
                       sleeps up to {apartment.sleeps}
@@ -390,7 +384,7 @@ export default async function BookPage({ searchParams }: PageProps<"/book">) {
               href={whatsappWith(facts, `Hi, I'm looking at ${summary}.`)}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-bold text-link underline underline-offset-4 hover:text-link-hover"
+              className="font-bold text-link underline decoration-romaic-gold decoration-2 underline-offset-[6px] hover:decoration-current"
             >
               WhatsApp us
               <VisuallyHidden>{whatsappHint}</VisuallyHidden>

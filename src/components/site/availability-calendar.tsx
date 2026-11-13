@@ -33,7 +33,7 @@ export function AvailabilityCalendar({ nights, className }: { nights: readonly N
       <div className="grid gap-8 sm:grid-cols-2">
         {months.map(({ month, cells }) => (
           <table key={month} className="w-full table-fixed border-collapse text-center">
-            <caption className="pb-3 text-left font-display text-base font-semibold tracking-[0.14em] text-ink uppercase">{formatMonth(month)}</caption>
+            <caption className="pb-3 text-left font-display text-title-sm font-normal text-ink">{formatMonth(month)}</caption>
             <thead>
               <tr>
                 {isoWeekdays.map((day) => (

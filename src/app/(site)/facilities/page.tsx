@@ -11,12 +11,12 @@ export function generateMetadata(): Promise<Metadata> {
   return pageMetadata("facilities");
 }
 
-/** What the guesthouse offers, in groups, each with its gold line icon; anything the owner hasn't confirmed is marked. */
+/** What the guesthouse offers, in groups, each item with its gold line icon; anything the owner hasn't confirmed is marked. */
 export default async function FacilitiesPage() {
   const { facilities } = await getSiteContent();
   return (
     <main id="main" className="flex-1">
-      <PageBand tone="cream">
+      <PageBand spacing="head">
         <PageHeading title={facilities.heading} intro={facilities.intro} />
       </PageBand>
       <PageBand>
