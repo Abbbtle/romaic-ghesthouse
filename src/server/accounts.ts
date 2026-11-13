@@ -20,7 +20,7 @@ import type { FieldCipher } from "@/lib/kernel/ports";
 import { adminPaths } from "./admin-paths";
 import { auditRecorder, scriptAuditStore } from "./audit";
 import { env, type ServerEnv } from "./env";
-import { clock, database, emailSender, fieldCipher, ids, processSingleton, rateLimiter } from "./infrastructure";
+import { clock, database, emailSender, fieldCipher, ids, processSingleton, rateLimiter, runAfterResponse } from "./infrastructure";
 
 /** The name authenticator apps show, and emails sign with. */
 export const businessName = "Romaic Guesthouse";
@@ -121,6 +121,7 @@ function createAccountServices(): AccountServices {
       clock,
       limiter: rateLimiter(emailLinkLimit),
       audit,
+      runAfterResponse: (task) => runAfterResponse(task, "A password reset request failed after the response"),
       links: {
         resetPassword: (token) => `${dashboardOrigin()}${adminPaths.resetPassword}?token=${encodeURIComponent(token)}`,
         verifyEmail: (token) => `${dashboardOrigin()}${adminPaths.verifyEmail}?token=${encodeURIComponent(token)}`,

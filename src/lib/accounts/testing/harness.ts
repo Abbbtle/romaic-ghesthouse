@@ -34,6 +34,11 @@ export function accountHarness(
             return { ok: true };
           },
         };
+  /** Work queued to run after the response; `runDeferred` runs it, as Next does once the reply has gone. */
+  const deferred: Array<() => Promise<void>> = [];
+  const runDeferred = async () => {
+    while (deferred.length > 0) await deferred.shift()!();
+  };
 
   const accounts = createAccountService({
     ...stores,
@@ -61,6 +66,7 @@ export function accountHarness(
     clock,
     limiter: unlimited,
     audit,
+    runAfterResponse: (task) => void deferred.push(task),
     links: { resetPassword: (token) => `https://site.test/admin/reset-password?token=${token}`, verifyEmail: (token) => `https://site.test/admin/verify-email?token=${token}` },
     businessName: "Romaic Guesthouse",
   });
@@ -116,5 +122,5 @@ export function accountHarness(
     return { token: confirmed.session.token, recoveryCodes: confirmed.recoveryCodes, secret: started.secret };
   };
 
-  return { stores, clock, ids, secrets, totp, audit, recoveryCodes, sent, accounts, team, setup, emailLinks, addAccount, signInFully, enrol };
+  return { stores, clock, ids, secrets, totp, audit, recoveryCodes, sent, deferred, runDeferred, accounts, team, setup, emailLinks, addAccount, signInFully, enrol };
 }
