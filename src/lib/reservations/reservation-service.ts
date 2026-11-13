@@ -2,7 +2,7 @@ import { newRequestRef } from "@/lib/booking/reference-codes";
 import type { BookingStore, RandomSource } from "@/lib/booking/ports";
 import { statusOn } from "@/lib/booking/requests";
 import { parseWith } from "@/lib/forms/parse";
-import { addDays, zonedToday, type IsoDate } from "@/lib/format/zoned-time";
+import { addDays, isIsoDate, zonedToday, type IsoDate } from "@/lib/format/zoned-time";
 import type { InventoryStore } from "@/lib/inventory/ports";
 import { nightsOf, stayLabel, type Stay } from "@/lib/inventory/stays";
 import type { AvailabilityBlock, Unit } from "@/lib/inventory/units";
@@ -209,9 +209,16 @@ export function createReservationService(deps: ReservationServiceDependencies) {
       return store.booking(id);
     },
 
-    /** The rates' price for a stay, to prefill a form; null when there's no rate. */
+    /**
+     * The rates' price for a stay, to prefill a form; null when there's no
+     * rate, or for dates no booking could have (not real dates, leaving on or
+     * before arriving, or longer than maxBookingNights), without asking the rates.
+     */
     async suggestedTotal(actor: Actor, apartment: string, stay: Stay, guests: number): Promise<number | null> {
       access.assertCan(actor, "bookings:create");
+      if (!isIsoDate(stay.arrive) || !isIsoDate(stay.leave)) return null;
+      const nights = nightsOf(stay);
+      if (nights < 1 || nights > maxBookingNights) return null;
       return deps.quote(apartment, stay, guests);
     },
 
