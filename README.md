@@ -43,6 +43,8 @@ Work reaches production through pull requests only:
 1. Build on a feature branch and open a PR into `dev`.
 2. Promote by PR, one step at a time: `dev` → `sit` → `uat` → `preprod` → `prod`.
 
+Each environment branch has one source: `dev` takes feature branches, `sit` takes `dev`, `uat` takes `sit`, `preprod` takes `uat` and `prod` takes `preprod`. The `promotion-source` check (`.github/workflows/promotion-source.yml`) fails a PR from any other branch. Branch protection on all five requires that check and a PR, and blocks force-pushes and deletion.
+
 If a release adds a database migration, run `npm run db:migrate` against production before merging into `prod`.
 
 Break-glass owner access (on the owner's written request only):
