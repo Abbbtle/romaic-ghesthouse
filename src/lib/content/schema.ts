@@ -309,7 +309,7 @@ export const sectionNames: Record<SectionKey, string> = {
   bookingTerms: "Booking terms",
   messages: "Guest messages",
   home: "Home page",
-  apartments: "Apartments",
+  apartments: "Rooms",
   gallery: "Gallery",
   facilities: "Facilities",
   location: "Location and area",
@@ -327,7 +327,7 @@ export const sectionDescriptions: Record<SectionKey, string> = {
   bookingTerms: "Your deposit, balance, cancellation and payment terms for direct bookings.",
   messages: "The WhatsApp messages your team sends from a booking: the confirmation, directions and check-in details.",
   home: "The headline, photo and introduction guests see first, and what the home page highlights.",
-  apartments: "Each apartment's name, beds, bathroom, features, photos and who it sleeps.",
+  apartments: "Each room type's name, beds, bathroom, features, photos and who it sleeps.",
   gallery: "The photos on the gallery page, with their captions.",
   facilities: "What the guesthouse offers, in groups, on the facilities page.",
   location: "Where you are, how to get there, and the places nearby.",
@@ -341,11 +341,11 @@ export const sectionDescriptions: Record<SectionKey, string> = {
 /** Extra guidance where a section needs it. */
 export const sectionHelp: Partial<Record<SectionKey, string>> = {
   messages:
-    "Only the owner can change these. {guestName}, {ref}, {apartment}, {arrive}, {leave} and {nights} fill in the booking's details; {businessName}, {location} and {phone} your business's; {checkInFrom}, {checkInUntil} and {checkOutUntil} the times from your house rules. Nothing is sent by itself: the team opens each message in WhatsApp, checks it and sends it.",
+    "Only the owner can change these. {guestName}, {ref}, {room}, {arrive}, {leave} and {nights} fill in the booking's details; {businessName}, {location} and {phone} your business's; {checkInFrom}, {checkInUntil} and {checkOutUntil} the times from your house rules. Nothing is sent by itself: the team opens each message in WhatsApp, checks it and sends it.",
   bookingTerms:
     "Only the owner can change these. Leave a term empty until you've decided it: the site then says it's still to be confirmed rather than guessing. Each change is recorded in the audit log.",
   apartments:
-    "Tick \"Details confirmed\" once you've checked an apartment's beds, bathroom, features and how many it sleeps. Until then the site marks them \"To confirm\". The Book page offers an apartment to groups up to the number it sleeps, and only while it's shown on the site.",
+    "Tick \"Details confirmed\" once you've checked a room type's beds, bathroom, features and how many it sleeps. Until then the site marks them \"To confirm\". The Book page offers a room to groups up to the number it sleeps, and only while it's shown on the site.",
   book: "The consent wording is part of what each guest agrees to, so changing it gives it a new version and date by themselves. Each booking request records the version it was sent under.",
   site: "Your address is stored once here and used everywhere it appears. The map link is worked out from it.",
   contact:

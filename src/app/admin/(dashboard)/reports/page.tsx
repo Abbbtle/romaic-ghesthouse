@@ -37,7 +37,7 @@ export default async function ReportsPage({ searchParams }: PageProps<"/admin/re
 
   return (
     <>
-      <PageHeader title="Reports" description="How full the apartments were, who came and went, and the cleaning done." />
+      <PageHeader title="Reports" description="How full the rooms were, who came and went, and the cleaning done." />
       <ReportTabs current="house" houseHref={operationsHref(range)} moneyHref={can(actor, "reports:revenue") ? revenueHref(range) : null} />
       <div className="grid max-w-admin gap-5">
         <RangeControls action={reportsPath} range={range} presets={presets} />

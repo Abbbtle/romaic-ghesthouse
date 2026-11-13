@@ -30,7 +30,7 @@ describe("text fields", () => {
   const notice = textField({ noun: "the notice", max: 1200, multiline: true });
 
   it("tidies text as it's read", () => {
-    assert.deepEqual(parseWith(heading, "  Spacious   apartments\tin Welkom. \n"), { ok: true, value: "Spacious apartments in Welkom." });
+    assert.deepEqual(parseWith(heading, "  Spacious   rooms\tin Welkom. \n"), { ok: true, value: "Spacious rooms in Welkom." });
     assert.deepEqual(parseWith(heading, "Bell\u0007 rings"), { ok: true, value: "Bell rings" });
     assert.deepEqual(parseWith(notice, " First line.\r\nSecond line. "), { ok: true, value: "First line.\nSecond line." });
   });

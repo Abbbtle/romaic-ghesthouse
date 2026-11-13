@@ -54,7 +54,7 @@ type Part = {
 /**
  * The dashboard's home for those who run the house (today:view: the owner,
  * sales and staff): today's date in South Africa, who's arriving, leaving
- * and staying, and the apartments to clean. The owner and sales see each
+ * and staying, and the rooms to clean. The owner and sales see each
  * booking whole and can open it; staff see only the guest's name, the
  * unit, the dates and the service notes, built on the server. Admins don't
  * run the house, so they land on their own first section instead.
@@ -131,7 +131,7 @@ export default async function TodayPage({ searchParams }: PageProps<"/admin">) {
       .map((part) => ({ title: part.title, empty: part.empty })),
     ...(hasCleaning
       ? []
-      : [{ title: "Apartments to clean", empty: "Nothing to clean" }]),
+      : [{ title: "Rooms to clean", empty: "Nothing to clean" }]),
   ];
 
   return (
@@ -179,7 +179,7 @@ export default async function TodayPage({ searchParams }: PageProps<"/admin">) {
 
         {hasCleaning && (
           <Panel
-            title="Apartments to clean"
+            title="Rooms to clean"
             flush
             actions={
               worksTasks && (

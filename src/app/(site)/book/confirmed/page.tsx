@@ -52,7 +52,7 @@ export default async function BookingConfirmedPage({ searchParams }: PageProps<"
             </div>
             {apartment && (
               <div className="grid gap-1">
-                <dt className="text-sm font-bold text-fg-3">Apartment</dt>
+                <dt className="text-sm font-bold text-fg-3">Room</dt>
                 <dd className="text-base text-ink">{apartment.name}</dd>
               </div>
             )}

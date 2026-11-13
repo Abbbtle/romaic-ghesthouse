@@ -18,7 +18,7 @@ export function generateMetadata(): Promise<Metadata> {
 }
 
 /**
- * Every apartment the site offers, as cards with the same anatomy in the
+ * Every room type the site offers, as cards with the same anatomy in the
  * same places, so guests can compare who each sleeps and on what beds.
  * Each opens its own page; "Check dates" opens the Book page.
  */
@@ -37,7 +37,7 @@ export default async function ApartmentsPage() {
         </PageHeading>
       </PageBand>
       <PageBand>
-        <h2 className="sr-only">All apartments</h2>
+        <h2 className="sr-only">All rooms</h2>
         <div className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
           {offered.map((apartment) => (
             <ApartmentCard key={apartment.slug} apartment={apartmentSummaryOf(apartment, fromPrices[apartment.slug] ?? null)} />

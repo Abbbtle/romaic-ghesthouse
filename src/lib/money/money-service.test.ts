@@ -32,7 +32,7 @@ const booking: BookingForMoney = {
   id: "b1",
   ref: "RG-B2C3D",
   status: "confirmed",
-  apartmentName: "Family apartment with shower",
+  apartmentName: "Family room with shower",
   unitName: "Unit 1",
   stay: { arrive: "2026-12-10", leave: "2026-12-13" },
   adults: 2,
@@ -146,7 +146,7 @@ describe("booking money", () => {
   it("issues invoices from the booking with extra lines and no VAT, numbered in order, and voids them", async () => {
     const { service } = harness();
     assert.deepEqual(await service.invoicePreview(sales, "b1"), [
-      { description: "Family apartment with shower, Thu 10 Dec to Sun 13 Dec 2026, 3 nights", quantity: 1, unitCents: 240_000, amountCents: 240_000 },
+      { description: "Family room with shower, Thu 10 Dec to Sun 13 Dec 2026, 3 nights", quantity: 1, unitCents: 240_000, amountCents: 240_000 },
     ]);
     const issued = await service.issueInvoice(sales, "b1", { "extras.0.description": "Laundry", "extras.0.amount": "150", "extras.1.description": "", "extras.1.amount": "" });
     assert.equal(issued.ok && issued.number, "INV-000001");
@@ -154,7 +154,7 @@ describe("booking money", () => {
     assert.deepEqual(
       document?.invoice.lines.map((line) => [line.description.slice(0, 13), line.amountCents]),
       [
-        ["Family apartm", 240_000],
+        ["Family room w", 240_000],
         ["Laundry", 15_000],
       ],
     );

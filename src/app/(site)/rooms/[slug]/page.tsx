@@ -34,7 +34,7 @@ async function publishedApartment(slug: string): Promise<Apartment | null> {
   return apartments.items.find((item) => item.slug === slug && item.published) ?? null;
 }
 
-export async function generateMetadata({ params }: PageProps<"/apartments/[slug]">): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<"/rooms/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const apartment = await publishedApartment(slug);
   if (!apartment) return {};
@@ -61,13 +61,13 @@ function Fact({ icon, label, children }: { icon: ReactNode; label: string; child
 }
 
 /**
- * One apartment: its photos in gold frames, who it sleeps, its beds,
+ * One room type: its photos in gold frames, who it sleeps, its beds,
  * bathroom and view, what's in it, how accessible it is in exact words,
  * which nights are free over the next two months, and a dates search that
- * asks about this apartment. Details the owner hasn't confirmed are marked
+ * asks about this room. Details the owner hasn't confirmed are marked
  * "To confirm".
  */
-export default async function ApartmentPage({ params }: PageProps<"/apartments/[slug]">) {
+export default async function ApartmentPage({ params }: PageProps<"/rooms/[slug]">) {
   const { slug } = await params;
   const apartment = await publishedApartment(slug);
   if (!apartment) notFound();
@@ -106,7 +106,7 @@ export default async function ApartmentPage({ params }: PageProps<"/apartments/[
           <p className="text-sm">
             <Link href={sitePagePaths.apartments} className="inline-flex min-h-11 items-center gap-1.5 font-bold text-link underline underline-offset-4 hover:text-link-hover">
               <ArrowLeft aria-hidden="true" strokeWidth={1.75} className="size-4" />
-              All apartments
+              All rooms
             </Link>
           </p>
           <GoldBarHeading as="h1" size="hero" sweep>
@@ -146,7 +146,7 @@ export default async function ApartmentPage({ params }: PageProps<"/apartments/[
           )}
           {/* From 1024 px the dates panel sits lower, beside the details: this brings it into reach from the first screen. */}
           <a href="#ask-title" className={buttonClasses({ variant: "primary", size: "lg" }, "hidden justify-self-start lg:inline-flex")}>
-            Check dates for this apartment
+            Check dates for this room
           </a>
         </div>
       </PageBand>
@@ -156,7 +156,7 @@ export default async function ApartmentPage({ params }: PageProps<"/apartments/[
           {apartment.description && (
             <section aria-labelledby="about-title" className="grid gap-4">
               <h2 id="about-title" className={textStyles.h2}>
-                About this apartment
+                About this room
               </h2>
               <Paragraphs text={apartment.description} className={textStyles.body} />
             </section>
@@ -164,7 +164,7 @@ export default async function ApartmentPage({ params }: PageProps<"/apartments/[
           {apartment.features.length > 0 && (
             <section aria-labelledby="features-title" className="grid gap-4">
               <h2 id="features-title" className={textStyles.h2}>
-                In the apartment
+                In the room
               </h2>
               <ul className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
                 {apartment.features.map((feature) => (
@@ -191,12 +191,12 @@ export default async function ApartmentPage({ params }: PageProps<"/apartments/[
             </h2>
             {setUp ? (
               <>
-                <p className={textStyles.secondary}>The next two months. A booked night is taken in every apartment of this kind.</p>
+                <p className={textStyles.secondary}>The next two months. A booked night is taken in every room of this type.</p>
                 <AvailabilityCalendar nights={nights} />
               </>
             ) : (
               <p className={textStyles.body}>
-                We don&rsquo;t show this apartment&rsquo;s calendar online yet. Send a request with your dates, or{" "}
+                We don&rsquo;t show this room&rsquo;s calendar online yet. Send a request with your dates, or{" "}
                 <a
                   href={whatsappWith(facts, `Hi, is the ${apartment.name} free on my dates?`)}
                   target="_blank"
@@ -223,7 +223,7 @@ export default async function ApartmentPage({ params }: PageProps<"/apartments/[
               today={today}
               maxGuests={apartment.sleeps}
               initialGuests={Math.min(2, apartment.sleeps)}
-              submitLabel="Check this apartment"
+              submitLabel="Check this room"
               label={`Check dates for the ${apartment.name}`}
             />
           </div>

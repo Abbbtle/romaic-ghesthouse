@@ -1,10 +1,11 @@
+import { apartmentPath } from "@/lib/content/pages";
 import type { SiteContent } from "@/lib/content/schema";
 
 /**
  * Schema.org data for search engines, built from confirmed facts only
  * (brief rule 2): the business's name, address and contact details, the
  * facilities the owner has confirmed, check-in and check-out times once
- * confirmed, and an apartment only once its details are confirmed. Never a
+ * confirmed, and a room type only once its details are confirmed. Never a
  * star rating, a review score, a price or a stand-in photo: none of those
  * are Romaic's to claim yet.
  */
@@ -40,7 +41,7 @@ export function lodgingBusinessData(content: Pick<SiteContent, "site" | "contact
           containsPlace: rooms.map((room) => ({
             "@type": "HotelRoom",
             name: room.name,
-            url: new URL(`/apartments/${room.slug}`, siteUrl).toString(),
+            url: new URL(apartmentPath(room.slug), siteUrl).toString(),
             occupancy: { "@type": "QuantitativeValue", maxValue: room.sleeps },
           })),
         }

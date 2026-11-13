@@ -24,7 +24,7 @@ type ContentTextProps = {
    * budget's counter, which warns that long lines may wrap on phones.
    */
   limit: TextLimitName;
-  /** A tighter or looser maximum than the named limit, where a schema sets its own (an apartment's summary). */
+  /** A tighter or looser maximum than the named limit, where a schema sets its own (a room's summary). */
   max?: number;
   defaultValue: string;
   optional?: boolean;

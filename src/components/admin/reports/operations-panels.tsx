@@ -24,7 +24,7 @@ const meterRow = (key: string, label: string, figures: OccupancyFigures): BarRow
   share: figures.rate,
 });
 
-/** Occupancy over the dates: by month when they span more than one, and by apartment type, as meters (each a share of its own nights open). */
+/** Occupancy over the dates: by month when they span more than one, and by room type, as meters (each a share of its own nights open). */
 export function OccupancyPanel({ occupancy, today, downloadHref }: { occupancy: Occupancy; today: IsoDate; downloadHref: string | null }) {
   const { heldNotSold, switchedOffNights } = occupancy;
   const notes = [
@@ -41,14 +41,14 @@ export function OccupancyPanel({ occupancy, today, downloadHref }: { occupancy: 
         <EmptyState
           frame="none"
           className="p-4 lg:p-5"
-          title="No apartments are switched on"
+          title="No rooms are switched on"
           actions={
             <Link href={adminRoutes.apartments} className="text-sm font-bold text-link underline underline-offset-4">
-              Open Apartments
+              Open Rooms
             </Link>
           }
         >
-          Occupancy counts the units that are switched on. Switch them on in Apartments.
+          Occupancy counts the units that are switched on. Switch them on in Rooms.
         </EmptyState>
       ) : (
         <>
@@ -58,9 +58,9 @@ export function OccupancyPanel({ occupancy, today, downloadHref }: { occupancy: 
               <BarList label="Occupancy by month" variant="meter" rows={occupancy.months.map((row) => meterRow(row.month.key, monthLabel(row.month), row))} />
             </>
           )}
-          <ReportSubheading>By apartment</ReportSubheading>
+          <ReportSubheading>By room type</ReportSubheading>
           <BarList
-            label="Occupancy by apartment"
+            label="Occupancy by room type"
             variant="meter"
             rows={occupancy.apartments.map((row) => meterRow(row.apartment, `${row.name} (${row.units} ${row.units === 1 ? "unit" : "units"})`, row))}
           />

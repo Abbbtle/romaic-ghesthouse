@@ -45,7 +45,7 @@ export function testInvoice(bookingId: string, fields: Partial<Invoice> = {}): I
     number: "",
     issuedOn: "2026-11-12",
     billedTo: { name: "Thandi Mokoena", phone: "+27821234567", email: null },
-    lines: [{ description: "Family apartment with shower (Unit 1), 3 nights", quantity: 1, unitCents: 240_000, amountCents: 240_000 }],
+    lines: [{ description: "Family room with shower (Unit 1), 3 nights", quantity: 1, unitCents: 240_000, amountCents: 240_000 }],
     totalCents: 240_000,
     vatCents: null,
     status: "issued",

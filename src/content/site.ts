@@ -5,7 +5,8 @@ import type { SiteSection } from "@/lib/content/schema";
  * - name, address and description: the client's brand guide (Romaic
  *   Guesthouse Brand Guide, Edition 1, November 2026: "Spacious apartments
  *   at 286 Stateway, Bedelia, Welkom — within walking distance of the CBD")
- *   and its posters (docs/planning/brand-guide-notes.md);
+ *   and its posters (docs/planning/brand-guide-notes.md), with the client's
+ *   correction that Romaic is a guesthouse with rooms, never apartments;
  * - province: Booking.com's breadcrumb for the listing (South Africa › Free
  *   State › Welkom), docs/planning/property-facts.md.
  *
@@ -15,7 +16,7 @@ import type { SiteSection } from "@/lib/content/schema";
  */
 export const siteDefaults: SiteSection = {
   businessName: "Romaic Guesthouse",
-  description: "Spacious apartments in Bedelia, Welkom, within walking distance of the CBD.",
+  description: "A secure guesthouse in Bedelia, Welkom, within walking distance of the CBD.",
   address: {
     street: "286 Stateway",
     area: "Bedelia",

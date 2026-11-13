@@ -29,7 +29,7 @@ export function newRequestEmail(request: BookingRequest, options: NewRequestEmai
   const lines = [
     `New booking request ${request.ref}`,
     "",
-    `Apartment: ${oneLine(request.apartmentName)}`,
+    `Room: ${oneLine(request.apartmentName)}`,
     `Stay: ${stayLabel(request.stay)}`,
     `Guests: ${guests} (${request.adults} ${request.adults === 1 ? "adult" : "adults"}${request.children > 0 ? `, ${request.children} ${request.children === 1 ? "child" : "children"}` : ""})`,
     `Name: ${oneLine(request.name)}`,
@@ -37,7 +37,7 @@ export function newRequestEmail(request: BookingRequest, options: NewRequestEmai
     ...(request.notes || request.email || request.arrivalTime ? ["", "They left more details: read them in the dashboard."] : []),
     "",
     `Accept or decline it: ${options.requestsPageUrl}`,
-    "Until you accept it, the apartment stays open to others.",
+    "Until you accept it, the room stays open to others.",
   ];
   return {
     to: options.to,

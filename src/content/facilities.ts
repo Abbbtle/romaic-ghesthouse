@@ -13,12 +13,12 @@ const toConfirm = (icon: Facility["icon"], label: string, note = ""): Facility =
 
 export const facilitiesDefaults: FacilitiesSection = {
   heading: "Facilities",
-  intro: "What you'll find at the guesthouse and in your apartment. If there's something you need that isn't listed, ask us.",
+  intro: "What you'll find at the guesthouse and in your room. If there's something you need that isn't listed, ask us.",
   groups: [
     {
       title: "Comfort",
       items: [
-        confirmed("apartment", "Spacious apartments"),
+        confirmed("apartment", "Spacious rooms with kitchenettes"),
         confirmed("coffee", "Coffee, tea and cookies"),
         confirmed("water", "3 L of drinking water"),
         confirmed("geyser", "Backup gas geysers"),
@@ -53,7 +53,7 @@ export const facilitiesDefaults: FacilitiesSection = {
         toConfirm("invoice", "Invoices for your stay"),
         toConfirm("key", "Private check-in and check-out"),
         toConfirm("family", "Board games, puzzles, and books and DVDs for children"),
-        toConfirm("accessible", "A wheelchair-accessible apartment"),
+        toConfirm("accessible", "A wheelchair-accessible room"),
         toConfirm("no-smoking", "Non-smoking throughout"),
       ],
     },

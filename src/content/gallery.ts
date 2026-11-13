@@ -8,7 +8,7 @@ import { standIns } from "./stand-ins";
  */
 export const galleryDefaults: GallerySection = {
   heading: "Gallery",
-  intro: "A look around the guesthouse and the apartments.",
+  intro: "A look around the guesthouse and the rooms.",
   photos: [
     standIns.redBedding,
     standIns.twinBeds,

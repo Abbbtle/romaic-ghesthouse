@@ -40,9 +40,13 @@ export function placeholderValue(name: string, values: PlaceholderValues): strin
   return Object.hasOwn(values, name) ? (values[name] ?? null) : null;
 }
 
-/** What's wrong with the placeholders in `text`, or null when it uses only `allowed` ones. */
-export function placeholderProblem(text: string, allowed: readonly string[]): string | null {
-  const unknown = placeholdersIn(text).filter((name) => !allowed.includes(name));
+/**
+ * What's wrong with the placeholders in `text`, or null when it uses only
+ * `allowed` ones. `former` names are accepted too, so text saved before a
+ * placeholder was renamed still works, but they're never suggested.
+ */
+export function placeholderProblem(text: string, allowed: readonly string[], former: readonly string[] = []): string | null {
+  const unknown = placeholdersIn(text).filter((name) => !allowed.includes(name) && !former.includes(name));
   if (unknown.length === 0) return null;
   const used = unknown.map((name) => `{${name}}`).join(", ");
   if (allowed.length === 0) return `Remove ${used}: this text can't fill in details.`;

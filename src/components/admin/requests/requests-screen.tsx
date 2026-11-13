@@ -30,7 +30,7 @@ export type RequestRow = {
   status: { label: string; tone: StatusTone };
   /** For handled requests: when, and the note or unit. */
   decision: string | null;
-  /** Waiting requests only: the units free for every night, and whether the apartment has any units at all. */
+  /** Waiting requests only: the units free for every night, and whether the room type has any units at all. */
   freeUnits: { id: string; name: string }[];
   hasUnits: boolean;
   /** The total the rates give for this stay, for the accept form ("" when there's no rate). */
@@ -146,7 +146,7 @@ function RequestCard({
                     inputMode="decimal"
                     defaultValue={row.suggestedTotal}
                     onValueChange={setTotal}
-                    hint={row.suggestedTotal ? "From your rates. Change it if you agreed another price." : "No rate set for this apartment: enter the price you'll quote."}
+                    hint={row.suggestedTotal ? "From your rates. Change it if you agreed another price." : "No rate set for this room: enter the price you'll quote."}
                   />
                   <TextField name={`deposit-${row.id}`} label="Deposit due (R)" inputMode="decimal" defaultValue="0" onValueChange={setDepositDue} />
                 </div>
@@ -168,10 +168,10 @@ function RequestCard({
             ) : (
               <Notice tone="warning" live="off">
                 {row.hasUnits
-                  ? "No unit of this apartment is free for every night of this stay. Decline it, or WhatsApp the guest to offer something else."
-                  : "This apartment has no units set up yet, so it can't be accepted here."}{" "}
+                  ? "No unit of this room type is free for every night of this stay. Decline it, or WhatsApp the guest to offer something else."
+                  : "This room type has no units set up yet, so it can't be accepted here."}{" "}
                 <a href={apartmentsHref} className="font-bold underline underline-offset-4">
-                  Go to Apartments
+                  Go to Rooms
                 </a>
               </Notice>
             ))}
@@ -180,7 +180,7 @@ function RequestCard({
               <ConfirmButton
                 size="sm"
                 title={`Decline ${row.name}'s request?`}
-                description="The apartment stays open to others. Nothing is sent to the guest: let them know on WhatsApp or by email."
+                description="The room stays open to others. Nothing is sent to the guest: let them know on WhatsApp or by email."
                 confirmLabel="Decline request"
                 pendingLabel="Declining…"
                 action={() => declineAction(row.id)}

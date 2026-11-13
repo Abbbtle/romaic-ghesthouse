@@ -28,13 +28,13 @@ const sections = [
 
 /** Synthetic sample data, for showing the patterns only: never a real guest. */
 const arrivals = [
-  { time: "14:00", name: "Thandi Mokoena", apartment: "Family apartment", status: "arriving" },
+  { time: "14:00", name: "Thandi Mokoena", apartment: "Family room", status: "arriving" },
   { time: "16:30", name: "Pieter van Wyk", apartment: "Deluxe double, bath", status: "arriving" },
   { time: "—", name: "Booking.com stay", apartment: "Double or twin", status: "placeholder" },
 ] as const;
 
 const bookings = [
-  { ref: "RG-7K2QX", guest: "Thandi Mokoena", apartment: "Family apartment", arrive: "Thu 12 Nov", leave: "Sun 15 Nov", channel: "Direct", status: "arriving" },
+  { ref: "RG-7K2QX", guest: "Thandi Mokoena", apartment: "Family room", arrive: "Thu 12 Nov", leave: "Sun 15 Nov", channel: "Direct", status: "arriving" },
   { ref: "RG-4MPZD", guest: "Lerato Dlamini", apartment: "Deluxe double, shower", arrive: "Tue 10 Nov", leave: "Fri 13 Nov", channel: "Phone", status: "in-house" },
   { ref: "BK-0193", guest: "To complete from the extranet", apartment: "Double or twin", arrive: "Thu 12 Nov", leave: "Sat 14 Nov", channel: "Booking.com", status: "placeholder" },
   { ref: "RG-9TQWA", guest: "Johan Botha", apartment: "Deluxe double, bath", arrive: "Mon 9 Nov", leave: "Thu 12 Nov", channel: "Walk-in", status: "leaving" },
@@ -160,7 +160,7 @@ export function DashboardKit() {
               <tr>
                 <HeaderCell>Reference</HeaderCell>
                 <HeaderCell>Guest</HeaderCell>
-                <HeaderCell>Apartment</HeaderCell>
+                <HeaderCell>Room</HeaderCell>
                 <HeaderCell>Arrive</HeaderCell>
                 <HeaderCell>Leave</HeaderCell>
                 <HeaderCell>Channel</HeaderCell>
@@ -249,7 +249,7 @@ export function DashboardKit() {
                 Role
               </label>
               <p id="kit-staff-role-hint" className={hintClasses}>
-                Staff see Today, check-in and tasks: guest names, apartments and dates only.
+                Staff see Today, check-in and tasks: guest names, rooms and dates only.
               </p>
               <select id="kit-staff-role" aria-describedby="kit-staff-role-hint" className={selectClasses("compact")} defaultValue="staff">
                 <option value="staff">Staff</option>

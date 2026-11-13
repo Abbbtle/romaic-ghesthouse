@@ -16,7 +16,7 @@ export const policiesDefaults: PoliciesSection = {
     { title: "Children", text: "Children of any age are welcome. From the age of 9, children count as adults.", confirmed: false },
     {
       title: "Cots and extra beds",
-      text: "We don't have cots or extra beds. The extra bed in some apartments' names is a permanent bed in the apartment.",
+      text: "We don't have cots or extra beds. The extra bed in some rooms' names is a permanent bed in the room.",
       confirmed: false,
     },
     { title: "Pets", text: "Pets aren't allowed.", confirmed: false },

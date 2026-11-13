@@ -7,7 +7,7 @@ import { taskKinds, taskPriorities, unitStatuses } from "./tasks";
 
 export const taskFieldLimits = { titleMax: 120, notesMax: 2000, noteMax: 500, unitNoteMax: 200 } as const;
 
-const unitId = z.string("Choose the apartment.").trim().min(1, "Choose the apartment.").max(64, "Choose the apartment.");
+const unitId = z.string("Choose the room.").trim().min(1, "Choose the room.").max(64, "Choose the room.");
 const title = requiredText({
   max: taskFieldLimits.titleMax,
   required: "Say what needs doing, like Fix the dripping tap.",
@@ -46,6 +46,6 @@ export const taskChangeSchema = z.object({ priority, dueOn, assignedTo: assignee
 
 export const unitStatusSchema = z.object({
   unitId,
-  status: z.enum(unitStatuses, "Choose the apartment's status."),
+  status: z.enum(unitStatuses, "Choose the room's status."),
   note: optionalText({ max: taskFieldLimits.unitNoteMax, tooLong: `Keep the note under ${taskFieldLimits.unitNoteMax} characters.` }),
 });

@@ -307,7 +307,7 @@ export function occupancyCsv(report: Occupancy): CsvValue[][] {
     ...report.months.map((row) => [formatMonth(row.month.key), row.month.from, row.month.until, ...figures(row)]),
     ["Total", report.range.from, report.range.until, ...figures(report.total)],
     [],
-    ["Apartment", "Units", "", ...occupancyColumns],
+    ["Room type", "Units", "", ...occupancyColumns],
     ...report.apartments.map((row) => [row.name, row.units, "", ...figures(row)]),
     [],
     ["Nights held by channel stays not yet made into bookings (counted as open, not booked)", report.heldNotSold.channelNights],

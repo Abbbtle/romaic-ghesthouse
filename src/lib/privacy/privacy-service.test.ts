@@ -163,7 +163,7 @@ describe("a guest a request is about", () => {
     assert.match(file.fileName, /^guest-record-00000000-2026-11-13\.csv$/);
     assert.ok(file.csv.includes("Guest record,Name,Thandi Mokoena"));
     assert.ok(file.csv.includes("Guest record,Email,thandi@example.com"));
-    assert.ok(file.csv.includes("Apartment,Family apartment with shower"));
+    assert.ok(file.csv.includes("Room,Family room with shower"));
     assert.ok(file.csv.includes("Notes,Celebrating an anniversary"));
     assert.equal(await privacy.exportGuest(owner, "00000000-0000-4000-8000-00000000cfff"), null);
     assert.ok(!auditText(audit.events).includes("Thandi"));

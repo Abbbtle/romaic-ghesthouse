@@ -47,7 +47,7 @@ const blocks: HeldBlock[] = [
   block("u4", "owner", "2026-11-01", "2026-12-01"),
 ];
 
-const apartmentNames = { "family-shower": "Family apartment with shower" };
+const apartmentNames = { "family-shower": "Family room with shower" };
 
 describe("occupancy", () => {
   const occupancy = occupancyOf({ range: november, units, stays, blocks, apartmentNames });
@@ -75,7 +75,7 @@ describe("occupancy", () => {
     assert.deepEqual(
       occupancy.apartments.map(({ apartment, name, units: count, availableNights, soldNights }) => ({ apartment, name, count, availableNights, soldNights })),
       [
-        { apartment: "family-shower", name: "Family apartment with shower", count: 2, availableNights: 58, soldNights: 4 },
+        { apartment: "family-shower", name: "Family room with shower", count: 2, availableNights: 58, soldNights: 4 },
         { apartment: "studio", name: "studio", count: 1, availableNights: 27, soldNights: 2 },
       ],
     );

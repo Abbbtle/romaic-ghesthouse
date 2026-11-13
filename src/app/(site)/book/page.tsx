@@ -40,7 +40,7 @@ function one(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
 }
 
-/** The Book page's address for a search, optionally with an apartment chosen. */
+/** The Book page's address for a search, optionally with a room chosen. */
 function bookHref(search: StaySearch, apartment?: string): string {
   const query = new URLSearchParams({ arrive: search.arrive, leave: search.leave, guests: String(search.guests) });
   if (apartment) query.set("apartment", apartment);
@@ -72,7 +72,7 @@ function Availability({ status, slug }: { status: ApartmentStatus; slug: string 
   );
 }
 
-/** Whether an apartment can be asked for: not booked, and the stay is at least its shortest (no rate means no minimum). */
+/** Whether a room can be asked for: not booked, and the stay is at least its shortest (no rate means no minimum). */
 function requestable(result: PublicApartmentAvailability, quote: Quote | null): boolean {
   return result.status !== "full" && (quote?.meetsMinimum ?? true);
 }
@@ -108,7 +108,7 @@ function TooShort({ minNights, search }: { minNights: number; search: StaySearch
   );
 }
 
-/** `lead`: the first apartment that can be requested, the one primary button on the page; the rest are secondary. */
+/** `lead`: the first room that can be requested, the one primary button on the page; the rest are secondary. */
 function ResultCard({
   apartment,
   result,
@@ -162,12 +162,12 @@ function ResultCard({
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2 pt-1">
           {requestable(result, quote) && (
             <Link href={`${bookHref(search, apartment.slug)}#request`} className={buttonClasses({ variant: lead ? "primary" : "secondary" })}>
-              Request this apartment
+              Request this room
               <VisuallyHidden>: {apartment.name}</VisuallyHidden>
             </Link>
           )}
           <Link href={apartmentPath(apartment.slug)} className="inline-flex min-h-11 items-center font-bold text-link underline underline-offset-4 hover:text-link-hover">
-            See the apartment
+            See the room
             <VisuallyHidden>: {apartment.name}</VisuallyHidden>
           </Link>
         </div>
@@ -177,10 +177,10 @@ function ResultCard({
 }
 
 /**
- * The Book page: dates and guests, then the apartments that fit and whether
+ * The Book page: dates and guests, then the rooms that fit and whether
  * each is free (live, from the inventory), then a booking request for the
  * one chosen. The search lives in the address (arrive, leave, guests,
- * apartment), so it works without scripts and can be shared; the server
+ * apartment: the chosen room's link name), so it works without scripts and can be shared; the server
  * checks it, and checks availability again when the request is sent.
  */
 export default async function BookPage({ searchParams }: PageProps<"/book">) {
@@ -209,7 +209,7 @@ export default async function BookPage({ searchParams }: PageProps<"/book">) {
       initialLeave={asked.leave ?? ""}
       initialGuests={Number(asked.guests) || 2}
       initialProblem={problem}
-      submitLabel={search ? "Search again" : "Show free apartments"}
+      submitLabel={search ? "Search again" : "Show free rooms"}
     />
   );
 
@@ -232,7 +232,7 @@ export default async function BookPage({ searchParams }: PageProps<"/book">) {
   const tooSmall = results.filter((result) => !result.fits && bySlug.has(result.slug));
   const chosen = chosenSlug ? await inventory.requestability(chosenSlug, search) : null;
   const chosenApartment = chosen?.ok ? bySlug.get(chosen.apartment.slug) : undefined;
-  // Prices for the apartments shown (null where there's no rate); the chosen one's is an estimate the owner confirms.
+  // Prices for the rooms shown (null where there's no rate); the chosen one's is an estimate the owner confirms.
   const quotes = new Map(await Promise.all(fitting.map(async (result) => [result.slug, await publicQuote(result.slug, search, search.guests)] as const)));
   const chosenQuote = chosenApartment ? (quotes.get(chosenApartment.slug) ?? (await publicQuote(chosenApartment.slug, search, search.guests))) : null;
   const lead = fitting.find((result) => requestable(result, quotes.get(result.slug) ?? null))?.slug;
@@ -272,12 +272,12 @@ export default async function BookPage({ searchParams }: PageProps<"/book">) {
               </h2>
               {book.requestNote && <Paragraphs text={book.requestNote} className={textStyles.body} />}
               {chosen.status === "not-set-up" && (
-                <Notice tone="info">We&rsquo;ll check this apartment is free for your dates and confirm when we reply.</Notice>
+                <Notice tone="info">We&rsquo;ll check this room is free for your dates and confirm when we reply.</Notice>
               )}
             </div>
             {chosenQuote && !chosenQuote.meetsMinimum ? (
               <Notice tone="warning" title={`The shortest stay here is ${chosenQuote.minNights} nights`}>
-                For these dates, the {chosenApartment.name} needs at least {chosenQuote.minNights} nights. Change your dates, or choose another apartment.
+                For these dates, the {chosenApartment.name} needs at least {chosenQuote.minNights} nights. Change your dates, or choose another room.
               </Notice>
             ) : (
               <RequestForm
@@ -295,7 +295,7 @@ export default async function BookPage({ searchParams }: PageProps<"/book">) {
             )}
           </section>
           </div>
-          {/* What's being asked for comes first on phones, so nobody fills in a form for an apartment they can't see. */}
+          {/* What's being asked for comes first on phones, so nobody fills in a form for a room they can't see. */}
           <aside aria-label="Your stay" className="order-first grid content-start gap-4 lg:order-none lg:col-span-5">
             <div className="grid grid-cols-[6rem_1fr] items-start gap-4 border-t-4 border-romaic-gold bg-white p-4 lg:grid-cols-1 lg:p-5">
               {chosenApartment.photos[0] ? (
@@ -320,7 +320,7 @@ export default async function BookPage({ searchParams }: PageProps<"/book">) {
                 )}
                 <p className="mt-1">
                   <Link href={bookHref(search)} className="inline-flex min-h-11 items-center font-bold text-link underline underline-offset-4 hover:text-link-hover">
-                    Choose another apartment
+                    Choose another room
                   </Link>
                 </p>
               </div>
@@ -336,13 +336,13 @@ export default async function BookPage({ searchParams }: PageProps<"/book">) {
       ) : (
         <PageBand className="grid gap-8">
           {chosenSlug && chosen && !chosen.ok && (
-            <Notice tone="warning" title={chosen.reason === "full" ? "That apartment is booked for these dates" : "That apartment can't be requested for this search"}>
-              {chosen.reason === "too-small" ? "It doesn't sleep this many guests. " : ""}Choose one of the apartments below, or other dates.
+            <Notice tone="warning" title={chosen.reason === "full" ? "That room is booked for these dates" : "That room can't be requested for this search"}>
+              {chosen.reason === "too-small" ? "It doesn't sleep this many guests. " : ""}Choose one of the rooms below, or other dates.
             </Notice>
           )}
           <section aria-labelledby="results-title" className="grid gap-5">
             <h2 id="results-title" className={textStyles.h2}>
-              {fitting.some((result) => result.status !== "full") ? "Apartments for your stay" : "Nothing free for these dates"}
+              {fitting.some((result) => result.status !== "full") ? "Rooms for your stay" : "Nothing free for these dates"}
             </h2>
             {fitting.length > 0 ? (
               <ul className="grid gap-5">
@@ -358,7 +358,7 @@ export default async function BookPage({ searchParams }: PageProps<"/book">) {
                 ))}
               </ul>
             ) : (
-              <p className={textStyles.body}>None of our apartments sleeps {search.guests} guests on its own. WhatsApp or call us and we&rsquo;ll find a way.</p>
+              <p className={textStyles.body}>None of our rooms sleeps {search.guests} guests on its own. WhatsApp or call us and we&rsquo;ll find a way.</p>
             )}
             {fitting.length > 0 && fitting.every((result) => result.status === "full") && (
               <p className={textStyles.body}>Try other dates, or WhatsApp us: we may be able to help.</p>
@@ -367,7 +367,7 @@ export default async function BookPage({ searchParams }: PageProps<"/book">) {
           {tooSmall.length > 0 && (
             <details className="border-t border-hairline pt-4">
               <summary className="inline-flex min-h-11 cursor-pointer items-center font-bold text-ink">
-                Smaller apartments (sleep up to {Math.max(...tooSmall.map((result) => bySlug.get(result.slug)!.sleeps))})
+                Smaller rooms (sleep up to {Math.max(...tooSmall.map((result) => bySlug.get(result.slug)!.sleeps))})
               </summary>
               <ul className="mt-3 grid gap-2 text-base text-fg-2">
                 {tooSmall.map((result) => {

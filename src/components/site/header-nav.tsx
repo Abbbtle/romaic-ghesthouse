@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { SiteNavLink } from "./mobile-menu";
 
-/** Whether `href` is the page shown, or the section it's in (an apartment's page is in Apartments). */
+/** Whether `href` is the page shown, or the section it's in (a room's page is in Rooms). */
 export function isCurrent(href: string, pathname: string): boolean {
   return pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
 }

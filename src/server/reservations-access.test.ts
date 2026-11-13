@@ -39,7 +39,7 @@ async function services() {
     inventory,
     requests: createMemoryBookingStore(state.inventory, state.requests),
     quote: async () => null,
-    apartmentNames: async () => ({ "family-shower": "Family apartment with shower" }),
+    apartmentNames: async () => ({ "family-shower": "Family room with shower" }),
     onCheckedOut: async () => {},
     reportProblem: () => {},
     random: { randomInt: () => 0 },

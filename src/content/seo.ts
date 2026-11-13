@@ -2,24 +2,24 @@ import type { SeoSection } from "@/lib/content/schema";
 
 /**
  * Search titles and descriptions for each page. Every fact in them is the
- * client's own (brand guide and posters): spacious apartments, 286 Stateway,
+ * client's own (brand guide and posters): spacious rooms, 286 Stateway,
  * Bedelia, Welkom, walking distance of the CBD, fast Wi-Fi, secure parking.
  * No ratings, stars or prices.
  */
 export const seoDefaults: SeoSection = {
   pages: {
     home: {
-      title: "Romaic Guesthouse – Spacious apartments in Welkom",
+      title: "Romaic Guesthouse – Spacious rooms in Welkom",
       description:
-        "Spacious apartments at 286 Stateway, Bedelia, Welkom, within walking distance of the CBD, with fast Wi-Fi and secure, enclosed parking.",
+        "Spacious rooms with kitchenettes at 286 Stateway, Bedelia, Welkom, within walking distance of the CBD, with fast Wi-Fi and secure, enclosed parking.",
     },
     apartments: {
-      title: "Apartments – Romaic Guesthouse, Welkom",
-      description: "Self-catering apartments in Bedelia, Welkom, each with a fridge, microwave and fast Wi-Fi. See who each one sleeps and check your dates.",
+      title: "Rooms – Romaic Guesthouse, Welkom",
+      description: "Self-catering rooms in Bedelia, Welkom, each with a kitchenette (fridge and microwave) and fast Wi-Fi. See who each one sleeps and check your dates.",
     },
     gallery: {
       title: "Gallery – Romaic Guesthouse, Welkom",
-      description: "A look around Romaic Guesthouse and its apartments in Bedelia, Welkom.",
+      description: "A look around Romaic Guesthouse and its rooms in Bedelia, Welkom.",
     },
     facilities: {
       title: "Facilities – Romaic Guesthouse, Welkom",
@@ -39,7 +39,7 @@ export const seoDefaults: SeoSection = {
     },
     book: {
       title: "Book – Romaic Guesthouse, Welkom",
-      description: "Choose your dates and guests, see which apartments fit, and send a booking request to Romaic Guesthouse, Welkom.",
+      description: "Choose your dates and guests, see which rooms fit, and send a booking request to Romaic Guesthouse, Welkom.",
     },
     privacy: {
       title: "Privacy notice – Romaic Guesthouse",

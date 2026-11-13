@@ -15,7 +15,7 @@ import { rateService } from "@/server/rates";
 const manageRates = { permission: "rates:manage" } as const;
 const reloadMessage = "Reload the page and try again.";
 
-/** An apartment's plan, from its panel's form (the apartment's slug rides along as a hidden field). */
+/** A room type's plan, from its panel's form (the room type's slug rides along as a hidden field). */
 export const saveRatePlan = dashboardFormAction(async (actor, formData): Promise<FormState> => {
   const apartment = formData.get("apartment");
   if (typeof apartment !== "string") return failedState(reloadMessage);

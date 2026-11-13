@@ -9,9 +9,9 @@ import { bookingService } from "@/server/stays";
 import { currentVisitorKey } from "@/server/visitor";
 
 const unavailableMessages = {
-  full: "Sorry, that apartment has just been booked for some of these nights.",
-  "too-small": "That apartment doesn't sleep this many guests.",
-  "unknown-apartment": "That apartment isn't offered online any more.",
+  full: "Sorry, that room has just been booked for some of these nights.",
+  "too-small": "That room doesn't sleep this many guests.",
+  "unknown-apartment": "That room isn't offered online any more.",
 } as const;
 
 const unexpectedMessage = "Your request didn't go through. Try again in a moment, or WhatsApp or call us to book.";
@@ -19,7 +19,7 @@ const unexpectedMessage = "Your request didn't go through. Try again in a moment
 /**
  * Sends the Book page's request form. The service checks everything again
  * (bots, the form's age, every field, the dates, the visitor's limits and
- * the apartment's availability) before it stores anything. A sent request
+ * the room's availability) before it stores anything. A sent request
  * goes to the confirmation page with a signed receipt in its address.
  */
 export async function sendBookingRequest(_previous: FormState, formData: FormData): Promise<FormState> {

@@ -34,7 +34,7 @@ export const textLimits = {
   privacyBody: 20_000,
   version: 20,
 
-  /** Link names and record ids, such as "family-apartment". */
+  /** Link names and record ids, such as "family-shower". */
   slug: 48,
 
   // Page text
@@ -46,7 +46,7 @@ export const textLimits = {
   lead: 320,
   /** The large script line ("Welcome home"). */
   script: 24,
-  /** A longer passage: an apartment's description, directions. */
+  /** A longer passage: a room's description, directions. */
   passage: 1_500,
   /** One line of a list: an amenity, a feature, a highlight's line. */
   listLine: 120,

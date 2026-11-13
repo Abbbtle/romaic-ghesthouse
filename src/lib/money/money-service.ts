@@ -52,7 +52,7 @@ export type WebhookResult =
 
 const bookingGone = "This booking no longer exists. Reload the page.";
 
-/** The invoice's first line: the stay itself, at the booking's agreed total. Unit names are the team's own, so the guest sees the apartment. */
+/** The invoice's first line: the stay itself, at the booking's agreed total. Unit names are the team's own, so the guest sees the room type. */
 export function stayLine(booking: BookingForMoney): InvoiceLine {
   return {
     description: `${booking.apartmentName}, ${stayLabel(booking.stay)}`,

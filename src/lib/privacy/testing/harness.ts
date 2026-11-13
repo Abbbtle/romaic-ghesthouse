@@ -62,7 +62,7 @@ export function privacyHarness({ clock = fixedClock("2026-11-13T08:00:00Z"), kee
     guests: world.guests,
     vault: testVault,
     recordKeeping: async () => state.keeping,
-    names: async () => ({ apartments: { "family-shower": "Family apartment with shower" }, units: { "00000000-0000-4000-8000-00000000a0a1": "Unit 1" } }),
+    names: async () => ({ apartments: { "family-shower": "Family room with shower" }, units: { "00000000-0000-4000-8000-00000000a0a1": "Unit 1" } }),
     clock,
     ids: sequentialIds("privacy"),
     audit,

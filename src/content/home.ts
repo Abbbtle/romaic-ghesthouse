@@ -4,21 +4,23 @@ import { standIns } from "./stand-ins";
 /**
  * The home page as it starts. Every fact is the client's own, from the brand
  * guide (Edition 1, November 2026) and posters (docs/planning/brand-guide-notes.md):
- * the headline, walking distance to the city centre, what's in each
- * apartment, the backup water and gas geysers, the fence, cameras and
+ * walking distance to the city centre, what's in each room (every one has
+ * a kitchenette), the backup water and gas geysers, the fence, cameras and
  * enclosed parking. Solar backup power is left out: only the Booking.com
- * listing claims it. The photo is a labelled stand-in.
+ * listing claims it. The photo is a labelled stand-in. The headline follows
+ * the client's correction: Romaic is a guesthouse with rooms, never
+ * "apartments".
  */
 export const homeDefaults: HomeSection = {
   hero: {
-    headline: "Spacious apartments in Welkom",
+    headline: "A secure guesthouse in Welkom",
     lead: "Within walking distance of the city centre. Fast Wi-Fi that's always online, self-catering essentials, and backup water and hot water, inside a secure, enclosed property with parking.",
     welcome: "Welcome home",
     photo: standIns.warmBedroom,
   },
   apartments: {
-    heading: "Our apartments",
-    intro: "Every apartment comes with a fridge and microwave, an iron and ironing board, coffee, tea and cookies, drinking water and fast Wi-Fi.",
+    heading: "Our rooms",
+    intro: "Every room has its own kitchenette with a fridge and microwave, plus an iron and ironing board, coffee, tea and cookies, drinking water and fast Wi-Fi.",
   },
   highlights: {
     heading: "What keeps working",
@@ -26,8 +28,8 @@ export const homeDefaults: HomeSection = {
     items: [
       {
         icon: "bed",
-        title: "In your apartment",
-        lines: ["Fridge, microwave, iron and ironing board", "3 L of drinking water, coffee, tea and cookies"],
+        title: "In your room",
+        lines: ["Kitchenette with fridge and microwave, iron and ironing board", "3 L of drinking water, coffee, tea and cookies"],
       },
       {
         icon: "wifi",

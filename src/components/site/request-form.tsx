@@ -33,13 +33,13 @@ type RequestFormProps = {
   apartment: string;
   arrive: string;
   leave: string;
-  /** How many guests the search was for, and the most this apartment sleeps. */
+  /** How many guests the search was for, and the most this room sleeps. */
   guests: number;
   sleeps: number;
   /** The consent wording from the site's content. */
   consentLabel: string;
   privacyHref: string;
-  /** The search's results, offered when the apartment can't be requested any more. */
+  /** The search's results, offered when the room can't be requested any more. */
   backHref: string;
 };
 
@@ -64,7 +64,7 @@ export function RequestForm({ action, formToken, apartment, arrive, leave, guest
       <Notice tone="danger">
         {state.message}{" "}
         <Link href={backHref} className="font-bold underline underline-offset-4">
-          Choose another apartment
+          Choose another room
         </Link>
       </Notice>
     )

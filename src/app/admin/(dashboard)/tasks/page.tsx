@@ -33,7 +33,7 @@ const panelTitles: Record<TaskBoardView, string> = { mine: "Your tasks", open: "
  * Housekeeping and maintenance for the owner, sales and staff (tasks:work;
  * never admin). Everyone can take on, finish, note and photograph tasks and
  * report problems; the owner and sales (tasks:manage) also set, give out,
- * change and remove them. Apartment statuses sit beside the list
+ * change and remove them. Room statuses sit beside the list
  * (rooms:status). Tasks carry no money or guest contact details, so staff
  * see them whole.
  */
@@ -52,7 +52,7 @@ export default async function TasksPage({ searchParams }: PageProps<"/admin/task
     <>
       <PageHeader
         title="Tasks"
-        description="Cleaning and repairs for each apartment: who's on what, and what's done."
+        description="Cleaning and repairs for each room: who's on what, and what's done."
         actions={
           <div className="flex flex-wrap gap-3">
             <ReportProblem action={reportProblem} units={board.units} />
@@ -72,11 +72,11 @@ export default async function TasksPage({ searchParams }: PageProps<"/admin/task
           )}
         </Panel>
         {statuses && (
-          <Panel title="Apartments" description="Set by whoever last cleaned or checked them." flush>
+          <Panel title="Rooms" description="Set by whoever last cleaned or checked them." flush>
             {statuses.length > 0 ? (
               <UnitStatuses units={statuses.map((unit) => unitStatusRowOf(unit, now, businessTimeZone))} action={setUnitStatus} />
             ) : (
-              <p className="p-4 text-sm text-fg-2 lg:p-5">No apartments yet. The owner adds them under Apartments.</p>
+              <p className="p-4 text-sm text-fg-2 lg:p-5">No rooms yet. The owner adds them under Rooms.</p>
             )}
           </Panel>
         )}
@@ -93,8 +93,8 @@ function emptyText(view: TaskBoardView, canManage: boolean): string {
       return "Tasks given to you, and ones you start, show up here. Look under Open for jobs nobody has taken yet.";
     case "open":
       return canManage
-        ? "When a guest checks out, their apartment's clean appears here. Add other jobs with New task."
-        : "When a guest checks out, their apartment's clean appears here. Spot something broken? Report a problem.";
+        ? "When a guest checks out, their room's clean appears here. Add other jobs with New task."
+        : "When a guest checks out, their room's clean appears here. Spot something broken? Report a problem.";
     case "done":
       return `Finished tasks from the last ${doneListDays} days show up here.`;
   }

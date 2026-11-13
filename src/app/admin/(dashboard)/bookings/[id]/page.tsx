@@ -91,7 +91,7 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
         <div className="grid gap-6 lg:grid-cols-2">
           <Panel title="The stay">
             <dl className="grid gap-4 sm:grid-cols-2">
-              <Fact label="Apartment">
+              <Fact label="Room">
                 {unit?.name ?? "A unit"} <span className="text-fg-2">({apartmentName})</span>
               </Fact>
               <Fact label="Nights">{stayLabel(booking.stay)}</Fact>

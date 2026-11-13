@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { romaicFacts } from "@/components/site/romaic-facts";
 
-export const alt = "Romaic Guesthouse: spacious apartments in Welkom";
+export const alt = "Romaic Guesthouse: a secure guesthouse in Welkom";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -31,7 +31,7 @@ export default function OpengraphImage() {
               color: "#151316",
             }}
           >
-            Spacious apartments in Welkom
+            A secure guesthouse in Welkom
           </div>
           <div style={{ fontSize: 30, letterSpacing: 6, color: "#151316", textTransform: "uppercase" }}>{romaicFacts.addressLine}</div>
         </div>

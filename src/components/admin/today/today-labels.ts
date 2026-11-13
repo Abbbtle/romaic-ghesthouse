@@ -13,7 +13,7 @@ export type StayRow = {
   id: string;
   guestName: string;
   unitName: string;
-  /** "Unit 2 · Two-bedroom apartment", or just the unit for staff. */
+  /** "Unit 2 · Family room with shower", or just the unit for staff. */
   place: string;
   /** "3 nights, leaving Sun 15 Nov". */
   when: string;

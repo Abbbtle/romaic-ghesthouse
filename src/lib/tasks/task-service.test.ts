@@ -135,7 +135,7 @@ describe("tasks", () => {
     const { service } = await harness();
     assert.deepEqual(await service.reportProblem(staff, { unitId: "nowhere", title: "X", notes: "", priority: "normal" }), {
       ok: false,
-      errors: { unitId: "Choose an apartment from the list." },
+      errors: { unitId: "Choose a room from the list." },
     });
     assert.equal((await service.reportProblem(staff, { unitId: "u1", title: " ", notes: "", priority: "normal" })).ok, false);
     const created = await service.reportProblem(staff, { unitId: "u1", title: "Broken window", notes: "", priority: "normal" });

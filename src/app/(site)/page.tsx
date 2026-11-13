@@ -32,7 +32,7 @@ export function generateMetadata(): Promise<Metadata> {
  * The home page, the classic accommodation page in the client's poster
  * recipe: the gold-framed photo, the headline in the gold bar, the address,
  * and the dates-and-guests search as the first screen's working action;
- * then the apartments, what keeps working, and where to find us. Every word
+ * then the rooms, what keeps working, and where to find us. Every word
  * and photo comes from the site's content.
  */
 export default async function HomePage() {
@@ -40,7 +40,7 @@ export default async function HomePage() {
   const { home, apartments } = content;
   const facts = siteFactsOf(content);
   const offered = apartments.items.filter((item) => item.published);
-  /** The home page shows the first few; the Apartments page compares them all. */
+  /** The home page shows the first few; the Rooms page compares them all. */
   const featured = offered.slice(0, 3);
   const largestGroup = Math.max(1, ...offered.map((item) => item.sleeps));
   const today = inventoryService().today();
@@ -88,10 +88,10 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section aria-labelledby="apartments-title" className="bg-canvas">
+      <section aria-labelledby="rooms-title" className="bg-canvas">
         <div className="mx-auto grid max-w-page gap-10 px-[max(1rem,env(safe-area-inset-left))] py-section-sm">
           <div className="grid gap-3">
-            <h2 id="apartments-title" className={textStyles.h2}>
+            <h2 id="rooms-title" className={textStyles.h2}>
               {home.apartments.heading}
             </h2>
             {home.apartments.intro && <Paragraphs text={home.apartments.intro} className={textStyles.lead} />}
@@ -103,7 +103,7 @@ export default async function HomePage() {
           </div>
           <p>
             <Link href={sitePagePaths.apartments} className="inline-flex min-h-11 items-center gap-2 font-bold text-link underline underline-offset-4 hover:text-link-hover">
-              {offered.length > featured.length ? `See all ${offered.length} apartments` : "Compare the apartments"}
+              {offered.length > featured.length ? `See all ${offered.length} rooms` : "Compare the rooms"}
               <ArrowRight aria-hidden="true" strokeWidth={1.75} className="size-4" />
             </Link>
           </p>

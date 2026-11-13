@@ -425,7 +425,7 @@ export function ChannelsScreen({ attention, units, channels, canConfigure, calen
           <h2 id="units-title" className="text-h3 font-bold text-ink">
             Units
           </h2>
-          {units.length === 0 && <EmptyState title="No units yet">Add the apartments&apos; units first, then connect their channel calendars here.</EmptyState>}
+          {units.length === 0 && <EmptyState title="No units yet">Add the rooms&apos; units first, then connect their channel calendars here.</EmptyState>}
           {!canConfigure && <p className="text-sm text-fg-3">Only the owner and Weberu can change calendar links and feed links.</p>}
           <ul className="grid gap-4">
             {units.map((unit) => (

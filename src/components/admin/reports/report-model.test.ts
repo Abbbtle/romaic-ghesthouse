@@ -180,6 +180,7 @@ describe("the spreadsheets", () => {
     });
     const rows = occupancyCsv(occupancy);
     assert.deepEqual(rows[1], ["November 2026", "2026-11-01", "2026-11-30", 30, 0, 2, 28, 3, "10.7"]);
+    assert.deepEqual(rows[4], ["Room type", "Units", "", "Unit nights", "Closed by the owner", "Closed for maintenance", "Nights open", "Nights booked", "Occupancy (%)"]);
     assert.deepEqual(rows[5], ["Studio", 1, "", 30, 0, 2, 28, 3, "10.7"]);
   });
 

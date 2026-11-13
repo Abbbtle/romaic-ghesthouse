@@ -8,7 +8,7 @@ For Weberu, before the first production release and each one after. Nothing here
 - [ ] Domain and the dashboard host (`ADMIN_HOST`, threat model D1): recommended, so `/admin` answers 404 on the public site.
 - [ ] Email provider for owner password-reset links and request alerts (Resend is wired; not connected).
 - [ ] Payment gateway, or none at launch (#11, #64). The test gateway stays off in production.
-- [ ] The client's facts: logo, photos, units per apartment type, prices and booking terms, the Information Officer, retention periods (#57) and the accountant's decisions (#74–#76). Every "To confirm" mark and `data-placeholder` on the site is a fact still owed.
+- [ ] The client's facts: logo, photos, units per room type, prices and booking terms, the Information Officer, retention periods (#57) and the accountant's decisions (#74–#76). Every "To confirm" mark and `data-placeholder` on the site is a fact still owed.
 
 ## Environment (from `.env.example`)
 
@@ -36,7 +36,7 @@ For Weberu, before the first production release and each one after. Nothing here
 
 ## After deploying (smoke test, on the production address)
 
-- [ ] Home, Apartments, an apartment, Book (with dates), Policies, Privacy and Contact load; the browser console shows no Content Security Policy errors.
+- [ ] Home, Rooms, a room's page, Book (with dates), Policies, Privacy and Contact load, and `/apartments` redirects (308) to `/rooms`; the browser console shows no Content Security Policy errors.
 - [ ] Response headers: `Strict-Transport-Security`, `Content-Security-Policy` (with `frame-ancestors 'none'`), `Referrer-Policy`, `Permissions-Policy`, `X-Content-Type-Options`.
 - [ ] `/admin` on the public host answers 404 if `ADMIN_HOST` is set; on the dashboard host, `/admin/setup` creates the first owner once, then refuses.
 - [ ] The owner signs in, sets up an authenticator, and sees Today; a sales and a staff account see only their sections; an admin account sees no Bookings, Books, Tax, Reports' revenue or Privacy.

@@ -70,7 +70,7 @@ async function postgresFixtures(db: Database): Promise<RetentionFixtures> {
           await db.run(
             `insert into app.booking_requests (id, reference, apartment, apartment_name, arrive, leave, adults, children, name, phone, email,
                consented_at, consent_version, notice_version, status, created_at, decided_at, booking_id)
-             values (:id, :reference, 'family-shower', 'Family apartment', :arrive::date, :leave::date, 2, 0, :name, :phone, :email,
+             values (:id, :reference, 'family-shower', 'Family room', :arrive::date, :leave::date, 2, 0, :name, :phone, :email,
                :at, '1', '0.1', 'accepted', :at, :at, :bookingId)`,
             { id: stay.requestId, reference: reference(), arrive: stay.arrive, leave: stay.leave, name: guest.name, phone: guest.phone ?? "+27820000000", email: guest.email, at, bookingId: stay.id },
           );

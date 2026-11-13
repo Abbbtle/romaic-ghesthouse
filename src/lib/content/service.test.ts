@@ -181,13 +181,13 @@ describe("content service: saving", () => {
   it("saves a section over the revision it was edited from", async () => {
     const { service } = setUp();
     const { data, revision } = await service.getEditable(owner, "site");
-    const edited = { ...data, description: "  Spacious,\n self-catering apartments.  " };
+    const edited = { ...data, description: "  Spacious,\n self-catering rooms.  " };
 
     assert.deepEqual(await service.saveSection(owner, "site", edited, revision), { ok: true, revision: revision + 1 });
     const saved = await service.getEditable(owner, "site");
-    assert.equal(saved.data.description, "Spacious, self-catering apartments.");
+    assert.equal(saved.data.description, "Spacious, self-catering rooms.");
     assert.equal(saved.revision, revision + 1);
-    assert.equal((await service.getAll()).site.description, "Spacious, self-catering apartments.");
+    assert.equal((await service.getAll()).site.description, "Spacious, self-catering rooms.");
   });
 
   it("records when a section was saved, as the clock tells it", async () => {

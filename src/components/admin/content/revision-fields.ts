@@ -1,5 +1,5 @@
 import { formatPhoneNumber } from "@/lib/format/phone";
-import { sitePageNames, sitePages } from "@/lib/content/pages";
+import { apartmentPath, sitePageNames, sitePages } from "@/lib/content/pages";
 import { contentIconNames, socialPlatformNames, type SectionData, type SectionKey } from "@/lib/content/schema";
 
 const yesNo = (value: boolean) => (value ? "Yes" : "No");
@@ -63,8 +63,8 @@ const fieldReaders: { [K in SectionKey]: (data: SectionData<K>) => RevisionField
     { label: "Introduction", value: home.hero.lead, multiline: true },
     { label: "Welcome line", value: home.hero.welcome },
     { label: "Main photo", value: `${home.hero.photo.alt} (${home.hero.photo.src})` },
-    { label: "Apartments heading", value: home.apartments.heading },
-    { label: "Apartments introduction", value: home.apartments.intro, multiline: true },
+    { label: "Rooms heading", value: home.apartments.heading },
+    { label: "Rooms introduction", value: home.apartments.intro, multiline: true },
     { label: "Highlights heading", value: home.highlights.heading },
     { label: "Highlights introduction", value: home.highlights.intro, multiline: true },
     {
@@ -80,9 +80,9 @@ const fieldReaders: { [K in SectionKey]: (data: SectionData<K>) => RevisionField
     { label: "Introduction", value: apartments.intro, multiline: true },
     ...apartments.items.flatMap((item, index) => [
       {
-        label: `Apartment ${index + 1}`,
+        label: `Room type ${index + 1}`,
         value: [
-          `${item.name} (/apartments/${item.slug})`,
+          `${item.name} (${apartmentPath(item.slug)})`,
           `Sleeps ${item.sleeps} · ${item.beds}`,
           item.bathroom,
           item.view && `View: ${item.view}`,

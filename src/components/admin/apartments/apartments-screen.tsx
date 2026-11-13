@@ -39,10 +39,10 @@ export type ClosureRow = { id: string; unitName: string; apartmentName: string; 
 
 type ApartmentsScreenProps = {
   apartments: readonly ApartmentGroup[];
-  /** Units whose apartment type is no longer in the site's content. */
+  /** Units whose room type is no longer in the site's content. */
   orphans: readonly UnitRow[];
   closures: readonly ClosureRow[];
-  /** Every offered unit, for the closure form: "Unit 1 (Family apartment)". */
+  /** Every offered unit, for the closure form: "Unit 1 (Family room with shower)". */
   unitOptions: readonly { value: string; label: string }[];
   today: string;
   canManage: boolean;
@@ -56,8 +56,8 @@ type ApartmentsScreenProps = {
 };
 
 /**
- * The guesthouse's units (Pattern: settings list): each apartment type from
- * the website with the real apartments of that type, which the Book page
+ * The guesthouse's units (Pattern: settings list): each room type from the
+ * website with the real rooms of that type, which the Book page
  * counts to say whether it's free; closing a unit for some nights; and the
  * closed nights ahead. Only the owner and sales can change them.
  */
@@ -69,20 +69,20 @@ export function ApartmentsScreen({ apartments, orphans, closures, unitOptions, t
   return (
     <>
       <PageHeader
-        title="Apartments"
-        description="The real apartments behind each kind on the website. The Book page shows a kind as free while one of its units is free for every night."
+        title="Rooms"
+        description="The real rooms behind each room type on the website. The Book page shows a room type as free while one of its units is free for every night."
       />
       <div className="grid max-w-admin gap-8">
         {noUnits && (
           <Notice tone="info" live="off" title="No units yet">
-            Until a kind of apartment has units here, the Book page can&apos;t show whether it&apos;s free: guests can still send a request, and you
+            Until a room type has units here, the Book page can&apos;t show whether it&apos;s free: guests can still send a request, and you
             check by hand.
           </Notice>
         )}
         {orphans.length > 0 && (
-          <Notice tone="warning" live="off" title="Units without an apartment on the website">
-            {orphans.map((unit) => unit.name).join(", ")}: their kind of apartment was renamed or removed on the website, so they aren&apos;t offered.
-            Stop offering them and add new units under the right apartment.
+          <Notice tone="warning" live="off" title="Units without a room type on the website">
+            {orphans.map((unit) => unit.name).join(", ")}: their room type was renamed or removed on the website, so they aren&apos;t offered. Stop
+            offering them and add new units under the right room type.
           </Notice>
         )}
 
@@ -132,10 +132,10 @@ export function ApartmentsScreen({ apartments, orphans, closures, unitOptions, t
             ))}
           </ul>
           {apartments.length === 0 && (
-            <EmptyState title="No apartments on the website">
-              Add apartments in{" "}
+            <EmptyState title="No room types on the website">
+              Add room types in{" "}
               <a href={websiteHref} className="font-bold underline underline-offset-4">
-                Website › Apartments
+                Website › Rooms
               </a>
               , then add their units here.
             </EmptyState>
@@ -143,10 +143,10 @@ export function ApartmentsScreen({ apartments, orphans, closures, unitOptions, t
         </section>
 
         {canManage && apartments.length > 0 && (
-          <Panel title="Add a unit" description="One for each real apartment, named the way your team knows it. Guests never see these names.">
+          <Panel title="Add a unit" description="One for each real room, named the way your team knows it. Guests never see these names.">
             <ActionForm action={actions.addUnit} validate={unitProblems} footer="button" submitLabel="Add unit" pendingLabel="Adding…" resetOnSave>
               <div className="grid gap-4 sm:grid-cols-2">
-                <Select name="apartment" label="Kind of apartment" options={apartments.map((apartment) => ({ value: apartment.slug, label: apartment.name }))} />
+                <Select name="apartment" label="Room type" options={apartments.map((apartment) => ({ value: apartment.slug, label: apartment.name }))} />
                 <TextField name="name" label="Unit name" maxLength={40} placeholder="e.g. Unit 3" />
               </div>
             </ActionForm>

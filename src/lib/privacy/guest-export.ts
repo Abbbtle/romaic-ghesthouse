@@ -40,7 +40,7 @@ export function guestExport({ guest, anonymisedAt, bookings, apartmentNames, uni
     const section = `Booking ${booking.ref}`;
     rows.push(
       [section, "Status", bookingStatusNames[booking.status]],
-      [section, "Apartment", apartmentNames[booking.apartment] ?? booking.apartment],
+      [section, "Room", apartmentNames[booking.apartment] ?? booking.apartment],
       [section, "Unit", unitNames[booking.unitId] ?? null],
       [section, "Arrive", booking.stay.arrive],
       [section, "Leave", booking.stay.leave],

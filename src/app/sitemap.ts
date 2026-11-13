@@ -4,8 +4,8 @@ import { env } from "@/server/env";
 import { getSiteContent } from "@/server/site-content";
 
 /**
- * Every public page, and every apartment shown on the site, at the site's
- * public address. Read per request, so an apartment added or hidden in the
+ * Every public page, and every room type shown on the site, at the site's
+ * public address. Read per request, so a room added or hidden in the
  * dashboard appears or goes at once. The booking confirmation isn't listed.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

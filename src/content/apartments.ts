@@ -2,9 +2,11 @@ import type { Apartment, ApartmentsSection } from "@/lib/content/schema";
 import { standIns } from "./stand-ins";
 
 /**
- * The seven apartment types, from the Booking.com listing's room panels
- * (read 2026-11-12; docs/planning/property-facts.md), in our own words. The
- * client calls them apartments, so the listing's "Room" names are renamed.
+ * The seven room types, from the Booking.com listing's room panels (read
+ * 2026-11-12; docs/planning/property-facts.md), in our own words and the
+ * site's sentence case. Romaic is a guesthouse with rooms: never call them
+ * apartments in anything a guest or the owner reads (the section key and type
+ * names stay `apartments`/`Apartment` so stored content keeps working).
  * Every one is `confirmed: false`, so the site marks its details "To
  * confirm" until the owner checks them. Left out on purpose:
  * - sizes: the listing shows the same 108 ft² for every type, which looks
@@ -31,16 +33,16 @@ function apartment(fields: Omit<Apartment, "confirmed" | "published" | "descript
 }
 
 export const apartmentsDefaults: ApartmentsSection = {
-  heading: "Apartments",
+  heading: "Rooms",
   intro:
-    "Every apartment comes with a fridge and microwave, an iron and ironing board, coffee, tea and cookies, drinking water and fast Wi-Fi. Choose the one that fits your group.",
+    "Every room has its own kitchenette with a fridge and microwave, plus an iron and ironing board, coffee, tea and cookies, drinking water and fast Wi-Fi. Choose the one that fits your group.",
   items: [
     apartment({
       slug: "accessible-family",
-      name: "Accessible family apartment",
+      name: "Accessible family room",
       summary: "Wheelchair accessible, with grab rails beside the toilet, a kitchenette and beds for three.",
       description:
-        "Our accessible apartment has a large double bed and a single bed, a kitchenette, a sofa and outdoor furniture, and a private bathroom with a shower and grab rails beside the toilet.",
+        "Our accessible room has a large double bed and a single bed, a kitchenette, a sofa and outdoor furniture, and a private bathroom with a shower and grab rails beside the toilet.",
       sleeps: 3,
       beds: "1 single and 1 large double",
       bathroom: "Private, with a shower and grab rails beside the toilet",
@@ -51,7 +53,7 @@ export const apartmentsDefaults: ApartmentsSection = {
     }),
     apartment({
       slug: "family-shower",
-      name: "Family apartment with shower",
+      name: "Family room with shower",
       summary: "Our largest: beds for up to five, a kitchenette and a private bathroom.",
       sleeps: 5,
       beds: "5 single, or 3 single and 1 extra-large double",
@@ -61,7 +63,7 @@ export const apartmentsDefaults: ApartmentsSection = {
     }),
     apartment({
       slug: "double-extra-bed",
-      name: "Double apartment with extra bed",
+      name: "Double room with extra bed",
       summary: "Beds for four, with a sofa, a kitchenette and a private bathroom.",
       sleeps: 4,
       beds: "2 single and 1 extra-large double, or 4 single",
@@ -71,7 +73,7 @@ export const apartmentsDefaults: ApartmentsSection = {
     }),
     apartment({
       slug: "deluxe-double-bath",
-      name: "Deluxe double apartment with bath",
+      name: "Deluxe double room with bath",
       summary: "A large double bed and a bathroom with both a bath and a shower, looking onto the inner courtyard.",
       sleeps: 2,
       beds: "1 large double",
@@ -82,7 +84,7 @@ export const apartmentsDefaults: ApartmentsSection = {
     }),
     apartment({
       slug: "deluxe-double-extra-bed",
-      name: "Deluxe double apartment with extra bed",
+      name: "Deluxe double room with extra bed",
       summary: "A large double and a single bed, a sofa and outdoor furniture, looking onto the inner courtyard.",
       sleeps: 3,
       beds: "1 single and 1 large double",
@@ -93,7 +95,7 @@ export const apartmentsDefaults: ApartmentsSection = {
     }),
     apartment({
       slug: "double-twin-shower",
-      name: "Double or twin apartment with shower",
+      name: "Double or twin room with shower",
       summary: "One extra-large double or two singles, looking onto the inner courtyard.",
       sleeps: 2,
       beds: "1 extra-large double, or 2 single",
@@ -104,7 +106,7 @@ export const apartmentsDefaults: ApartmentsSection = {
     }),
     apartment({
       slug: "deluxe-double-shower",
-      name: "Deluxe double apartment with shower",
+      name: "Deluxe double room with shower",
       summary: "A large double and a single bed, a sofa, a kitchenette and a private bathroom with a shower.",
       sleeps: 2,
       beds: "1 single and 1 large double",

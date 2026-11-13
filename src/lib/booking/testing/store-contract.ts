@@ -43,7 +43,7 @@ export function testRequest(fields: Partial<BookingRequest> = {}): BookingReques
     id: `00000000-0000-4000-8000-${n}`,
     ref: refFor(counter),
     apartment: "family-shower",
-    apartmentName: "Family apartment with shower",
+    apartmentName: "Family room with shower",
     stay: { arrive: "2026-12-10", leave: "2026-12-13" },
     adults: 2,
     children: 1,
