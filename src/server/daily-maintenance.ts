@@ -1,0 +1,58 @@
+import "server-only";
+import { accountServices, reencryptStoredSecrets } from "./accounts";
+import { pruneRateLimits, reportError } from "./infrastructure";
+
+/**
+ * The daily job (/api/cron/daily) and how its tasks run: each in turn, so
+ * one that fails doesn't stop the others. A failure is reported for the logs
+ * (by whoever's `report` is: it must leave personal data out) and only
+ * marked "failed" in the summary, which is what the caller answers with.
+ */
+
+/** Named tasks, run in the order they're listed. Each resolves with a small JSON-friendly report. */
+export type MaintenanceTasks = Readonly<Record<string, () => Promise<unknown>>>;
+
+export type TaskOutcome = { status: "done"; result: unknown } | { status: "failed" };
+
+export type MaintenanceSummary = {
+  /** Every task finished. */
+  ok: boolean;
+  /** Each task's outcome, by name, in the order they ran. */
+  tasks: Record<string, TaskOutcome>;
+};
+
+export async function runMaintenanceTasks(tasks: MaintenanceTasks, report: (description: string, error: unknown) => void): Promise<MaintenanceSummary> {
+  const outcomes: Record<string, TaskOutcome> = {};
+  for (const [name, task] of Object.entries(tasks)) {
+    try {
+      outcomes[name] = { status: "done", result: await task() };
+    } catch (error) {
+      report(`The daily task "${name}" failed`, error);
+      outcomes[name] = { status: "failed" };
+    }
+  }
+  return { ok: Object.values(outcomes).every((outcome) => outcome.status === "done"), tasks: outcomes };
+}
+
+/**
+ * The daily job (/api/cron/daily). Every task is idempotent, so running it
+ * twice, or after a missed day, only finds less (or more) to do:
+ * - expiredSessions: deletes dashboard sessions past their idle or absolute limit;
+ * - expiredLinks: deletes password-reset and email-verification links that expired;
+ * - rateLimitWindows: forgets rate-limit windows that have ended;
+ * - storedSecrets: moves authenticator secrets onto DATA_ENCRYPTION_KEY's
+ *   newest key after a rotation ("remaining" counts any still on an older one).
+ * Later phases add their own (channel sync, retention, request housekeeping).
+ */
+export function runDailyMaintenance(): Promise<MaintenanceSummary> {
+  const services = accountServices();
+  return runMaintenanceTasks(
+    {
+      expiredSessions: () => services.accounts.pruneExpiredSessions(),
+      expiredLinks: () => services.emailLinks.pruneExpiredLinks(),
+      rateLimitWindows: () => pruneRateLimits(),
+      storedSecrets: () => reencryptStoredSecrets(),
+    },
+    reportError,
+  );
+}
