@@ -9,7 +9,7 @@ import { requireDashboardActor } from "@/server/admin-session";
 import { inventoryService } from "@/server/stays";
 import { addUnit, closeNights, openNights, setUnitOffered } from "./actions";
 
-export const metadata: Metadata = { title: "Apartments" };
+export const metadata: Metadata = { title: "Rooms" };
 
 /**
  * Units and closed nights, for the owner and sales (availability:view to

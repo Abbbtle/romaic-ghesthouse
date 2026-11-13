@@ -52,7 +52,7 @@ export const contentIcons = [
 export type ContentIcon = (typeof contentIcons)[number];
 
 export const contentIconNames: Record<ContentIcon, string> = {
-  apartment: "Apartment",
+  apartment: "Room",
   bed: "Bed",
   coffee: "Coffee cup",
   water: "Glass of water",

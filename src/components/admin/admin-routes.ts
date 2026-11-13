@@ -62,7 +62,7 @@ export const adminNavigation: readonly AdminNavItem[] = [
   { section: "guests", href: adminRoutes.guests, label: "Guests", group: "secondary", permission: "guests:view" },
   { section: "rates", href: adminRoutes.rates, label: "Rates", group: "secondary", permission: "rates:view" },
   { section: "channels", href: adminRoutes.channels, label: "Channels", group: "secondary", permission: "channels:status" },
-  { section: "apartments", href: adminRoutes.apartments, label: "Apartments", group: "secondary", permission: "availability:view" },
+  { section: "apartments", href: adminRoutes.apartments, label: "Rooms", group: "secondary", permission: "availability:view" },
   { section: "reports", href: adminRoutes.reports, label: "Reports", group: "secondary", permission: "reports:operations" },
   { section: "books", href: adminRoutes.books, label: "Books", group: "secondary", permission: "ledger:view" },
   { section: "tax", href: adminRoutes.tax, label: "Tax", group: "secondary", permission: "tax:manage" },

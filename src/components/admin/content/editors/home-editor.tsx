@@ -11,7 +11,7 @@ import { ListEditor } from "../list-editor";
 
 export const homeParts = partsOf({
   hero: "First screen",
-  apartments: "Apartments",
+  apartments: "Rooms",
   highlights: "Highlights",
   location: "Where to find us",
 });
@@ -20,7 +20,7 @@ const { part } = homeParts;
 
 const newHighlight = (): Highlight => ({ icon: "apartment", title: "", lines: [""] });
 
-/** The home page: the first screen guests see, then the apartments, the highlights and where to find the guesthouse. */
+/** The home page: the first screen guests see, then the rooms, the highlights and where to find the guesthouse. */
 export function HomeEditor({ data, upload }: { data: HomeSection; upload: UploadImage }) {
   const { hero, apartments, highlights, location } = data;
   return (
@@ -46,12 +46,12 @@ export function HomeEditor({ data, upload }: { data: HomeSection; upload: Upload
           name="hero.photo"
           image={hero.photo}
           label="Main photo"
-          guidance="Landscape, at least 1600 × 1200 px: a warm, well-lit photo of an apartment."
+          guidance="Landscape, at least 1600 × 1200 px: a warm, well-lit photo of a room."
           upload={upload}
         />
       </EditorPart>
 
-      <EditorPart {...part.apartments} description="The heading and introduction above the apartment cards. The apartments themselves are edited under Apartments.">
+      <EditorPart {...part.apartments} description="The heading and introduction above the room cards. The rooms themselves are edited under Rooms.">
         <ContentText name="apartments.heading" label="Heading" limit="heading" defaultValue={apartments.heading} />
         <ContentText name="apartments.intro" label="Introduction" limit="intro" multiline rows={3} optional defaultValue={apartments.intro} />
       </EditorPart>
@@ -72,7 +72,7 @@ export function HomeEditor({ data, upload }: { data: HomeSection; upload: Upload
             <>
               <div className="grid gap-5 sm:grid-cols-[12rem_minmax(0,1fr)]">
                 <Select name={`${path}.icon`} label="Icon" options={contentIconOptions} defaultValue={item.icon} />
-                <ContentText name={`${path}.title`} label="Title" limit="label" defaultValue={item.title} placeholder="e.g. In your apartment" />
+                <ContentText name={`${path}.title`} label="Title" limit="label" defaultValue={item.title} placeholder="e.g. In your room" />
               </div>
               <ListEditor
                 name={`${path}.lines`}

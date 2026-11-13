@@ -158,7 +158,7 @@ describe("booking money (payments, receipts, invoices, refunds)", () => {
     id: bookingId,
     ref: "RG-B2C3D",
     status: "confirmed",
-    apartmentName: "Apartment",
+    apartmentName: "Room",
     unitName: "Unit 1",
     stay: { arrive: "2026-12-10", leave: "2026-12-12" },
     adults: 2,

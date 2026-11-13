@@ -33,8 +33,8 @@ export function testActor(role: Role): Actor {
 }
 
 export const testApartmentTypes: ApartmentType[] = [
-  { slug: "family-shower", name: "Family apartment with shower", sleeps: 5, published: true },
-  { slug: "deluxe-double-bath", name: "Deluxe double apartment with bath", sleeps: 2, published: true },
+  { slug: "family-shower", name: "Family room with shower", sleeps: 5, published: true },
+  { slug: "deluxe-double-bath", name: "Deluxe double room with bath", sleeps: 2, published: true },
   { slug: "hidden-suite", name: "Hidden suite", sleeps: 4, published: false },
 ];
 

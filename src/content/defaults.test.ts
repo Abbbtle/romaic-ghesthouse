@@ -52,8 +52,24 @@ describe("Romaic's seed content", () => {
     // Solar backup is only in the Booking.com listing; star grades and review scores aren't ours to claim.
     assert.doesNotMatch(copy, /solar/i);
     assert.doesNotMatch(copy, /\bstars?\b|\b\d(?:\.\d)? out of\b|rated/i);
-    assert.doesNotMatch(copy, /\brooms?\b/i, "the client calls them apartments");
     assert.equal(contentDefaults.site.address.postalCode, "", "the postal code waits for the client");
+  });
+
+  it("calls them rooms, never apartments: Romaic is a guesthouse", () => {
+    // Every word a guest or the owner reads; icon names are identifiers, never shown.
+    const words: string[] = [];
+    const collect = (value: unknown, key?: string): void => {
+      if (typeof value === "string") {
+        if (key !== "icon") words.push(value);
+      } else if (Array.isArray(value)) {
+        for (const item of value) collect(item);
+      } else if (value && typeof value === "object") {
+        for (const [name, item] of Object.entries(value)) collect(item, name);
+      }
+    };
+    collect(contentDefaults);
+    for (const text of words) assert.doesNotMatch(text, /apartment/i, text);
+    assert.equal(contentDefaults.home.hero.headline, "A secure guesthouse in Welkom");
   });
 
   it("keeps edits within the limits", () => {
@@ -69,7 +85,22 @@ describe("Romaic's seed content", () => {
 });
 
 describe("Phase 2 page content", () => {
-  it("marks every apartment's details unconfirmed: they come from the Booking.com listing", () => {
+  it("names the seven room types as the listing does, in the site's sentence case", () => {
+    assert.deepEqual(
+      contentDefaults.apartments.items.map((item) => [item.slug, item.name]),
+      [
+        ["accessible-family", "Accessible family room"],
+        ["family-shower", "Family room with shower"],
+        ["double-extra-bed", "Double room with extra bed"],
+        ["deluxe-double-bath", "Deluxe double room with bath"],
+        ["deluxe-double-extra-bed", "Deluxe double room with extra bed"],
+        ["double-twin-shower", "Double or twin room with shower"],
+        ["deluxe-double-shower", "Deluxe double room with shower"],
+      ],
+    );
+  });
+
+  it("marks every room type's details unconfirmed: they come from the Booking.com listing", () => {
     assert.equal(contentDefaults.apartments.items.length, 7);
     for (const apartment of contentDefaults.apartments.items) assert.equal(apartment.confirmed, false, apartment.slug);
   });

@@ -47,7 +47,7 @@ function harness(now = "2026-11-12T08:00:00Z") {
     inventory,
     requests,
     quote: async (_apartment, stay) => (stay.leave > stay.arrive ? 120_000 : null),
-    apartmentNames: async () => ({ "family-shower": "Family apartment with shower", "deluxe-double-bath": "Deluxe double apartment with bath" }),
+    apartmentNames: async () => ({ "family-shower": "Family room with shower", "deluxe-double-bath": "Deluxe double room with bath" }),
     onCheckedOut: async (booking) => void checkedOut.push(booking),
     reportProblem: () => {},
     random: { randomInt: (max) => (next++ * 7) % max },
@@ -268,7 +268,7 @@ describe("accepting a booking request", () => {
     const first = await service.create(owner, form({ unitId: "u2", arrive: "2027-01-10", leave: "2027-01-11", guestName: "Thandi M." }));
     assert.deepEqual(await service.acceptRequest(owner, request.id, { unitId: "u3", total: "1", depositDue: "0" }), {
       ok: false,
-      errors: { unitId: "Choose a unit of the apartment the guest asked for." },
+      errors: { unitId: "Choose a unit of the room type the guest asked for." },
     });
     const accepted = await service.acceptRequest(owner, request.id, { unitId: "u1", total: "2400", depositDue: "0" });
     const a = await service.booking(owner, first.ok ? first.id : "");

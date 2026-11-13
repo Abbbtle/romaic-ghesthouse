@@ -68,11 +68,11 @@ describe("content composition", () => {
     const audit = memoryAuditRecorder();
     const editor = createSiteContentService(db, { audit });
     const { data, revision } = await editor.getEditable(owner, "site");
-    const edited = { ...structuredClone(data), description: "Spacious apartments near the Welkom CBD." };
+    const edited = { ...structuredClone(data), description: "Spacious rooms near the Welkom CBD." };
     assert.deepEqual(await editor.saveSection(owner, "site", edited, revision), { ok: true, revision: revision + 1 });
 
     const reader = createSiteContentService(db, { audit });
-    assert.equal((await reader.getAll()).site.description, "Spacious apartments near the Welkom CBD.");
+    assert.equal((await reader.getAll()).site.description, "Spacious rooms near the Welkom CBD.");
     assert.ok((await reader.getEditable(owner, "site")).savedAt instanceof Date);
     assert.deepEqual(
       audit.events.map((event) => [event.category, event.action, event.summary]),

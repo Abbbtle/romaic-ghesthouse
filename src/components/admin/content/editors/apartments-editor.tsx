@@ -13,12 +13,12 @@ import { ListEditor } from "../list-editor";
 
 export const apartmentsParts = partsOf({
   page: "Page heading",
-  apartments: "Apartments",
+  apartments: "Room types",
 });
 
 const { part } = apartmentsParts;
 
-/** A new apartment starts hidden and unconfirmed, so nothing half-written reaches the site. */
+/** A new room type starts hidden and unconfirmed, so nothing half-written reaches the site. */
 const newApartment = (): Apartment => ({
   slug: "",
   name: "",
@@ -38,27 +38,27 @@ const newApartment = (): Apartment => ({
 /** A photo row added to a list: no picture yet, so saving asks for one. */
 const newPhoto = (): ImageRef => ({ src: "", alt: "", width: 1, height: 1, focus: { x: 50, y: 50 } });
 
-/** The apartments: the page's heading, then each apartment's details, photos and whether it's on the site. */
+/** The rooms: the page's heading, then each room type's details, photos and whether it's on the site. */
 export function ApartmentsEditor({ data, upload }: { data: ApartmentsSection; upload: UploadImage }) {
   return (
     <>
-      <EditorPart {...part.page} description="The heading and introduction at the top of the apartments page.">
+      <EditorPart {...part.page} description="The heading and introduction at the top of the rooms page.">
         <ContentText name="heading" label="Heading" limit="heading" defaultValue={data.heading} />
         <ContentText name="intro" label="Introduction" limit="intro" multiline rows={3} optional defaultValue={data.intro} />
       </EditorPart>
 
-      <EditorPart {...part.apartments} description="Each apartment has its own card and page. The order here is the order on the site.">
+      <EditorPart {...part.apartments} description="Each room type has its own card and page. The order here is the order on the site.">
         <Notice tone="info" live="off">
           {sectionHelp.apartments}
         </Notice>
         <ListEditor
           name="items"
-          noun={{ one: "apartment", many: "apartments" }}
+          noun={{ one: "room type", many: "room types" }}
           items={data.items}
           limits={listLimits.apartments}
           blank={newApartment}
           variant="card"
-          rowTitle={({ item, added, index }) => (added || !item.name ? `Apartment ${index + 1}` : item.name)}
+          rowTitle={({ item, added, index }) => (added || !item.name ? `Room type ${index + 1}` : item.name)}
         >
           {({ item, path, added }) => (
             <>
@@ -69,7 +69,7 @@ export function ApartmentsEditor({ data, upload }: { data: ApartmentsSection; up
                   defaultChecked={item.published}
                   onLabel="Shown"
                   offLabel="Hidden"
-                  hint="Hidden apartments aren't on the site or offered on the Book page."
+                  hint="Hidden room types aren't on the site or offered on the Book page."
                 />
                 <Switch
                   name={`${path}.confirmed`}
@@ -81,14 +81,14 @@ export function ApartmentsEditor({ data, upload }: { data: ApartmentsSection; up
                 />
               </div>
 
-              <ContentText name={`${path}.name`} label="Name" limit="label" defaultValue={item.name} placeholder="e.g. Family apartment" />
+              <ContentText name={`${path}.name`} label="Name" limit="label" defaultValue={item.name} placeholder="e.g. Family room" />
               {added ? (
                 <ContentText
                   name={`${path}.slug`}
                   label="Link name"
                   limit="slug"
                   defaultValue={item.slug}
-                  placeholder="e.g. family-apartment"
+                  placeholder="e.g. family-room"
                   hint="Lower-case letters, numbers and dashes. It becomes the page's address, and it can't be changed once saved."
                 />
               ) : (
@@ -102,7 +102,7 @@ export function ApartmentsEditor({ data, upload }: { data: ApartmentsSection; up
                 multiline
                 rows={2}
                 defaultValue={item.summary}
-                hint="One sentence for the apartment's card."
+                hint="One sentence for the room's card."
               />
 
               <div className="grid gap-5 sm:grid-cols-[10rem_minmax(0,1fr)]">
@@ -131,7 +131,7 @@ export function ApartmentsEditor({ data, upload }: { data: ApartmentsSection; up
                 rows={5}
                 optional
                 defaultValue={item.description}
-                hint="A paragraph or two for the apartment's own page."
+                hint="A paragraph or two for the room's own page."
               />
 
               <ListEditor
@@ -167,7 +167,7 @@ export function ApartmentsEditor({ data, upload }: { data: ApartmentsSection; up
                 blank={newPhoto}
                 variant="card"
                 label="Photos"
-                hint="The first photo is the one on the apartment's card."
+                hint="The first photo is the one on the room's card."
               >
                 {({ item: photo, path: photoPath, index }) => (
                   <ImageField
@@ -187,13 +187,13 @@ export function ApartmentsEditor({ data, upload }: { data: ApartmentsSection; up
   );
 }
 
-/** A saved apartment's link name: shown, not edited, because its page address and its units depend on it. */
+/** A saved room type's link name: shown, not edited, because its page address and its units depend on it. */
 function SavedSlug({ name, slug }: { name: string; slug: string }) {
   return (
     <div>
       <p className={labelClasses}>Link name</p>
       <p className="mt-1.5 text-base break-all text-ink">{apartmentPath(slug)}</p>
-      <p className={hintClasses}>Fixed once saved: the apartment&apos;s page address and its units depend on it.</p>
+      <p className={hintClasses}>Fixed once saved: the room&apos;s page address and its units depend on it.</p>
       <input type="hidden" name={name} value={slug} />
     </div>
   );

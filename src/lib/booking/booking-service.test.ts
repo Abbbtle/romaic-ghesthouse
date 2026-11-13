@@ -131,7 +131,7 @@ describe("sending a booking request", () => {
     assert.ok(result.status === "sent" && isRequestRef(result.ref));
     const [stored] = await requests.waiting("2026-11-12", 10);
     assert.equal(stored?.phone, "+27821234567");
-    assert.equal(stored?.apartmentName, "Family apartment with shower");
+    assert.equal(stored?.apartmentName, "Family room with shower");
     assert.deepEqual(stored?.consent, { at: new Date("2026-11-12T08:00:00Z"), consentVersion: "0.1", noticeVersion: "0.2" });
     assert.equal(stored?.visitorKey, "visitor-1");
     assert.equal(sent.length, 1);

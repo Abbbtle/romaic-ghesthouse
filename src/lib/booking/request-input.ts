@@ -65,7 +65,7 @@ function count({ min, max, message }: { min: number; max: number; message: strin
 /** The booking request form. Dates and the apartment come from the search the guest made; the rest they type. */
 export const requestInputSchema = z
   .object({
-    apartment: z.string("Choose an apartment.").trim().min(1, "Choose an apartment.").max(48, "Choose an apartment."),
+    apartment: z.string("Choose a room.").trim().min(1, "Choose a room.").max(48, "Choose a room."),
     arrive: isoDay("Choose the day you arrive."),
     leave: isoDay("Choose the day you leave."),
     adults: count({ min: 1, max: requestFieldLimits.maxGuests, message: "Enter how many adults, at least 1." }),

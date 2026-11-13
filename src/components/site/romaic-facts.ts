@@ -35,7 +35,7 @@ export const amenityGroups: readonly AmenityGroup[] = [
   {
     title: "Comfort",
     items: [
-      { label: "Spacious apartments", icon: "apartment" },
+      { label: "Spacious rooms", icon: "apartment" },
       { label: "Coffee, tea and cookies", icon: "coffee" },
       { label: "3 L of drinking water", icon: "water" },
       { label: "Backup gas geysers", icon: "geyser" },

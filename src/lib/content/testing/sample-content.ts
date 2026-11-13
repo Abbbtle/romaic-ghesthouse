@@ -15,7 +15,7 @@ export function sampleContent(): SiteContent {
   return {
     site: {
       businessName: "Sample Guesthouse",
-      description: "Sample apartments for testing the content engine.",
+      description: "Sample rooms for testing the content engine.",
       address: {
         street: "1 Test Street",
         area: "Testville",
@@ -36,19 +36,19 @@ export function sampleContent(): SiteContent {
     bookingTerms: { deposit: "", balance: "", cancellation: "Free cancellation up to 7 days before arrival.", payment: "" },
     messages: { confirmation: "Hi {guestName}, booking {ref} is confirmed.", directions: "We're at {location}.", checkIn: "Check-in from {checkInFrom}." },
     home: {
-      hero: { headline: "Sample apartments", lead: "A sample lead about the guesthouse.", welcome: "Hello", photo: { ...samplePhoto } },
-      apartments: { heading: "Apartments", intro: "Sample apartments." },
+      hero: { headline: "Sample rooms", lead: "A sample lead about the guesthouse.", welcome: "Hello", photo: { ...samplePhoto } },
+      apartments: { heading: "Rooms", intro: "Sample rooms." },
       highlights: { heading: "Highlights", intro: "", items: [{ icon: "wifi", title: "Wi-Fi", lines: ["Fast Wi-Fi"] }] },
       location: { heading: "Where we are", text: "In Testville." },
     },
     apartments: {
-      heading: "Apartments",
+      heading: "Rooms",
       intro: "",
       items: [
         {
           slug: "sample-double",
           name: "Sample double",
-          summary: "A sample apartment.",
+          summary: "A sample room.",
           description: "",
           sleeps: 2,
           beds: "1 double",
@@ -63,7 +63,7 @@ export function sampleContent(): SiteContent {
         {
           slug: "sample-family",
           name: "Sample family",
-          summary: "A larger sample apartment.",
+          summary: "A larger sample room.",
           description: "",
           sleeps: 4,
           beds: "4 single",
@@ -106,8 +106,8 @@ export function sampleContent(): SiteContent {
     },
     seo: {
       pages: {
-        home: { title: "Sample Guesthouse – Sampleton", description: "Sample apartments in Sampleton." },
-        apartments: seoFor("Apartments"),
+        home: { title: "Sample Guesthouse – Sampleton", description: "Sample rooms in Sampleton." },
+        apartments: seoFor("Rooms"),
         gallery: seoFor("Gallery"),
         facilities: seoFor("Facilities"),
         location: seoFor("Location"),

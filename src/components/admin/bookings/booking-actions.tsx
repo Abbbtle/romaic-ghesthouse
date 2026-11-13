@@ -44,7 +44,7 @@ export function BookingActions({
           variant="primary"
           tone="primary"
           title={`Check out ${guestName}?`}
-          description="Their apartment is marked for cleaning."
+          description="Their room is marked for cleaning."
           confirmLabel="Check out"
           pendingLabel="Checking out…"
           action={() => actions.checkOut(id)}

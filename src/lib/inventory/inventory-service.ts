@@ -50,7 +50,7 @@ export type Requestability =
   | { ok: true; apartment: ApartmentType; status: Exclude<ApartmentStatus, "full"> }
   | { ok: false; reason: "unknown-apartment" | "too-small" | "full" };
 
-/** What the dashboard's apartments page shows. */
+/** What the dashboard's Rooms page shows. */
 export type InventoryOverview = {
   today: IsoDate;
   apartmentTypes: ApartmentType[];
@@ -137,7 +137,7 @@ export function createInventoryService(deps: InventoryServiceDependencies) {
       return freeUnitsFor(slug, stay, units, blocks);
     },
 
-    /** The dashboard's apartments page: types, units, and blocks from today on. */
+    /** The dashboard's Rooms page: types, units, and blocks from today on. */
     async overview(actor: Actor): Promise<InventoryOverview> {
       access.assertCan(actor, "availability:view");
       const from = today();
@@ -162,7 +162,7 @@ export function createInventoryService(deps: InventoryServiceDependencies) {
       const parsed = parseWith(unitInputSchema, input);
       if (!parsed.ok) return refused(parsed.errors);
       const type = await typeNamed(parsed.value.apartment);
-      if (!type) return refused({ apartment: "Choose an apartment from the list." });
+      if (!type) return refused({ apartment: "Choose a room type from the list." });
       const units = await store.units();
       const unit: Unit = { id: ids.newId(), apartment: type.slug, name: parsed.value.name, sort: units.length + 1, active: true };
       const outcome = await store.addUnit(unit, { maxUnits: unitLimits.maxUnits });
@@ -179,7 +179,7 @@ export function createInventoryService(deps: InventoryServiceDependencies) {
       const existing = await store.unit(id);
       if (!existing) return refusedWith(unitNotFound);
       const type = await typeNamed(parsed.value.apartment);
-      if (!type) return refused({ apartment: "Choose an apartment from the list." });
+      if (!type) return refused({ apartment: "Choose a room type from the list." });
       const outcome = await store.changeUnit(id, { name: parsed.value.name, apartment: type.slug, active: parsed.value.active });
       if (outcome.status === "missing") return refusedWith(unitNotFound);
       if (outcome.status === "name-taken") return refused({ name: "Another unit already has this name." });

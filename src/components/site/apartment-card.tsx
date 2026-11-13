@@ -78,7 +78,7 @@ export function ApartmentCard({ apartment, className }: { apartment: ApartmentSu
           </p>
         )}
         <span aria-hidden="true" className="inline-flex items-center gap-1.5 text-sm font-bold text-link group-hover:text-link-hover">
-          View apartment
+          View room
           <ArrowRight strokeWidth={1.75} className="size-4 transition-transform duration-150 group-hover:translate-x-0.5" />
         </span>
       </div>

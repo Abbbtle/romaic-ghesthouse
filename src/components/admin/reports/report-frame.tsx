@@ -146,7 +146,7 @@ export function ReportPanel({
   );
 }
 
-/** A heading inside a report's panel: "By month", "By apartment". */
+/** A heading inside a report's panel: "By month", "By room type". */
 export function ReportSubheading({ children }: { children: ReactNode }) {
   return <h4 className="border-b border-hairline bg-neutral-25 px-4 py-2 text-sm font-bold text-ink lg:px-5">{children}</h4>;
 }

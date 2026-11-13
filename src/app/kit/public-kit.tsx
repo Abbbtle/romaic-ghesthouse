@@ -29,13 +29,13 @@ const sections = [
   { id: "elements", label: "Elements" },
   { id: "actions", label: "Actions" },
   { id: "forms", label: "Forms" },
-  { id: "booking", label: "Apartments" },
+  { id: "booking", label: "Rooms" },
   { id: "chrome", label: "Header and footer" },
   { id: "states", label: "States" },
 ] as const;
 
 const navLinks = [
-  { href: "#booking", label: "Apartments" },
+  { href: "#booking", label: "Rooms" },
   { href: "#elements", label: "Facilities" },
   { href: "#chrome", label: "Location" },
   { href: "#forms", label: "Policies" },
@@ -48,10 +48,10 @@ const photos = {
   desk: { src: "/stand-ins/pexels-271618.jpg", alt: "A bright bedroom with a desk", source: "Pexels 271618", width: 1600, height: 1068, focus: { x: 50, y: 50 } },
 } as const;
 
-/** Sample apartments, from the Booking.com listing's facts (to be confirmed by the client), with stand-in photos. */
+/** Sample rooms, from the Booking.com listing's facts (to be confirmed by the client), with stand-in photos. */
 const sampleApartments: ApartmentSummary[] = [
   {
-    name: "Family apartment with shower",
+    name: "Family room with shower",
     href: "#booking",
     sleeps: 5,
     beds: "5 single beds",
@@ -64,7 +64,7 @@ const sampleApartments: ApartmentSummary[] = [
     price: null,
   },
   {
-    name: "Deluxe double apartment with bath",
+    name: "Deluxe double room with bath",
     href: "#booking",
     sleeps: 2,
     beds: "1 large double bed",
@@ -77,7 +77,7 @@ const sampleApartments: ApartmentSummary[] = [
     price: null,
   },
   {
-    name: "Double or twin apartment with shower",
+    name: "Double or twin room with shower",
     href: "#booking",
     sleeps: 2,
     beds: "1 extra-large double or 2 single beds",
@@ -106,7 +106,7 @@ export function PublicKit() {
                 <LogoSlot kind="wordmark" />
               </div>
               <GoldBarHeading as="h2" size="hero" sweep>
-                <span id="home-title">Spacious apartments</span>
+                <span id="home-title">A secure guesthouse in Welkom</span>
               </GoldBarHeading>
               <p className="text-center font-display text-sm font-semibold tracking-[0.24em] text-ink uppercase lg:text-left">{addressLine}</p>
               <SearchDemo />
@@ -186,19 +186,19 @@ export function PublicKit() {
           <div className="grid gap-8 lg:grid-cols-2">
             <div className="grid content-start gap-6">
               <Specimen label="Hero · Josefin Sans 600, caps, +0.1em">
-                <p className={textStyles.hero}>Spacious apartments</p>
+                <p className={textStyles.hero}>A secure guesthouse</p>
               </Specimen>
               <Specimen label="H1 · Josefin Sans 600, caps">
-                <p className={textStyles.h1}>Our apartments</p>
+                <p className={textStyles.h1}>Our rooms</p>
               </Specimen>
               <Specimen label="H2 · Josefin Sans 600, caps">
                 <p className={textStyles.h2}>Where to find us</p>
               </Specimen>
               <Specimen label="H3 · Arimo 700">
-                <p className={textStyles.h3}>Family apartment with shower</p>
+                <p className={textStyles.h3}>Family room with shower</p>
               </Specimen>
               <Specimen label="H4 · Arimo 700">
-                <p className={textStyles.h4}>In your apartment</p>
+                <p className={textStyles.h4}>In your room</p>
               </Specimen>
             </div>
             <div className="grid content-start gap-6">
@@ -210,8 +210,8 @@ export function PublicKit() {
               </Specimen>
               <Specimen label="Body · Arimo 400, 16 px">
                 <p className={textStyles.body}>
-                  Each apartment has a fridge, microwave, iron and ironing board, with 3 L of drinking water, coffee, tea and cookies waiting when you
-                  arrive.
+                  Each room has a kitchenette with a fridge and microwave, an iron and ironing board, with 3 L of drinking water, coffee, tea and
+                  cookies waiting when you arrive.
                 </p>
               </Specimen>
               <Specimen label="Label · Josefin Sans 600, caps, +0.14em">
@@ -237,7 +237,7 @@ export function PublicKit() {
         <KitSection id="elements" title="Elements" tone="white" spec="The brand's graphic elements: gold frame bars, thin gold photo frames, marble panels and gold rules.">
           <div className="grid gap-8 lg:grid-cols-2">
             <Specimen label="Gold frame bar holding a headline">
-              <GoldBarHeading as="h3">Spacious apartments</GoldBarHeading>
+              <GoldBarHeading as="h3">Spacious rooms</GoldBarHeading>
             </Specimen>
             <Specimen label="Gold rule">
               <hr className="gold-rule w-24" />
@@ -262,19 +262,19 @@ export function PublicKit() {
             <Specimen label="Buttons on light">
               <div className="flex flex-wrap items-center gap-3">
                 <button type="button" className={buttonClasses({ variant: "primary", size: "lg" })}>
-                  Show free apartments
+                  Show free rooms
                 </button>
                 <button type="button" className={buttonClasses({ variant: "secondary", size: "lg" })}>
-                  View apartment
+                  View room
                 </button>
                 <WhatsAppButton href={whatsapp} size="lg">
                   WhatsApp us to book
                 </WhatsAppButton>
                 <button type="button" className={buttonClasses({ variant: "ghost" })}>
-                  See all apartments
+                  See all rooms
                 </button>
                 <button type="button" aria-disabled="true" className={buttonClasses({ variant: "primary" })}>
-                  Book this apartment
+                  Book this room
                 </button>
               </div>
             </Specimen>
@@ -335,11 +335,11 @@ export function PublicKit() {
             </div>
             <div className="grid gap-1.5">
               <label htmlFor="kit-apartment" className={labelClasses}>
-                Apartment
+                Room
               </label>
               <select id="kit-apartment" className={selectClasses("comfortable")} defaultValue="family">
-                <option value="family">Family apartment with shower</option>
-                <option value="deluxe">Deluxe double apartment with bath</option>
+                <option value="family">Family room with shower</option>
+                <option value="deluxe">Deluxe double room with bath</option>
               </select>
             </div>
             <div className="grid gap-1.5">
@@ -369,8 +369,8 @@ export function PublicKit() {
 
         <KitSection
           id="booking"
-          title="Apartments and booking"
-          spec="The classic page's working parts: the dates-and-guests search, then apartments that share one anatomy so guests can compare them. Sample apartments use facts from the Booking.com listing (to confirm) and stand-in photos."
+          title="Rooms and booking"
+          spec="The classic page's working parts: the dates-and-guests search, then rooms that share one anatomy so guests can compare them. Sample rooms use facts from the Booking.com listing (to confirm) and stand-in photos."
         >
           <div className="grid gap-10 lg:grid-cols-[minmax(0,26rem)_1fr]">
             <Specimen label="Dates and guests">
@@ -382,8 +382,8 @@ export function PublicKit() {
                   We&rsquo;ll WhatsApp you within a few hours to confirm.
                 </Notice>
                 <Notice tone="info">Prices and dates shown are samples.</Notice>
-                <Notice tone="danger" title="That apartment was just booked">
-                  Choose another apartment or other dates.
+                <Notice tone="danger" title="That room was just booked">
+                  Choose another room or other dates.
                 </Notice>
               </div>
             </Specimen>
@@ -411,7 +411,7 @@ export function PublicKit() {
               <p className="mb-2 text-xs font-bold tracking-[0.08em] text-fg-3 uppercase">Phone booking dock</p>
               <BookingDock
                 inline
-                secondary={{ label: "See apartments", href: "#booking" }}
+                secondary={{ label: "See rooms", href: "#booking" }}
                 primary={{ label: "WhatsApp", href: whatsapp, external: true, icon: <WhatsAppGlyph tone="mono" className="size-4" /> }}
               />
             </div>

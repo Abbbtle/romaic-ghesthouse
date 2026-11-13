@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { movedPages } from "./src/lib/content/pages";
 import { baseSecurityHeaders, publicPolicy } from "./src/server/content-security-policy";
 
 // This project sits inside the Weberu agency's own project folder. Pin the
@@ -78,6 +79,8 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      // Pages that have moved (the rooms were once at /apartments): permanent, so search engines update.
+      ...movedPages.map((page) => ({ ...page, permanent: true })),
       ...(adminHost ? [{ source: "/", has: [{ type: "host" as const, value: adminHost }], destination: "/admin", permanent: false }] : []),
       ...(isDesignPreview ? [{ source: "/", destination: "/kit", permanent: false }] : []),
     ];

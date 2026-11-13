@@ -60,10 +60,10 @@ export function tooLongMessage(noun: string, max: number): string {
   return `Keep ${noun} to ${countOf(max)} characters.`;
 }
 
-/** Text that may fill in {placeholders}, but only the ones listed. */
-export function placeholderTextField(rules: TextRules & { placeholders: readonly string[] }) {
+/** Text that may fill in {placeholders}, but only the ones listed (and any former names they had). */
+export function placeholderTextField(rules: TextRules & { placeholders: readonly string[]; formerPlaceholders?: readonly string[] }) {
   return textField(rules).superRefine((value, context) => {
-    const problem = placeholderProblem(value, rules.placeholders);
+    const problem = placeholderProblem(value, rules.placeholders, rules.formerPlaceholders);
     if (problem) context.addIssue({ code: "custom", message: problem });
   });
 }

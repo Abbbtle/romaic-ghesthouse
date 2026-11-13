@@ -69,7 +69,7 @@ export type AvailabilityBlock = {
 export const unitLimits = { nameMax: 40, noteMax: 200, maxUnits: 60 } as const;
 
 export const unitInputSchema = z.object({
-  apartment: z.string("Choose the apartment.").trim().min(1, "Choose the apartment.").max(48, "Choose the apartment."),
+  apartment: z.string("Choose the room type.").trim().min(1, "Choose the room type.").max(48, "Choose the room type."),
   name: requiredText({ max: unitLimits.nameMax, required: "Name the unit, like Unit 1.", tooLong: `Keep the name under ${unitLimits.nameMax} characters.` }),
 });
 

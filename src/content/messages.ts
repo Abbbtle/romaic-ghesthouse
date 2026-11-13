@@ -8,7 +8,7 @@ import type { MessagesSection } from "@/lib/content/schema";
  */
 export const messagesDefaults: MessagesSection = {
   confirmation:
-    "Hi {guestName}, thank you for booking with {businessName}. Your booking {ref} is confirmed: the {apartment}, arriving {arrive} and leaving {leave} ({nights}). We'll send directions closer to the time.",
+    "Hi {guestName}, thank you for booking with {businessName}. Your booking {ref} is confirmed: the {room}, arriving {arrive} and leaving {leave} ({nights}). We'll send directions closer to the time.",
   directions:
     "Hi {guestName}, we're at {location}. There's enclosed parking inside the property. WhatsApp or call us on {phone} when you're on your way, and we'll be ready for you.",
   checkIn:

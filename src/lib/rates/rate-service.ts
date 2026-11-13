@@ -61,7 +61,7 @@ export function createRateService(deps: RateServiceDependencies) {
       return { ok: false, errors: { lastNight: `Keep a season under ${rateLimits.maxSeasonNights} nights. Make two for a longer stretch.` } };
     }
     if (Object.keys(prices.prices).length === 0 && parsed.value.minNights === null) {
-      return { ok: false, errors: { form: "Give the season a price for at least one apartment, or a minimum stay, or it changes nothing." } };
+      return { ok: false, errors: { form: "Give the season a price for at least one room type, or a minimum stay, or it changes nothing." } };
     }
     return {
       ok: true,
@@ -81,11 +81,11 @@ export function createRateService(deps: RateServiceDependencies) {
     async savePlan(actor: Actor, apartment: string, input: unknown): Promise<ChangeResult> {
       access.assertCan(actor, "rates:manage");
       const type = await apartmentNamed(apartment);
-      if (!type) return refusedWith("That apartment isn't on the website any more. Reload the page.");
+      if (!type) return refusedWith("That room type isn't on the website any more. Reload the page.");
       const parsed = parseWith(ratePlanSchema, input);
       if (!parsed.ok) return refused(parsed.errors);
       const { nightly, baseGuests, extraGuest, minNights, active } = parsed.value;
-      if (baseGuests > type.sleeps) return refused({ baseGuests: `This apartment sleeps up to ${type.sleeps}, so the price can be for ${type.sleeps} at most.` });
+      if (baseGuests > type.sleeps) return refused({ baseGuests: `This room sleeps up to ${type.sleeps}, so the price can be for ${type.sleeps} at most.` });
       await store.savePlan({ apartment, nightlyCents: nightly, baseGuests, extraGuestCents: extraGuest, minNights, active, updatedAt: clock.now(), updatedBy: actor.id });
       await record(
         actor,
@@ -99,7 +99,7 @@ export function createRateService(deps: RateServiceDependencies) {
     /** Removes an apartment's rate: the site goes back to "Price on request" for it. */
     async removePlan(actor: Actor, apartment: string): Promise<ChangeResult> {
       access.assertCan(actor, "rates:manage");
-      if (!(await store.removePlan(apartment))) return refusedWith("This apartment has no rate to remove. Reload the page.");
+      if (!(await store.removePlan(apartment))) return refusedWith("This room type has no rate to remove. Reload the page.");
       const type = await apartmentNamed(apartment);
       await record(actor, "rates.plan-removed", `Removed the rate for ${type?.name ?? apartment}`, { type: "rate-plan", id: apartment });
       return done();

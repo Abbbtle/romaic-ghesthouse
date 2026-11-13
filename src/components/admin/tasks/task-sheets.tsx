@@ -26,11 +26,11 @@ export function ReportProblem({ action, units }: { action: FormAction; units: re
       icon={<TriangleAlert aria-hidden="true" />}
       variant="secondary"
       title="Report a problem"
-      description="Something broken or running low in an apartment. It goes on the open list for today."
+      description="Something broken or running low in a room. It goes on the open list for today."
     >
       {(close) => (
         <ActionForm action={action} validate={validateProblem} footer="button" submitLabel="Report problem" pendingLabel="Reporting…" resetOnSave onSaved={close} className="grid gap-5">
-          <Select name="unitId" label="Apartment" placeholder="Choose the apartment" options={unitOptions(units)} />
+          <Select name="unitId" label="Room" placeholder="Choose the room" options={unitOptions(units)} />
           <TextField name="title" label="What's wrong" placeholder="e.g. Shower drain is slow" maxLength={taskFieldLimits.titleMax} />
           <TextArea name="notes" label="Details" optional rows={3} maxLength={taskFieldLimits.notesMax} hint="Where exactly, and anything you've already tried." />
           <Select name="priority" label="How urgent" defaultValue="normal" options={priorityOptions} hint="Urgent if a guest can't use something they need." />
@@ -43,11 +43,11 @@ export function ReportProblem({ action, units }: { action: FormAction; units: re
 /** "New task", for the owner and sales: any housekeeping or maintenance job, given to someone or left open. */
 export function NewTask({ action, units, people, today }: { action: FormAction; units: readonly UnitChoice[]; people: readonly Assignee[]; today: string }) {
   return (
-    <SheetForm trigger="New task" icon={<Plus aria-hidden="true" />} variant="primary" title="New task" description="A job for one apartment. Give it to someone now, or leave it on the open list.">
+    <SheetForm trigger="New task" icon={<Plus aria-hidden="true" />} variant="primary" title="New task" description="A job for one room. Give it to someone now, or leave it on the open list.">
       {(close) => (
         <ActionForm action={action} validate={validateTask} footer="button" submitLabel="Add task" pendingLabel="Adding…" resetOnSave onSaved={close} className="grid gap-5">
           <Select name="kind" label="Kind" defaultValue="maintenance" options={taskKinds.map((kind) => ({ value: kind, label: taskKindNames[kind] }))} />
-          <Select name="unitId" label="Apartment" placeholder="Choose the apartment" options={unitOptions(units)} />
+          <Select name="unitId" label="Room" placeholder="Choose the room" options={unitOptions(units)} />
           <TextField name="title" label="What needs doing" placeholder="e.g. Replace the kitchen light bulb" maxLength={taskFieldLimits.titleMax} />
           <TextArea name="notes" label="Details" optional rows={3} maxLength={taskFieldLimits.notesMax} />
           <DateField name="dueOn" label="Due" defaultValue={today} min={today} />

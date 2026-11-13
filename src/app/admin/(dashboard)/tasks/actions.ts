@@ -8,7 +8,7 @@ import { privateFileService } from "@/server/media";
 import { taskService } from "@/server/tasks";
 
 /*
- * Tasks and apartment statuses from the dashboard (Tasks and Today). Every
+ * Tasks and room statuses from the dashboard (Tasks and Today). Every
  * action checks the session and its permission itself, reads each argument
  * as untrusted, and the tasks service checks the permission again.
  */
@@ -95,5 +95,5 @@ export const removeTask = dashboardAction(async (actor, id: unknown): Promise<Fo
 export const setUnitStatus = dashboardFormAction(async (actor, formData): Promise<FormState> => {
   const result = await taskService().setUnitStatus(actor, Object.fromEntries(formData));
   if (result.ok) refresh();
-  return formStateOf(result, "Apartment status saved");
+  return formStateOf(result, "Room status saved");
 }, { permission: "rooms:status" });

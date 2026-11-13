@@ -82,7 +82,7 @@ export function createTaskService(deps: TaskServiceDependencies) {
       id: task.id,
       kind: task.kind,
       unitId: task.unitId,
-      unitName: names.units.get(task.unitId)?.name ?? "An apartment",
+      unitName: names.units.get(task.unitId)?.name ?? "A room",
       title: task.title,
       notes: task.notes,
       status: task.status,
@@ -164,12 +164,12 @@ export function createTaskService(deps: TaskServiceDependencies) {
       const parsed = parseWith(newTaskSchema, input);
       if (!parsed.ok) return refused(parsed.errors);
       const unit = await knownUnit(parsed.value.unitId);
-      if (!unit) return refused({ unitId: "Choose an apartment from the list." });
+      if (!unit) return refused({ unitId: "Choose a room from the list." });
       if (!(await knownAssignee(parsed.value.assignedTo))) return refused({ assignedTo: "Choose someone from the list." });
       if (parsed.value.dueOn < addDays(today(), -30)) return refused({ dueOn: "Choose a day no more than a month ago." });
       const task = newTask({ ...parsed.value, bookingId: null }, actor.id);
       const outcome = await store.create(task);
-      if (outcome.status === "unit-missing") return refused({ unitId: "Choose an apartment from the list." });
+      if (outcome.status === "unit-missing") return refused({ unitId: "Choose a room from the list." });
       await record(actor, "task.created", task, `Added "${task.title}" for ${unit.name}`);
       return done({ id: task.id });
     },
@@ -180,10 +180,10 @@ export function createTaskService(deps: TaskServiceDependencies) {
       const parsed = parseWith(problemReportSchema, input);
       if (!parsed.ok) return refused(parsed.errors);
       const unit = await knownUnit(parsed.value.unitId);
-      if (!unit) return refused({ unitId: "Choose an apartment from the list." });
+      if (!unit) return refused({ unitId: "Choose a room from the list." });
       const task = newTask({ kind: "maintenance", ...parsed.value, dueOn: today(), assignedTo: null, bookingId: null }, actor.id);
       const outcome = await store.create(task);
-      if (outcome.status === "unit-missing") return refused({ unitId: "Choose an apartment from the list." });
+      if (outcome.status === "unit-missing") return refused({ unitId: "Choose a room from the list." });
       await record(actor, "task.reported", task, `Reported "${task.title}" in ${unit.name}`);
       return done({ id: task.id });
     },
@@ -277,8 +277,8 @@ export function createTaskService(deps: TaskServiceDependencies) {
       const parsed = parseWith(unitStatusSchema, input);
       if (!parsed.ok) return refused(parsed.errors);
       const unit = await knownUnit(parsed.value.unitId);
-      if (!unit) return refused({ unitId: "Choose an apartment from the list." });
-      if (!(await store.setUnitStatus({ ...parsed.value, updatedAt: clock.now(), updatedBy: actor.id }))) return refused({ unitId: "Choose an apartment from the list." });
+      if (!unit) return refused({ unitId: "Choose a room from the list." });
+      if (!(await store.setUnitStatus({ ...parsed.value, updatedAt: clock.now(), updatedBy: actor.id }))) return refused({ unitId: "Choose a room from the list." });
       await audit.record({ actor, category: "tasks", action: "unit.status-set", target: { type: "unit", id: unit.id }, summary: `Marked ${unit.name} ${parsed.value.status}` });
       return done();
     },

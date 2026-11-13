@@ -33,8 +33,8 @@ export function testActor(role: Role): Actor {
 }
 
 export const testRatedApartments: RatedApartment[] = [
-  { slug: "family-shower", name: "Family apartment with shower", sleeps: 5 },
-  { slug: "deluxe-double-bath", name: "Deluxe double apartment with bath", sleeps: 2 },
+  { slug: "family-shower", name: "Family room with shower", sleeps: 5 },
+  { slug: "deluxe-double-bath", name: "Deluxe double room with bath", sleeps: 2 },
 ];
 
 /** A rate service on a memory store, at 10:00 SAST on Thursday 12 November 2026. */

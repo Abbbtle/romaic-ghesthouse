@@ -53,10 +53,10 @@ describe("rate service", () => {
     const { service, audit } = rateHarness();
     assert.deepEqual(await service.savePlan(sales, "family-shower", { nightly: "850", baseGuests: "2", extraGuest: "150", minNights: "2", active: "on" }), { ok: true });
     assert.deepEqual((await service.overview(owner)).plans["family-shower"]?.nightlyCents, 85_000);
-    assert.match(audit.events[0]!.summary, /^Set Family apartment with shower to R850 a night for up to 2, R150 per extra guest, at least 2 nights$/);
+    assert.match(audit.events[0]!.summary, /^Set Family room with shower to R850 a night for up to 2, R150 per extra guest, at least 2 nights$/);
     assert.deepEqual(await service.savePlan(owner, "deluxe-double-bath", { nightly: "900", baseGuests: "3", extraGuest: "0", minNights: "1", active: "on" }), {
       ok: false,
-      errors: { baseGuests: "This apartment sleeps up to 2, so the price can be for 2 at most." },
+      errors: { baseGuests: "This room sleeps up to 2, so the price can be for 2 at most." },
     });
     assert.equal((await service.savePlan(owner, "nowhere", { nightly: "900", baseGuests: "1", extraGuest: "0", minNights: "1" })).ok, false);
     const bad = await service.savePlan(owner, "family-shower", { nightly: "0.50", baseGuests: "0", extraGuest: "abc", minNights: "40" });
@@ -84,7 +84,7 @@ describe("rate service", () => {
     });
     assert.deepEqual(await service.addSeason(owner, { name: "Nothing", firstNight: "2027-02-01", lastNight: "2027-02-02", minNights: "" }), {
       ok: false,
-      errors: { form: "Give the season a price for at least one apartment, or a minimum stay, or it changes nothing." },
+      errors: { form: "Give the season a price for at least one room type, or a minimum stay, or it changes nothing." },
     });
     assert.deepEqual(await service.addSeason(owner, { name: "Bad", firstNight: "2027-02-05", lastNight: "2027-02-01", minNights: "", "price.family-shower": "R12x" }), {
       ok: false,

@@ -28,10 +28,10 @@ function intro(noun = "the introduction") {
 
 // --- home ------------------------------------------------------------------------------
 
-/** One of the poster's rows: an icon, a title and a line or two ("In your apartment"). */
+/** One of the poster's rows: an icon, a title and a line or two ("In your room"). */
 export const highlightSchema = z.object({
   icon: z.enum(contentIcons, { error: "Choose an icon." }),
-  title: textField({ noun: "the title", max: textLimits.label, required: "Enter the title, like In your apartment." }),
+  title: textField({ noun: "the title", max: textLimits.label, required: "Enter the title, like In your room." }),
   lines: listField(textField({ noun: "each line", max: textLimits.listLine, required: "Enter the line, or remove it." }), listLimits.highlightLines, {
     one: "line",
     many: "lines",
@@ -61,12 +61,12 @@ export const homeSchema = z.object({
 // --- apartments ------------------------------------------------------------------------
 
 export const apartmentSchema = z.object({
-  /** The page's address (/apartments/<slug>) and how units are assigned to it. */
+  /** The page's address (/rooms/<slug>) and how units are assigned to it. */
   slug: slugField("the link name"),
-  name: textField({ noun: "the name", max: textLimits.label, required: "Enter the apartment's name." }),
-  /** One sentence for the apartment's card. */
-  summary: textField({ noun: "the summary", max: textLimits.listLine * 2, required: "Enter a sentence about the apartment for its card." }),
-  /** Paragraphs for the apartment's page; "" for none. */
+  name: textField({ noun: "the name", max: textLimits.label, required: "Enter the room's name." }),
+  /** One sentence for the room's card. */
+  summary: textField({ noun: "the summary", max: textLimits.listLine * 2, required: "Enter a sentence about the room for its card." }),
+  /** Paragraphs for the room's page; "" for none. */
   description: textField({ noun: "the description", max: textLimits.passage, multiline: true }),
   /** The most guests it sleeps: the Book page offers it to groups up to this size. */
   sleeps: wholeNumberField({ noun: "how many it sleeps", min: 1, max: 12 }),
@@ -92,8 +92,8 @@ export type Apartment = z.output<typeof apartmentSchema>;
 export const apartmentsSchema = z.object({
   heading: heading(),
   intro: intro(),
-  items: listField(apartmentSchema, listLimits.apartments, { one: "apartment", many: "apartments" }).superRefine((items, context) =>
-    refineUnique(items, context, { key: (item) => item.slug, field: "slug", message: "Another apartment already uses this link name." }),
+  items: listField(apartmentSchema, listLimits.apartments, { one: "room type", many: "room types" }).superRefine((items, context) =>
+    refineUnique(items, context, { key: (item) => item.slug, field: "slug", message: "Another room type already uses this link name." }),
   ),
 });
 
@@ -234,7 +234,7 @@ export const bookSchema = z.object({
 export const messagePlaceholders = [
   "guestName",
   "ref",
-  "apartment",
+  "room",
   "arrive",
   "leave",
   "nights",
@@ -246,10 +246,24 @@ export const messagePlaceholders = [
   "checkOutUntil",
 ] as const;
 
-export type MessagePlaceholder = (typeof messagePlaceholders)[number];
+/**
+ * Placeholders' former names, which messages saved earlier may still use:
+ * {room} was {apartment} until the client confirmed Romaic has rooms, never
+ * apartments. They're accepted and filled in, but never suggested.
+ */
+export const formerMessagePlaceholders = ["apartment"] as const;
+
+export type MessagePlaceholder = (typeof messagePlaceholders)[number] | (typeof formerMessagePlaceholders)[number];
 
 function messageText(noun: string) {
-  return placeholderTextField({ noun, max: textLimits.rule * 2, required: `Enter ${noun}.`, multiline: true, placeholders: messagePlaceholders });
+  return placeholderTextField({
+    noun,
+    max: textLimits.rule * 2,
+    required: `Enter ${noun}.`,
+    multiline: true,
+    placeholders: messagePlaceholders,
+    formerPlaceholders: formerMessagePlaceholders,
+  });
 }
 
 /**

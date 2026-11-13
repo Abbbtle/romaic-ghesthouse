@@ -91,7 +91,7 @@ All three claims come from the host's listing text and still need the client's c
   - a confirmation page;
   - Privacy (POPIA);
   - 404 and error pages.
-- **Apartments:** the listing has seven types, from a wheelchair-accessible family unit to doubles with a bath; the client calls them apartments. Units per type, real sizes and prices are unknown. Never publish the listing's identical "108 ft²" sizes.
+- **Rooms:** the listing has seven room types, from a wheelchair-accessible family room to doubles with a bath. Every room has a kitchenette. Units per type, real sizes and prices are unknown. Never publish the listing's identical "108 ft²" sizes.
 - **Everything visible is editable** in the dashboard and goes live without a redeploy: text, images, prices, rooms and policies. Layouts must survive longer names, more or fewer rooms and swapped photos.
 - **Formats:**
   - prices as "R1,250" (ledger views show cents);
@@ -157,8 +157,8 @@ All three claims come from the host's listing text and still need the client's c
     - a full-width Midnight Navy contact bar at the bottom edge (gold label, white bold contact text, gold line icons).
   - **Photography:** warm golden light (lamps on, dusk), rich reds, golds and creams, real spaces, tidy and straight, framed in thin gold.
 - **Positioning (the brand guide marks it as a suggestion):** "For business travellers, contractors and families visiting Welkom, Romaic Guesthouse is a warm, secure home base — upmarket in feel, affordable in spirit, and always connected." Personality: warm, safe, homely, upmarket yet affordable.
-- **Terminology:** the client calls the units **"spacious apartments"**. The site says "apartments", not "rooms".
-- **Tagline lead:** "Spacious. Comfortable. Reliable." comes from the Booking.com listing. It isn't in the brand guide, which headlines "Spacious Apartments". Not binding.
+- **Terminology (client's correction, 2026-11-13):** Romaic is a guesthouse with **rooms**. Never call them "apartments" in anything a guest or the owner reads; say "room" or "room type", and mention the kitchenette as a feature. The code keeps `apartments`/`Apartment` as internal names (content section key, types, tables, the `/admin/apartments` path) so stored data keeps working; the public pages are at `/rooms`, and `/apartments` redirects there permanently.
+- **Tagline lead:** "Spacious. Comfortable. Reliable." comes from the Booking.com listing. It isn't in the brand guide, which headlines "Spacious Apartments" (superseded by the client's correction above). Not binding.
 - **Contact (from the brand guide and posters):** WhatsApp or call +27 76 957 9928 (076 957 9928); guesthouseromaic@gmail.com; 286 Stateway, Bedelia, Welkom.
 - **Visual direction (chosen by the client, 2026-11-12):** the classic accommodation-site layout, done at full craft. That means a large real photo, the name, a dates-and-guests search, then room cards. Convention is the commitment: it's executed without irony or smuggled quirks, and the quality bar is set by the best-performing accommodation sites (references recorded in DESIGN.md). Other directions offered and not chosen: Pantry Pack, Face Brick and Stoep, Clear-Line Drawings, Steel Window Panes.
 - **Voice (brand guide):** warm, clear and reassuring. Speak like a welcoming host: short sentences, real amenities, always end with how to book, and no claims we can't show. Sentence case in running text; British/South African spelling.
@@ -179,7 +179,7 @@ All three claims come from the host's listing text and still need the client's c
 
   Unconfirmed by the client.
 - **Client facts (brand guide and posters, 2026-11-12):**
-  - spacious apartments within walking distance of the CBD;
+  - spacious rooms (the guide says "apartments"; see Terminology) within walking distance of the CBD;
   - fast Wi-Fi, always online;
   - microwave and fridge, iron and board, 3 L drinking water, coffee, tea and cookies;
   - backup gas geysers and two JoJo water tanks;

@@ -103,7 +103,7 @@ function DateTile({
  * missing says what to add.
  *
  * With `action` it's a plain GET form to the Book page (arrive, leave,
- * guests and, from an apartment's page, the apartment), so it works before
+ * guests and, from a room's page, the room as `apartment`), so it works before
  * scripts load and the result has an address a guest can share; the Book
  * page checks it all again on the server. `onSearch` is for the design
  * preview, which handles the search itself.
@@ -117,7 +117,7 @@ export function DatesSearch({
   action,
   apartment,
   initialProblem,
-  submitLabel = "Show free apartments",
+  submitLabel = "Show free rooms",
   label = "Check dates",
   onSearch,
   className,
@@ -130,7 +130,7 @@ export function DatesSearch({
   today?: string;
   /** Where the search goes, as a GET form ("/book"). */
   action?: string;
-  /** An apartment to ask about, carried to the Book page. */
+  /** A room type to ask about (its link name), carried to the Book page. */
   apartment?: string;
   /** What the server found wrong with the last search, shown until either day changes. */
   initialProblem?: string;

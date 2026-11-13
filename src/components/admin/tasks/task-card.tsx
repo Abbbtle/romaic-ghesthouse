@@ -158,7 +158,7 @@ export function TaskCard({
             optional
             rows={3}
             maxLength={taskFieldLimits.noteMax}
-            hint={task.kind === "housekeeping" ? "Anything the next person should know. The apartment is marked clean." : "What you did, or anything still to sort out."}
+            hint={task.kind === "housekeeping" ? "Anything the next person should know. The room is marked clean." : "What you did, or anything still to sort out."}
           />
         </ActionForm>
       )}

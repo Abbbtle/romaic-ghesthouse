@@ -35,7 +35,7 @@ describe("finding the content", () => {
     assert.equal(contentPageHref("site"), "/");
     assert.equal(contentPageHref("contact"), "/contact");
     assert.equal(contentPageHref("bookingTerms"), "/policies");
-    assert.equal(contentPageHref("apartments"), "/apartments");
+    assert.equal(contentPageHref("apartments"), "/rooms");
     assert.equal(contentPageHref("contactPage"), "/contact");
     assert.equal(contentPageHref("privacy"), "/privacy");
   });

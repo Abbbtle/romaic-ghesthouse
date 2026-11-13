@@ -28,6 +28,8 @@ export function guestMessages(
   const values: Record<MessagePlaceholder, string> = {
     guestName: booking.guest.name.split(" ")[0] ?? booking.guest.name,
     ref: booking.ref,
+    room: apartmentName,
+    // Messages saved before {room} was renamed from {apartment}.
     apartment: apartmentName,
     arrive: formatDayShort(booking.stay.arrive),
     leave: formatDayShort(booking.stay.leave),

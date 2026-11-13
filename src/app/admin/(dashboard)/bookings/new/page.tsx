@@ -60,9 +60,9 @@ export default async function NewBookingPage({ searchParams }: PageProps<"/admin
           />
         ) : (
           <EmptyState title="Add units first">
-            Bookings are for a unit. Add the real apartments behind each kind on the{" "}
+            Bookings are for a unit. Add the real rooms behind each room type on the{" "}
             <a href={adminRoutes.apartments} className="font-bold underline underline-offset-4">
-              Apartments
+              Rooms
             </a>{" "}
             page.
           </EmptyState>

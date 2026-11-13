@@ -48,7 +48,7 @@ export type StaffStay = {
   serviceNotes: string | null;
 };
 
-/** A stay on the Today screen for someone who may see bookings: everything, with the unit's and apartment's names. */
+/** A stay on the Today screen for someone who may see bookings: everything, with the unit's and room type's names. */
 export type TodayStay = BookingWithGuest & { unitName: string; apartmentName: string };
 
 export type TodayView<Stay> = { today: IsoDate; arrivals: Stay[]; departures: Stay[]; inHouse: Stay[] };
@@ -280,7 +280,7 @@ export function createReservationService(deps: ReservationServiceDependencies) {
       const request = await deps.requests.request(requestId);
       if (!request || statusOn(request, today()) !== "waiting") return refusedWith("This request was already handled, or it has expired. Reload the page.");
       const unit = await unitFor(parsed.value.unitId);
-      if (!unit || unit.apartment !== request.apartment) return refused({ unitId: "Choose a unit of the apartment the guest asked for." });
+      if (!unit || unit.apartment !== request.apartment) return refused({ unitId: "Choose a unit of the room type the guest asked for." });
       const now = clock.now();
       const existing = (await store.searchGuests(request.phone, 5)).find((candidate) => candidate.phone === request.phone) ?? null;
       const newGuest: Guest | null = existing

@@ -3,7 +3,7 @@ import type { SiteNavLink } from "./mobile-menu";
 
 /** The main pages, in the header and the phone menu. */
 export const mainNav: readonly SiteNavLink[] = [
-  { href: sitePagePaths.apartments, label: "Apartments" },
+  { href: sitePagePaths.apartments, label: "Rooms" },
   { href: sitePagePaths.facilities, label: "Facilities" },
   { href: sitePagePaths.location, label: "Location" },
   { href: sitePagePaths.gallery, label: "Gallery" },

@@ -8,7 +8,7 @@ import type { BookSection } from "@/lib/content/schema";
  */
 export const bookDefaults: BookSection = {
   heading: "Book your stay",
-  intro: "Choose your dates and how many of you are coming, and we'll show you the apartments that fit.",
+  intro: "Choose your dates and how many of you are coming, and we'll show you the rooms that fit.",
   requestNote: "This is a booking request, not a confirmed booking. We'll check it and reply on WhatsApp or by email to confirm your stay.",
   consent: {
     label: "I agree that Romaic Guesthouse may use the details I've given to reply to this request and arrange my stay, as the privacy notice explains.",

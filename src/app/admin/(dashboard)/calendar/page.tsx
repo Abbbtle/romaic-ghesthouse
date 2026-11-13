@@ -130,7 +130,7 @@ export default async function CalendarPage({ searchParams }: PageProps<"/admin/c
               ) : undefined
             }
           >
-            The calendar shows each unit once it&apos;s been added under Apartments.
+            The calendar shows each unit once it&apos;s been added under Rooms.
           </EmptyState>
         ) : (
           <div className="relative min-w-0 overflow-x-auto rounded-md border border-hairline bg-white" tabIndex={0} role="region" aria-label={`Units by night, ${stayLabel({ arrive: view.from, leave: view.until })}`}>
@@ -169,7 +169,7 @@ export default async function CalendarPage({ searchParams }: PageProps<"/admin/c
                   <tr key={unit.id}>
                     <th scope="row" className="sticky left-0 z-10 border-b border-hairline bg-white px-2 py-2 text-left align-middle sm:px-3">
                       <span className="block font-bold break-words text-ink">{unit.name}</span>
-                      {/* On phones the unit's name is enough to scan by; screen readers still hear the apartment. */}
+                      {/* On phones the unit's name is enough to scan by; screen readers still hear the room type. */}
                       <span className="sr-only text-xs font-normal text-fg-3 sm:not-sr-only sm:block sm:truncate">{unit.apartmentName}</span>
                     </th>
                     {chartRow(unit.id, view.blocks, view.from, view.until).map((cell) => (

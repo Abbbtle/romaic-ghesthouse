@@ -28,9 +28,9 @@ export type SeasonRow = {
   lastNight: string;
   nightsLabel: string;
   minNights: number | null;
-  /** Prices as a form shows them, by apartment slug. */
+  /** Prices as a form shows them, by room type slug. */
   prices: Record<string, string>;
-  /** "Family apartment with shower: R1,100 a night". */
+  /** "Family room with shower: R1,100 a night". */
   priceLines: string[];
 };
 
@@ -59,7 +59,7 @@ function planProblems(sleeps: number) {
     const errors: FieldErrors = {};
     if (!isAmount(text("nightly"))) errors.nightly = "Enter the price of a night, like 850.";
     const base = whole("baseGuests");
-    if (!(base >= 1 && base <= sleeps)) errors.baseGuests = `Enter 1 to ${sleeps}: this apartment sleeps up to ${sleeps}.`;
+    if (!(base >= 1 && base <= sleeps)) errors.baseGuests = `Enter 1 to ${sleeps}: this room sleeps up to ${sleeps}.`;
     if (!isAmount(text("extraGuest"))) errors.extraGuest = "Enter the charge per extra guest, or 0.";
     const nights = whole("minNights");
     if (!(nights >= 1 && nights <= 30)) errors.minNights = "Enter the shortest stay, 1 to 30 nights.";
@@ -79,7 +79,7 @@ function seasonProblems(data: FormData): FieldErrors {
   if (minNights && !(/^\d+$/.test(minNights) && Number(minNights) >= 1 && Number(minNights) <= 30)) errors.minNights = "Enter 1 to 30 nights, or leave it empty.";
   const prices = [...data.keys()].filter((key) => key.startsWith("price."));
   for (const key of prices) if (text(key) && !isAmount(text(key))) errors[key] = "Enter the price in rand, like 950, or leave it empty.";
-  if (!prices.some((key) => text(key)) && !minNights) errors.form = "Give the season a price for at least one apartment, or a minimum stay.";
+  if (!prices.some((key) => text(key)) && !minNights) errors.form = "Give the season a price for at least one room type, or a minimum stay.";
   return errors;
 }
 
@@ -97,11 +97,11 @@ function SeasonFields({ apartments, season }: { apartments: readonly RatedApartm
         label="Shortest stay in this season"
         optional
         defaultValue={season?.minNights ?? undefined}
-        hint="Nights. Leave it empty to keep each apartment's own minimum."
+        hint="Nights. Leave it empty to keep each room type's own minimum."
       />
       <fieldset className="grid gap-3">
         <legend className="mb-1 text-sm font-bold text-ink">Nightly price in this season</legend>
-        <p className="text-sm text-fg-3">Leave an apartment empty to keep its usual price. Extra guest charges stay as they are.</p>
+        <p className="text-sm text-fg-3">Leave a room type empty to keep its usual price. Extra guest charges stay as they are.</p>
         <div className="grid gap-4 sm:grid-cols-2">
           {apartments.map((apartment) => (
             <TextField
@@ -120,7 +120,7 @@ function SeasonFields({ apartments, season }: { apartments: readonly RatedApartm
   );
 }
 
-/** One apartment's rate, in its sheet: the price, who it's for, the shortest stay, and (once there's a rate) whether the website shows it. */
+/** One room type's rate, in its sheet: the price, who it's for, the shortest stay, and (once there's a rate) whether the website shows it. */
 function PlanForm({
   apartment,
   actions,
@@ -197,7 +197,7 @@ function PlanForm({
 }
 
 /**
- * Nightly rates and seasons (Pattern: settings list). Each apartment's rate
+ * Nightly rates and seasons (Pattern: settings list). Each room type's rate
  * is what the website shows ("From R850 a night") and what a stay costs;
  * seasons change the nightly price or the shortest stay for their nights.
  * Without a rate, the website says "Price on request". Only the owner and
@@ -210,11 +210,11 @@ export function RatesScreen({ apartments, seasons, canManage, actions }: RatesSc
 
   return (
     <>
-      <PageHeader title="Rates" description="What a night costs in each apartment, and seasons with different prices. The website shows these prices." />
+      <PageHeader title="Rates" description="What a night costs in each room type, and seasons with different prices. The website shows these prices." />
       <div className="grid max-w-admin gap-8">
         {noRates && apartments.length > 0 && (
           <Notice tone="info" live="off" title="No rates yet">
-            Until an apartment has a rate, the website says &ldquo;Price on request&rdquo; for it, and guests ask for a price when they send a request.
+            Until a room type has a rate, the website says &ldquo;Price on request&rdquo; for it, and guests ask for a price when they send a request.
           </Notice>
         )}
 
@@ -222,7 +222,7 @@ export function RatesScreen({ apartments, seasons, canManage, actions }: RatesSc
           <h2 id="plans-title" className="text-h3 font-bold text-ink">
             Nightly rates
           </h2>
-          {apartments.length === 0 && <EmptyState title="No apartments on the website">Add apartments in Website › Apartments, then set their rates here.</EmptyState>}
+          {apartments.length === 0 && <EmptyState title="No room types on the website">Add room types in Website › Rooms, then set their rates here.</EmptyState>}
           {apartments.length > 0 && (
             <ul className="divide-y divide-hairline rounded-md border border-hairline bg-white">
               {apartments.map((apartment) => (
@@ -288,7 +288,7 @@ export function RatesScreen({ apartments, seasons, canManage, actions }: RatesSc
                               variant="ghost"
                               tone="primary"
                               title={`Remove the season ${season.name}?`}
-                              description="Its nights go back to each apartment's usual price and shortest stay. Bookings already made keep their price."
+                              description="Its nights go back to each room type's usual price and shortest stay. Bookings already made keep their price."
                               confirmLabel="Remove season"
                               pendingLabel="Removing…"
                               action={() => actions.removeSeason(season.id)}
@@ -305,7 +305,7 @@ export function RatesScreen({ apartments, seasons, canManage, actions }: RatesSc
               ))}
             </ul>
           ) : (
-            <p className="rounded-md border border-hairline bg-white px-4 py-3 text-sm text-fg-3">No seasons: every night is at each apartment&apos;s usual price.</p>
+            <p className="rounded-md border border-hairline bg-white px-4 py-3 text-sm text-fg-3">No seasons: every night is at each room type&apos;s usual price.</p>
           )}
           {canManage && apartments.length > 0 && (
             <Panel title="Add a season">

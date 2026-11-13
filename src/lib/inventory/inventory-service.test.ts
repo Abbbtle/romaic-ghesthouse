@@ -100,7 +100,7 @@ describe("inventory service", () => {
     assert.equal(added.ok, true);
     const id = added.ok ? added.id : "";
     assert.deepEqual(await service.addUnit(owner, { apartment: "family-shower", name: "unit 1" }), { ok: false, errors: { name: "Another unit already has this name." } });
-    assert.deepEqual(await service.addUnit(owner, { apartment: "nowhere", name: "Unit 9" }), { ok: false, errors: { apartment: "Choose an apartment from the list." } });
+    assert.deepEqual(await service.addUnit(owner, { apartment: "nowhere", name: "Unit 9" }), { ok: false, errors: { apartment: "Choose a room type from the list." } });
     const block = await service.addBlock(owner, { unitId: id, arrive: "2026-12-01", leave: "2026-12-04", reason: "maintenance", note: "Painting" });
     assert.equal(block.ok, true);
     assert.deepEqual(await service.addBlock(owner, { unitId: id, arrive: "2026-12-03", leave: "2026-12-05", reason: "owner", note: "" }), {
@@ -122,7 +122,7 @@ describe("inventory service", () => {
         ["bookings", "inventory.unit-changed"],
       ],
     );
-    assert.match(audit.events[3]!.summary, /renamed from Unit 1, moved to Deluxe double apartment with bath, no longer offered/);
+    assert.match(audit.events[3]!.summary, /renamed from Unit 1, moved to Deluxe double room with bath, no longer offered/);
   });
 
   it("refuses admin and staff everything in the dashboard", async () => {
@@ -152,7 +152,7 @@ describe("inventory service", () => {
   it("flags units whose apartment type has left the site's content", async () => {
     const { service, store, setApartmentTypes } = inventoryHarness();
     await store.addUnit(testUnit("u1", "Unit 1", "family-shower"), { maxUnits: 10 });
-    setApartmentTypes([{ slug: "family-apartment", name: "Family apartment", sleeps: 5, published: true }]);
+    setApartmentTypes([{ slug: "family-apartment", name: "Family room", sleeps: 5, published: true }]);
     assert.deepEqual((await service.overview(owner)).orphanUnits.map((unit) => unit.id), ["u1"]);
   });
 });

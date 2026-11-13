@@ -45,10 +45,10 @@ function UnitRow({ unit, action }: { unit: UnitStatusRow; action: FormAction | n
   );
 }
 
-/** Each apartment's housekeeping status, worst first, which anyone with rooms:status can change. */
+/** Each room's housekeeping status, worst first, which anyone with rooms:status can change. */
 export function UnitStatuses({ units, action }: { units: readonly UnitStatusRow[]; action: FormAction | null }) {
   return (
-    <ul aria-label="Apartment statuses" className="divide-y divide-hairline">
+    <ul aria-label="Room statuses" className="divide-y divide-hairline">
       {units.map((unit) => (
         <UnitRow key={unit.unitId} unit={unit} action={action} />
       ))}
