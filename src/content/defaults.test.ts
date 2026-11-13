@@ -116,9 +116,11 @@ describe("privacy notice draft", () => {
 
   it("says it's a draft and leaves every unknown legal fact for the owner", () => {
     assert.match(body, /^\*\*Draft for the owner to review/);
-    for (const blank of ["companies that process", "country where the website's data is stored", "how long you keep", "name of the Information Officer"]) {
+    for (const blank of ["companies that process", "country where the website's data is stored", "how long you keep"]) {
       assert.ok(body.includes(blank), blank);
     }
+    // The Information Officer's details come from the owner's Privacy page in the dashboard (a marked placeholder on the site until given), never from this text.
+    assert.match(body, /## Information Officer\n\nThe Information Officer answers for how we handle personal information\./);
     assert.equal(contentDefaults.privacy.version, "0.1");
   });
 

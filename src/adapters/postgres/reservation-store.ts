@@ -228,7 +228,8 @@ export function createPostgresReservationStore(db: Database): ReservationStore {
 
     async updateGuest(guest) {
       if (!isUuid(guest.id)) return false;
-      const { changes } = await db.run("update app.guests set name = :name, phone = :phone, email = :email, notes = :notes, updated_at = :updatedAt where id = :id", {
+      // An anonymised guest stays anonymised (migration 400): their details can't be filled in again.
+      const { changes } = await db.run("update app.guests set name = :name, phone = :phone, email = :email, notes = :notes, updated_at = :updatedAt where id = :id and anonymised_at is null", {
         id: guest.id,
         name: guest.name,
         phone: guest.phone,

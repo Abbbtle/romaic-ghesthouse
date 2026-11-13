@@ -283,3 +283,25 @@ describe("the Books and Tax pages, actions and downloads (Phase 4)", () => {
     for (const path of routes) assert.match(readFileSync(path, "utf8"), /can\(actor, "finance:export"\)/, path);
   });
 });
+
+describe("the Reports pages and downloads (Phase 5)", () => {
+  // Read from the source: the money reports need reports:revenue (owner only, a finance permission); the house reports need reports:operations, which admin doesn't hold either.
+  const root = "src/app/admin/(dashboard)/reports";
+  const source = (path: string) => readFileSync(join(root, path), "utf8");
+
+  it("keeps the money reports behind reports:revenue, and admin off the house reports", () => {
+    assert.match(source("revenue/page.tsx"), /requireDashboardActor\(\{ permission: "reports:revenue" \}\)/);
+    assert.ok(isFinancePermission("reports:revenue"));
+    assert.match(source("page.tsx"), /requireDashboardActor\(\{ permission: "reports:operations" \}\)/);
+    assert.equal(can(admin, "reports:operations"), false);
+    assert.equal(can(staff, "reports:operations"), false);
+  });
+
+  it("asks for finance:export with a recent step-up, and reports:revenue, before a money report downloads", () => {
+    const route = source("export/[report]/route.ts");
+    assert.match(route, /routeDashboardActor\(downloadRequirement\(report\)\)/);
+    assert.match(route, /can\(actor, "reports:revenue"\) && can\(actor, "finance:export"\)/);
+    // The requirement itself lives with the reports' model, where the links are made.
+    assert.match(readFileSync("src/components/admin/reports/report-model.ts", "utf8"), /isRevenueReport\(kind\) \? \{ permission: "finance:export", stepUp: true \}/);
+  });
+});

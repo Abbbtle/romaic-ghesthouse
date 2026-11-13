@@ -14,6 +14,8 @@ export const adminRoutes = {
   apartments: "/admin/apartments",
   books: "/admin/books",
   tax: "/admin/tax",
+  reports: "/admin/reports",
+  privacy: "/admin/privacy",
   content: "/admin/content",
   team: "/admin/team",
   audit: "/admin/audit",
@@ -22,7 +24,7 @@ export const adminRoutes = {
 } as const;
 
 /** The dashboard's sections, in navigation order. */
-export const adminSections = ["today", "bookings", "requests", "tasks", "content", "calendar", "guests", "rates", "channels", "apartments", "books", "tax", "team", "audit"] as const;
+export const adminSections = ["today", "bookings", "requests", "tasks", "content", "calendar", "guests", "rates", "channels", "apartments", "reports", "books", "tax", "privacy", "team", "audit"] as const;
 
 export type AdminSection = (typeof adminSections)[number];
 
@@ -61,8 +63,10 @@ export const adminNavigation: readonly AdminNavItem[] = [
   { section: "rates", href: adminRoutes.rates, label: "Rates", group: "secondary", permission: "rates:view" },
   { section: "channels", href: adminRoutes.channels, label: "Channels", group: "secondary", permission: "channels:status" },
   { section: "apartments", href: adminRoutes.apartments, label: "Apartments", group: "secondary", permission: "availability:view" },
+  { section: "reports", href: adminRoutes.reports, label: "Reports", group: "secondary", permission: "reports:operations" },
   { section: "books", href: adminRoutes.books, label: "Books", group: "secondary", permission: "ledger:view" },
   { section: "tax", href: adminRoutes.tax, label: "Tax", group: "secondary", permission: "tax:manage" },
+  { section: "privacy", href: adminRoutes.privacy, label: "Privacy", group: "secondary", permission: "privacy:requests" },
   { section: "team", href: adminRoutes.team, label: "Team", group: "secondary", permission: "team:view" },
   { section: "audit", href: adminRoutes.audit, label: "Activity", group: "secondary", permission: "audit:view" },
 ];

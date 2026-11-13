@@ -5,7 +5,7 @@ import { inventoryStoreContract, testBlock, testUnit } from "@/lib/inventory/tes
 import { createPostgresBookingStore } from "./booking-store";
 import { ExclusionViolationError } from "./errors";
 import { createPostgresInventoryStore } from "./inventory-store";
-import { reservationStoreContract } from "@/lib/reservations/testing/store-contract";
+import { blockOf, reservationStoreContract, testBooking, testGuest } from "@/lib/reservations/testing/store-contract";
 import { createPostgresReservationStore } from "./reservation-store";
 import type { TestDatabases } from "./testing/test-databases";
 
@@ -70,6 +70,21 @@ export function describeStaysStoresContract(databases: TestDatabases): void {
       assert.deepEqual(row, { consent_version: "0.1", notice_version: "0.1" });
       await assert.rejects(store.create(testRequest({ ref: "RG-IIIII", phone: "+27830000077" }), { maxWaitingPerPhone: 3, today }));
       await assert.rejects(store.create(testRequest({ phone: "0821234567" }), { maxWaitingPerPhone: 3, today }));
+    });
+  });
+
+  describe(`${databases.label}: anonymised guests`, () => {
+    it("won't take a guest's details back once they're anonymised", async () => {
+      const db = databases.migrated();
+      const reservations = createPostgresReservationStore(db);
+      const inventory = createPostgresInventoryStore(db);
+      await inventory.addUnit(testUnit("00000000-0000-4000-8000-00000000a0a1", "Unit 1"), { maxUnits: 10 });
+      const guest = testGuest("00000000-0000-4000-8000-00000000c001");
+      const booking = testBooking("00000000-0000-4000-8000-00000000d001", guest.id);
+      await reservations.create({ newGuest: guest, booking, block: blockOf(booking, "00000000-0000-4000-8000-0000000b0001") });
+      await db.run("update app.guests set name = 'Anonymised guest', phone = null, email = null, notes = null, anonymised_at = now() where id = :id", { id: guest.id });
+      assert.equal(await reservations.updateGuest({ ...guest, name: "Thandi Mokoena" }), false);
+      assert.equal((await reservations.guest(guest.id))?.name, "Anonymised guest");
     });
   });
 

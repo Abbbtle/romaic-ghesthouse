@@ -436,7 +436,7 @@ export function createReservationService(deps: ReservationServiceDependencies) {
       if (!guest) return refusedWith("This guest no longer exists. Reload the page.");
       if (!parsed.value.phone && !parsed.value.email) return refused({ phone: "Keep a phone number or an email address, so you can reach the guest." });
       const updated = await store.updateGuest({ ...guest, ...parsed.value, updatedAt: clock.now() });
-      if (!updated) return refusedWith("This guest no longer exists. Reload the page.");
+      if (!updated) return refusedWith("This guest was removed or anonymised, so their details can't be changed. Reload the page.");
       await audit.record({ actor, category: "guests", action: "guest.changed", target: { type: "guest", id }, summary: `Changed guest details for ${parsed.value.name}` });
       return done();
     },
