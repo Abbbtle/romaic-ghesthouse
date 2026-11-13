@@ -1,0 +1,51 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+
+# testing
+/coverage
+
+# next.js
+/.next
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+!src/adapters/postgres/certs/*.pem
+
+# debug
+npm-debug.log*
+
+# env files (the documented template is committed)
+.env*
+!.env.example
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# The local development database (PGlite). The ".nosync" suffix keeps iCloud
+# Drive from syncing it, because ~/Desktop is synced and iCloud has corrupted
+# working files in this folder tree before.
+/data.nosync/
+
+# Local review notes written by the Arxitect reviewer agents
+.claude/agent-memory-local/
+
+# Agent skills that tools install for local use (e.g. the Supabase integration)
+/.agents/
+/.claude/skills/
+/skills-lock.json
+
+# Internal planning notes, research and client updates (kept locally, not published)
+/docs/planning/
+/.next.nosync/
+.claude/settings.local.json
